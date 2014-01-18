@@ -55,6 +55,7 @@
     <Reference Include="Microsoft.TeamFoundation.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.TeamFoundation.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
@@ -157,6 +158,7 @@
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\SelectChangesetEvent.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\RecentChangesetSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">

@@ -15,13 +15,16 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ListView Grid.Row="0" ItemsSource="{Binding Path=ParentSection.Branches}">
+        <WrapPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,6">
+            <Button Click="Merge">Merge</Button>
+        </WrapPanel>
+        <ListView Grid.Row="1" ItemsSource="{Binding Path=ParentSection.Branches}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Checked}" IsThreeState="False" />
+                                <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" IsThreeState="False" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -30,8 +33,5 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <WrapPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,6">
-            <TextBlock><Hyperlink Command="{Binding Path=ParentSection.MergeCommand}">Merge</Hyperlink></TextBlock>
-        </WrapPanel>
     </Grid>
 </UserControl>

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace AutoMerge
 {
@@ -23,5 +24,15 @@ namespace AutoMerge
 		}
 		public static readonly DependencyProperty ParentSectionProperty =
 			DependencyProperty.Register("ParentSection", typeof(RecentChangesetSection), typeof(RecentChangesetsView));
+
+		private void List_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+		{
+			ParentSection.ViewChangesetDetailsCommand.Execute(null);
+		}
+
+		private void List_KeyDown(object sender, KeyEventArgs e)
+		{
+			ParentSection.ViewChangesetDetailsCommand.Execute(null);
+		}
 	}
 }

@@ -23,5 +23,10 @@ namespace AutoMerge
 		}
 		public static readonly DependencyProperty ParentSectionProperty =
 			DependencyProperty.Register("ParentSection", typeof(BranchesSection), typeof(BranchesView));
+
+		private void Merge(object sender, RoutedEventArgs e)
+		{
+			ParentSection.MergeCommand.Execute(null);
+		}
 	}
 }

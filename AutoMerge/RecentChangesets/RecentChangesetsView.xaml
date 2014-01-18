@@ -17,7 +17,8 @@
         </Grid.RowDefinitions>
         <!-- Changesets list view -->
         <ListView Grid.Row="0" ItemsSource="{Binding Path=ParentSection.Changesets}" SelectedItem="{Binding Path=ParentSection.SelectedChangeset}" BorderThickness="0" 
-                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                  MouseDoubleClick="List_MouseDoubleClick" KeyDown="List_KeyDown">
             <ListView.View>
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>
