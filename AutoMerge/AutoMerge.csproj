@@ -152,6 +152,8 @@
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Branches\BranchNameConverter.cs" />
+    <Compile Include="Branches\MergeInfoModel.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\SelectChangesetEvent.cs" />
     <Compile Include="Guids.cs" />

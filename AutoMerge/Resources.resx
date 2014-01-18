@@ -123,4 +123,7 @@
 	<data name="RecentChangesetSectionName" xml:space="preserve">
     <value>My recent changesets</value>
   </data>
+	<data name="BrancheSectionName" xml:space="preserve">
+    <value>Branches</value>
+  </data>
 </root>

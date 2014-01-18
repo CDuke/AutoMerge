@@ -33,14 +33,14 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn>
+<!--                    <GridViewColumn>
                         <GridViewColumnHeader Content="Owner"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=OwnerDisplayName}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+                    </GridViewColumn>-->
                     <GridViewColumn>
                         <GridViewColumnHeader Content="Date"/>
                         <GridViewColumn.CellTemplate>
@@ -69,7 +69,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
+                                    <!--<RowDefinition Height="Auto"/>-->
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -80,14 +80,14 @@
                                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,6,3" Text="Changeset ID:" FontWeight="Bold"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=ChangesetId}"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Owner:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=OwnerDisplayName}"/>
+<!--                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Owner:" FontWeight="Bold"/>-->
+<!--                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=OwnerDisplayName}"/>-->
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,6,3" Text="Date:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=CreationDate}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Date:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=CreationDate}"/>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,6,3" Text="Comment:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=Comment}" TextWrapping="Wrap" MaxWidth="500"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,6,3" Text="Comment:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=Comment}" TextWrapping="Wrap" MaxWidth="500"/>
                             </Grid>
                         </Setter.Value>
                     </Setter>

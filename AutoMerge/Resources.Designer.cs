@@ -70,6 +70,15 @@ namespace AutoMerge {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Branches.
+        /// </summary>
+        internal static string BrancheSectionName {
+            get {
+                return ResourceManager.GetString("BrancheSectionName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to My recent changesets.
         /// </summary>
         internal static string RecentChangesetSectionName {
