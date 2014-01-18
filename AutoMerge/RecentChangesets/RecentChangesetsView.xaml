@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="AutoMerge.RecentChangesetsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter"/>
+    </UserControl.Resources>
+    <Grid Margin="6,6,6,6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- Changesets list view -->
+        <ListView Grid.Row="0" ItemsSource="{Binding Path=ParentSection.Changesets}" SelectedItem="{Binding Path=ParentSection.SelectedChangeset}" BorderThickness="0" 
+                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+            <ListView.View>
+                <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style>
+                            <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+                    <GridViewColumn>
+                        <GridViewColumnHeader Content="Changeset"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=ChangesetId}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumnHeader Content="Owner"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=OwnerDisplayName}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumnHeader Content="Date"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=CreationDate}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumnHeader Content="Comment"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Comment, Converter={StaticResource ChangesetCommentConverter}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}"/>
+                    <Setter Property="ToolTip">
+                        <Setter.Value>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,6,3" Text="Changeset ID:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=ChangesetId}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Owner:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=OwnerDisplayName}"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,6,3" Text="Date:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=CreationDate}"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,6,3" Text="Comment:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=Comment}" TextWrapping="Wrap" MaxWidth="500"/>
+                            </Grid>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+    </Grid>
+</UserControl>

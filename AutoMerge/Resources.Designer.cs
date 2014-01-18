@@ -68,5 +68,14 @@ namespace AutoMerge {
                 return ResourceManager.GetString("AutoMergePageName", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to My recent changesets.
+        /// </summary>
+        internal static string RecentChangesetSectionName {
+            get {
+                return ResourceManager.GetString("RecentChangesetSectionName", resourceCulture);
+            }
+        }
     }
 }

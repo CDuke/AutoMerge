@@ -120,4 +120,7 @@
   <data name="AutoMergePageName" xml:space="preserve">
     <value>Auto Merge</value>
   </data>
+	<data name="RecentChangesetSectionName" xml:space="preserve">
+    <value>My recent changesets</value>
+  </data>
 </root>

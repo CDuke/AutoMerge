@@ -1,6 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
+using Microsoft.Practices.Prism.ViewModel;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 
@@ -9,7 +9,7 @@ namespace AutoMerge.Base
 	/// <summary> 
 	/// Team Explorer plugin common base class. 
 	/// </summary> 
-	public class TeamExplorerBase : IDisposable, INotifyPropertyChanged
+	public class TeamExplorerBase : NotificationObject, IDisposable
 	{
 		private bool _disposed;
 		
@@ -100,24 +100,6 @@ namespace AutoMerge.Base
 
 		#endregion
 
-		#region INotifyPropertyChanged
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		/// <summary> 
-		/// Raise the PropertyChanged event for the specified property. 
-		/// </summary> 
-		/// <param name="propertyName">Property name</param> 
-		protected void RaisePropertyChanged(string propertyName)
-		{
-			if (PropertyChanged != null)
-			{
-				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-
-		#endregion
-
 		#region Team Foundation Context
 
 		/// <summary> 
@@ -156,9 +138,9 @@ namespace AutoMerge.Base
 			}
 		}
 
-		/// <summary> 
-		/// ContextChanged event handler. 
-		/// </summary> 
+		/// <summary>
+		/// ContextChanged event handler.
+		/// </summary>
 		protected virtual void ContextChanged(object sender, ContextChangedEventArgs e)
 		{
 		}

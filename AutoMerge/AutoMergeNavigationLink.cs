@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using AutoMerge.Base;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.VisualStudio.Shell;
 
@@ -45,6 +46,11 @@ namespace AutoMerge
 			base.Invalidate();
 			IsEnabled = true;
 			IsVisible = true;
+		}
+
+		protected override void ContextChanged(object sender, ContextChangedEventArgs e)
+		{
+			base.ContextChanged(sender, e);
 		}
 	}
 }

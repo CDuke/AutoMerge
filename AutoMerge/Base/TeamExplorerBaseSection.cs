@@ -28,11 +28,14 @@ namespace AutoMerge.Base
 		/// </summary> 
 		public string Title
 		{
-			get { return _title; }
+			get
+			{
+				return _title;
+			}
 			set
 			{
 				_title = value;
-				RaisePropertyChanged("Title");
+				RaisePropertyChanged(() => Title);
 			}
 		}
 
@@ -47,7 +50,7 @@ namespace AutoMerge.Base
 			set
 			{
 				_sectionContent = value;
-				RaisePropertyChanged("SectionContent");
+				RaisePropertyChanged(() => SectionContent);
 			}
 		}
 
@@ -62,7 +65,7 @@ namespace AutoMerge.Base
 			set
 			{
 				_isVisible = value;
-				RaisePropertyChanged("IsVisible");
+				RaisePropertyChanged(() => IsVisible);
 			}
 		}
 
@@ -77,7 +80,7 @@ namespace AutoMerge.Base
 			set
 			{
 				_isExpanded = value;
-				RaisePropertyChanged("IsExpanded");
+				RaisePropertyChanged(() => IsExpanded);
 			}
 		}
 
@@ -92,7 +95,7 @@ namespace AutoMerge.Base
 			set
 			{
 				_isBusy = value;
-				RaisePropertyChanged("IsBusy");
+				RaisePropertyChanged(() => IsBusy);
 			}
 		}
 
