@@ -19,6 +19,24 @@ namespace AutoMerge
 	[TeamExplorerSection(SectionId, AutoMergePage.PageId, 20)]
 	public class BranchesSection : TeamExplorerBaseSection
 	{
+		private enum MergeResult
+		{
+			Success,
+			NothingMerge,
+			CheckInFail,
+			CheckInEvaluateFail,
+			UnresolvedConflicts,
+			PartialSuccess
+		}
+
+		private enum CheckInResult
+		{
+			Success,
+			NothingMerge,
+			CheckInFail,
+			CheckInEvaluateFail
+		}
+
 		private readonly IEventAggregator _eventAggregator;
 		public const string SectionId = "36BF6F52-F4AC-44A0-9985-817B2A65B3B0";
 
@@ -36,7 +54,7 @@ namespace AutoMerge
 			SectionContent = new BranchesView();
 			View.ParentSection = this;
 
-			MergeCommand = new DelegateCommand(DoMerge, CanMerge);
+			MergeCommand = new DelegateCommand(MergeExecute, MergeCanEcexute);
 
 			_eventAggregator = EventAggregatorFactory.Get();
 		}
@@ -95,11 +113,8 @@ namespace AutoMerge
 				if (_changeset == null)
 					return;
 
-				var branches = new ObservableCollection<MergeInfoModel>();
-				await Task.Run(() =>
-				{
-					branches = GetBranches(_changeset);
-				});
+				var branches = await Task.Run(() => GetBranches(_changeset));
+
 				Branches = branches;
 			}
 			catch (Exception ex)
@@ -159,86 +174,142 @@ namespace AutoMerge
 			return result;
 		}
 
-		public void DoMerge()
+		public async void MergeExecute()
 		{
+			try
+			{
+				IsBusy = true;
+
+				var result = await Task.Run(() =>MergeExecuteInternal());
+
+				switch (result)
+				{
+					case MergeResult.CheckInEvaluateFail:
+						ShowNotification("Check In evaluate failed", NotificationType.Error);
+						break;
+					case MergeResult.CheckInFail:
+						ShowNotification("Check In  failed", NotificationType.Error);
+						break;
+					case MergeResult.NothingMerge:
+						ShowNotification("Nothing merged", NotificationType.Warning);
+						break;
+					case MergeResult.PartialSuccess:
+						ShowNotification("Partial success", NotificationType.Error);
+						break;
+					case MergeResult.UnresolvedConflicts:
+						ShowNotification("Unresolved conflicts", NotificationType.Error);
+						break;
+					case MergeResult.Success:
+						ShowNotification("Merge success", NotificationType.Information);
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+				ShowNotification(ex.Message, NotificationType.Error);
+			}
+			finally
+			{
+				IsBusy = false;
+			}
+		}
+
+		private MergeResult MergeExecuteInternal()
+		{
+			var result = MergeResult.NothingMerge;
 			var tfs = CurrentContext.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
 			
 			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
+			var changeset = _changeset;
 			var workItemStore = tfs.GetService<WorkItemStore>();
-			var workItems = GetWorkItemCheckinInfo(_changeset, workItemStore);
+			var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);
 
-			//var sourceChanges = versionControl.GetChangeset(_changeset.ChangesetId, true, false).Changes;
-			var sourceChanges = _changeset.Changes;
-			var somethingMerged = false;
+			var sourceChanges = changeset.Changes;
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
-				var conflicts = new List<string>();
-				var allTargetsFiles = new HashSet<string>();
-				foreach (var change in sourceChanges)
+				List<PendingChange> targetPendingChanges;
+				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, workspace, out targetPendingChanges))
 				{
-					var source = change.Item.ServerItem;
-					var target = source.Replace(mergeInfo.SourceBranch, mergeInfo.TargetBranch);
-					allTargetsFiles.Add(target);
-
-					var status = workspace.Merge(source, target, null, null, LockLevel.None, RecursionType.None, MergeOptions.None);
-
-					if (HasConflicts(status))
-					{
-						conflicts.Add(target);
-					}
+					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
 				}
 
-				if (conflicts.Count > 0)
+				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.Comment);
+				switch (checkInResult)
 				{
-					var resolved = ResolveConflict(workspace, conflicts.ToArray());
-					if (!resolved)
-					{
-						ShowNotification("Auto merge stoped, because conflict not resolved", NotificationType.Warning);
+					case CheckInResult.CheckInEvaluateFail:
+						return MergeResult.CheckInEvaluateFail;
+					case CheckInResult.CheckInFail:
+						return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.CheckInFail;
+					case CheckInResult.Success:
+						result = MergeResult.Success;
 						break;
-					}
 				}
-
-				var allPendingChanges = workspace.GetPendingChangesEnumerable();
-				var targetPendingChanges = new List<PendingChange>();
-				foreach (var pendingChange in allPendingChanges)
-				{
-					if (!allTargetsFiles.Contains(pendingChange.ServerItem))
-						continue;
-
-					targetPendingChanges.Add(pendingChange);
-				}
-
-				if (targetPendingChanges.Count > 0)
-				{
-					var comment = EvaluateComment(_changeset.Comment, mergeInfo.SourceBranch, mergeInfo.TargetBranch);
-					var evaluateCheckIn = workspace.EvaluateCheckin2(CheckinEvaluationOptions.All, targetPendingChanges, comment, null, workItems);
-					if (CanCheckIn(evaluateCheckIn))
-					{
-						var changesetId = 1;
-						//var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), comment, null, workItems, null);
-						if (changesetId <= 0)
-						{
-							ShowNotification("Check In fail", NotificationType.Error);
-						}
-						else
-						{
-							somethingMerged = true;
-						}
-					}
-					else
-					{
-						ShowNotification("Check In evaluate failed", NotificationType.Error);
-					}
-				}
-
-				var resultMessage = somethingMerged ? "Merge success" : "Nothing merged";
-				ShowNotification(resultMessage, NotificationType.Information);
 			}
+
+			return result;
 		}
 
-		public bool CanMerge()
+		private CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoModel mergeInfo, Workspace workspace,
+			WorkItemCheckinInfo[] workItems, string sourceComment)
+		{
+			if (targetPendingChanges.Count == 0)
+				return CheckInResult.NothingMerge;
+
+			var comment = EvaluateComment(sourceComment, mergeInfo.SourceBranch, mergeInfo.TargetBranch);
+			var evaluateCheckIn = workspace.EvaluateCheckin2(CheckinEvaluationOptions.All,
+				targetPendingChanges,
+				comment,
+				null,
+				workItems);
+
+			if (!CanCheckIn(evaluateCheckIn))
+				return CheckInResult.CheckInEvaluateFail;
+
+			var changesetId = 1;
+			//var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), comment, null, workItems, null);
+			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
+		}
+
+		private bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges,
+			Workspace workspace, out List<PendingChange> targetPendingChanges)
+		{
+			var conflicts = new List<string>();
+			var allTargetsFiles = new HashSet<string>();
+			foreach (var change in sourceChanges)
+			{
+				var source = change.Item.ServerItem;
+				var target = source.Replace(sourceBranch, targetBranch);
+				allTargetsFiles.Add(target);
+
+				var status = workspace.Merge(source, target, null, null, LockLevel.None, RecursionType.None, MergeOptions.None);
+
+				if (HasConflicts(status))
+				{
+					conflicts.Add(target);
+				}
+			}
+
+			targetPendingChanges = null;
+			if (conflicts.Count > 0)
+			{
+				var resolved = ResolveConflict(workspace, conflicts.ToArray());
+				if (!resolved)
+				{
+					return false;
+				}
+			}
+
+			var allPendingChanges = workspace.GetPendingChangesEnumerable();
+			targetPendingChanges = allPendingChanges
+				.Where(pendingChange => allTargetsFiles.Contains(pendingChange.ServerItem))
+				.ToList();
+
+			return true;
+		}
+
+		public bool MergeCanEcexute()
 		{
 			return true;
 			//return _branches.Any(b => b.Checked);
