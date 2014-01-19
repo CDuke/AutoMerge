@@ -214,7 +214,7 @@ namespace AutoMerge
 
 							var path = "$/" + context.TeamProjectName;
 							foreach (Changeset changeset in vcs.QueryHistory(path, VersionSpec.Latest, 0, RecursionType.Full,
-								user, null, null, maxCount, false, true))
+								user, null, null, maxCount, true, true))
 							{
 								changesets.Add(changeset);
 							}

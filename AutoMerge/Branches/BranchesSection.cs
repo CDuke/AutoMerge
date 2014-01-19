@@ -169,7 +169,8 @@ namespace AutoMerge
 			var workItemStore = tfs.GetService<WorkItemStore>();
 			var workItems = GetWorkItemCheckinInfo(_changeset, workItemStore);
 
-			var sourceChanges = versionControl.GetChangeset(_changeset.ChangesetId, true, false).Changes;
+			//var sourceChanges = versionControl.GetChangeset(_changeset.ChangesetId, true, false).Changes;
+			var sourceChanges = _changeset.Changes;
 			var somethingMerged = false;
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
