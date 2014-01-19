@@ -232,14 +232,8 @@ namespace AutoMerge
 					}
 				}
 
-				if (somethingMerged)
-				{
-					ShowNotification("Merge success", NotificationType.Information);
-				}
-				else
-				{
-					ShowNotification("Nothing merged", NotificationType.Information);
-				}
+				var resultMessage = somethingMerged ? "Merge success" : "Nothing merged";
+				ShowNotification(resultMessage, NotificationType.Information);
 			}
 		}
 
@@ -257,7 +251,7 @@ namespace AutoMerge
 		private bool ResolveConflict(Workspace workspace, string[] targetPath)
 		{
 			var conflicts = workspace.QueryConflicts(targetPath, false);
-			if (conflicts == null || conflicts.Length == 0)
+			if (conflicts.IsNullOrEmpty())
 				return true;
 
 			foreach (var conflict in conflicts)

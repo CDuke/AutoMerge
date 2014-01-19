@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-            xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
+             xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
+             xmlns:vsShell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.11.0"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
-        <autoMerge:BranchNameConverter x:Key="BranchNameConverter"/>
+        <autoMerge:BranchTransitionNameConverter x:Key="BranchTransitionNameConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -18,9 +19,15 @@
         <WrapPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,6">
             <Button Click="Merge">Merge</Button>
         </WrapPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding Path=ParentSection.Branches}">
+        <ListView Grid.Row="1" ItemsSource="{Binding Path=ParentSection.Branches}" BorderThickness="0" 
+                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
             <ListView.View>
                 <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style>
+                            <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -28,10 +35,30 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Source" DisplayMemberBinding="{Binding SourceBranch, Converter={StaticResource BranchNameConverter}}" />
-                    <GridViewColumn Header="Target" DisplayMemberBinding="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}" />
+                    <GridViewColumn>
+                        <GridViewColumnHeader Content="Branch"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource BranchTransitionNameConverter}">
+                                            <Binding Path="SourceBranch" />
+                                            <Binding Path="TargetBranch" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+<!--                    <GridViewColumn Header="Source" DisplayMemberBinding="{Binding SourceBranch, Converter={StaticResource BranchNameConverter}}" />-->
+<!--                    <GridViewColumn Header="Target" DisplayMemberBinding="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}" />-->
                 </GridView>
             </ListView.View>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                </Style>
+            </ListView.ItemContainerStyle>
         </ListView>
     </Grid>
 </UserControl>

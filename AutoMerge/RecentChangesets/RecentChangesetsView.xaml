@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.11.0"
+             xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.11.0"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -42,14 +42,14 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>-->
-                    <GridViewColumn>
-                        <GridViewColumnHeader Content="Date"/>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=CreationDate}"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+<!--                    <GridViewColumn>-->
+<!--                        <GridViewColumnHeader Content="Date"/>-->
+<!--                        <GridViewColumn.CellTemplate>-->
+<!--                            <DataTemplate>-->
+<!--                                <TextBlock Text="{Binding Path=CreationDate}"/>-->
+<!--                            </DataTemplate>-->
+<!--                        </GridViewColumn.CellTemplate>-->
+<!--                    </GridViewColumn>-->
                     <GridViewColumn>
                         <GridViewColumnHeader Content="Comment"/>
                         <GridViewColumn.CellTemplate>
@@ -62,7 +62,9 @@
             </ListView.View>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vsshell:VsBrushes.ToolWindowTextKey}}"/>
+<!--                        <Setter Property="Foreground" Value="{DynamicResource EnvironmentColors.ToolWindowTextBrushKey}"/>-->
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+<!--                    <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>-->
                     <Setter Property="ToolTip">
                         <Setter.Value>
                             <Grid>
@@ -70,7 +72,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
-                                    <!--<RowDefinition Height="Auto"/>-->
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -81,14 +83,14 @@
                                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,6,3" Text="Changeset ID:" FontWeight="Bold"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=ChangesetId}"/>
 
-<!--                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Owner:" FontWeight="Bold"/>-->
-<!--                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=OwnerDisplayName}"/>-->
+                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Owner:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=OwnerDisplayName}"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Date:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=CreationDate}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,6,3" Text="Date:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=CreationDate}"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,6,3" Text="Comment:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=Comment}" TextWrapping="Wrap" MaxWidth="500"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,6,3" Text="Comment:" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=Comment}" TextWrapping="Wrap" MaxWidth="500"/>
                             </Grid>
                         </Setter.Value>
                     </Setter>
