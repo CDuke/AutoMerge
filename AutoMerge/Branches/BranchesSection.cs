@@ -267,8 +267,8 @@ namespace AutoMerge
 			if (!CanCheckIn(evaluateCheckIn))
 				return CheckInResult.CheckInEvaluateFail;
 
-			var changesetId = 1;
-			//var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), comment, null, workItems, null);
+			//var changesetId = 1;
+			var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), comment, null, workItems, null);
 			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
 		}
 
