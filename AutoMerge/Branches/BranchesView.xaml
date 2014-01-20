@@ -9,7 +9,8 @@
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
-        <autoMerge:BranchTransitionNameConverter x:Key="BranchTransitionNameConverter"/>
+        <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
+        <autoMerge:BoolToVisabilityConverter x:Key="BoolToVisabilityConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -31,32 +32,30 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" IsThreeState="False" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn>
-                        <GridViewColumnHeader Content="Branch"/>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    <TextBlock.Text>
-                                        <MultiBinding Converter="{StaticResource BranchTransitionNameConverter}">
-                                            <Binding Path="SourceBranch" />
-                                            <Binding Path="TargetBranch" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
+                                <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" Visibility="{Binding CanMerge, Converter={StaticResource BoolToVisabilityConverter}}" IsThreeState="False" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 <!--                    <GridViewColumn Header="Source" DisplayMemberBinding="{Binding SourceBranch, Converter={StaticResource BranchNameConverter}}" />-->
-<!--                    <GridViewColumn Header="Target" DisplayMemberBinding="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}" />-->
+<!--                    <GridViewColumn Header="Target" DisplayMemberBinding="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"-->
+<!--                        Width="Auto" />-->
+                    <GridViewColumn Header="Target">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"></TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Foreground" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsCurrentBranch}" Value="true">
+                            <Setter Property="FontWeight" Value="Light" />
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>

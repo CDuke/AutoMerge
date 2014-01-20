@@ -145,19 +145,6 @@ namespace AutoMerge
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
 
 			var result = new ObservableCollection<MergeInfoModel>();
-			if (sourceBranchInfo.ChildBranches != null)
-			{
-				foreach (var childBranch in sourceBranchInfo.ChildBranches.Where(b => !b.IsDeleted))
-				{
-					var mergeInfo = new MergeInfoModel
-					{
-						SourceBranch = sourceBranchIdentifier.Item,
-						TargetBranch = childBranch.Item
-					};
-
-					result.Add(mergeInfo);
-				}
-			}
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
@@ -169,6 +156,29 @@ namespace AutoMerge
 				};
 
 				result.Add(mergeInfo);
+			}
+
+			var currentBranchInfo = new MergeInfoModel
+			{
+				SourceBranch = sourceBranchIdentifier.Item,
+				TargetBranch = sourceBranchIdentifier.Item
+			};
+			result.Add(currentBranchInfo);
+
+			if (sourceBranchInfo.ChildBranches != null)
+			{
+				var childBranches = sourceBranchInfo.ChildBranches.Where(b => !b.IsDeleted)
+					.Reverse();
+				foreach (var childBranch in childBranches)
+				{
+					var mergeInfo = new MergeInfoModel
+					{
+						SourceBranch = sourceBranchIdentifier.Item,
+						TargetBranch = childBranch.Item
+					};
+
+					result.Add(mergeInfo);
+				}
 			}
 
 			return result;

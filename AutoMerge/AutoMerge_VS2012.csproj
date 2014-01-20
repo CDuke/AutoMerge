@@ -155,6 +155,7 @@
     </Compile>
     <Compile Include="Branches\BranchNameConverter.cs" />
     <Compile Include="Branches\BranchTransitionNameConverter.cs" />
+    <Compile Include="Branches\BoolToVisabilityConverter.cs" />
     <Compile Include="Branches\MergeInfoModel.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\SelectChangesetEvent.cs" />
