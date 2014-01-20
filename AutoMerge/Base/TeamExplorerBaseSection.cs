@@ -6,7 +6,7 @@ namespace AutoMerge.Base
 	/// <summary> 
 	/// Team Explorer base section class. 
 	/// </summary> 
-	public class TeamExplorerBaseSection : TeamExplorerBase, ITeamExplorerSection
+	public abstract class TeamExplorerBaseSection : TeamExplorerBase, ITeamExplorerSection
 	{
 		#region ITeamExplorerSection 
 
@@ -125,6 +125,11 @@ namespace AutoMerge.Base
 		public virtual object GetExtensibilityService(Type serviceType)
 		{
 			return null;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
 		}
 
 		#endregion

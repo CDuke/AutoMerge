@@ -6,7 +6,7 @@ namespace AutoMerge.Base
 	/// <summary>
 	/// Team Explorer page base class.
 	/// </summary>
-	public class TeamExplorerBasePage : TeamExplorerBase, ITeamExplorerPage
+	public abstract class TeamExplorerBasePage : TeamExplorerBase, ITeamExplorerPage
 	{ 
 		#region ITeamExplorerPage 
  
@@ -108,5 +108,10 @@ namespace AutoMerge.Base
 		}
  
 		#endregion 
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+		}
 	} 
 }

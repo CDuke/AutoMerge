@@ -9,7 +9,7 @@ namespace AutoMerge.Base
 	/// <summary> 
 	/// Team Explorer plugin common base class. 
 	/// </summary> 
-	public class TeamExplorerBase : NotificationObject, IDisposable
+	public abstract class TeamExplorerBase : NotificationObject, IDisposable
 	{
 		private bool _disposed;
 		
@@ -92,7 +92,7 @@ namespace AutoMerge.Base
 		/// <summary> 
 		/// Dispose. 
 		/// </summary> 
-		public virtual void Dispose()
+		public void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);

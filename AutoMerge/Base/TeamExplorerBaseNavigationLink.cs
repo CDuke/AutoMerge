@@ -6,12 +6,12 @@ namespace AutoMerge.Base
 	/// <summary>
 	/// Team Explorer base navigation link class.
 	/// </summary>
-	public class TeamExplorerBaseNavigationLink : TeamExplorerBase, ITeamExplorerNavigationLink
+	public abstract class TeamExplorerBaseNavigationLink : TeamExplorerBase, ITeamExplorerNavigationLink
 	{
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public TeamExplorerBaseNavigationLink(IServiceProvider serviceProvider)
+		protected TeamExplorerBaseNavigationLink(IServiceProvider serviceProvider)
 		{
 			ServiceProvider = serviceProvider;
 		}
@@ -84,5 +84,10 @@ namespace AutoMerge.Base
 		}
 
 		#endregion
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+		}
 	}
 }

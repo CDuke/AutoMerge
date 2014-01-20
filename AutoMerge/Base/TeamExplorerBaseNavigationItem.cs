@@ -6,12 +6,12 @@ namespace AutoMerge.Base
 	/// <summary>
 	/// Team Explorer base navigation item class.
 	/// </summary>
-	public class TeamExplorerBaseNavigationItem : TeamExplorerBase, ITeamExplorerNavigationItem
+	public abstract class TeamExplorerBaseNavigationItem : TeamExplorerBase, ITeamExplorerNavigationItem
 	{ 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public TeamExplorerBaseNavigationItem(IServiceProvider serviceProvider)
+		protected TeamExplorerBaseNavigationItem(IServiceProvider serviceProvider)
 		{
 			ServiceProvider = serviceProvider;
 		}
@@ -79,9 +79,13 @@ namespace AutoMerge.Base
 		/// Execute the item action. 
 		/// </summary> 
 		public virtual void Execute() 
-		{ 
-		} 
- 
+		{
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+		}
 		#endregion 
 	} 
 } 
