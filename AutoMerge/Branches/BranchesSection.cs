@@ -224,7 +224,6 @@ namespace AutoMerge
 
 			var changeset = _changeset;
 			var workItemStore = tfs.GetService<WorkItemStore>();
-			var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);
 
 			var sourceChanges = changeset.Changes;
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
@@ -235,6 +234,9 @@ namespace AutoMerge
 					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
 				}
 
+				// Another user can update workitem. Need re-read before update.
+				// TODO: maybe move to workspace.CheckIn operation
+				var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);
 				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.Comment);
 				switch (checkInResult)
 				{
@@ -320,7 +322,7 @@ namespace AutoMerge
 			return !mergeStatus.NoActionNeeded && mergeStatus.NumConflicts > 0;
 		}
 
-		private bool ResolveConflict(Workspace workspace, string[] targetPath)
+		private static bool ResolveConflict(Workspace workspace, string[] targetPath)
 		{
 			var conflicts = workspace.QueryConflicts(targetPath, false);
 			if (conflicts.IsNullOrEmpty())
@@ -333,12 +335,7 @@ namespace AutoMerge
 					conflict.Resolution = Resolution.AcceptMerge;
 					workspace.ResolveConflict(conflict);
 				}
-				if (conflict.IsResolved)
-				{
-					workspace.PendEdit(conflict.TargetLocalItem);
-					File.Copy(conflict.MergedFileName, conflict.TargetLocalItem, true);
-				}
-				else
+				if (!conflict.IsResolved)
 				{
 					return false;
 				}
