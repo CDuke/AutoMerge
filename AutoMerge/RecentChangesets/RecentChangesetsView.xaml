@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.12.0"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -34,22 +33,6 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-<!--                    <GridViewColumn>
-                        <GridViewColumnHeader Content="Owner"/>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=OwnerDisplayName}"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>-->
-<!--                    <GridViewColumn>-->
-<!--                        <GridViewColumnHeader Content="Date"/>-->
-<!--                        <GridViewColumn.CellTemplate>-->
-<!--                            <DataTemplate>-->
-<!--                                <TextBlock Text="{Binding Path=CreationDate}"/>-->
-<!--                            </DataTemplate>-->
-<!--                        </GridViewColumn.CellTemplate>-->
-<!--                    </GridViewColumn>-->
                     <GridViewColumn>
                         <GridViewColumnHeader Content="Comment"/>
                         <GridViewColumn.CellTemplate>
@@ -62,9 +45,7 @@
             </ListView.View>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
-<!--                        <Setter Property="Foreground" Value="{DynamicResource EnvironmentColors.ToolWindowTextBrushKey}"/>-->
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-<!--                    <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"/>-->
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolWindowTextBrushKey}}"/>
                     <Setter Property="ToolTip">
                         <Setter.Value>
                             <Grid>

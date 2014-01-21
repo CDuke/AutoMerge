@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             xmlns:vsShell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.12.0"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -36,9 +35,6 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-<!--                    <GridViewColumn Header="Source" DisplayMemberBinding="{Binding SourceBranch, Converter={StaticResource BranchNameConverter}}" />-->
-<!--                    <GridViewColumn Header="Target" DisplayMemberBinding="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"-->
-<!--                        Width="Auto" />-->
                     <GridViewColumn Header="Target">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -50,7 +46,7 @@
             </ListView.View>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static vsShell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolWindowTextBrushKey}}"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsCurrentBranch}" Value="true">
                             <Setter Property="FontWeight" Value="Light" />

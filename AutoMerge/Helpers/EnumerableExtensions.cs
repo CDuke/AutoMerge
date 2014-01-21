@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace AutoMerge.Helpers
+namespace AutoMerge
 {
 	internal static class EnumerableExtensions
 	{
