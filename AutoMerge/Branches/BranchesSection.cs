@@ -150,7 +150,8 @@ namespace AutoMerge
 				var mergeInfo = new MergeInfoModel
 				{
 					SourceBranch = sourceBranchIdentifier.Item,
-					TargetBranch = sourceBranchInfo.Properties.ParentBranch.Item
+					TargetBranch = sourceBranchInfo.Properties.ParentBranch.Item,
+					Checked = true
 				};
 
 				result.Add(mergeInfo);
