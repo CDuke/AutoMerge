@@ -33,7 +33,7 @@ namespace AutoMerge.Base
 				RaisePropertyChanged(() => Text);
 			}
 		}
-		private string _text; 
+		private string _text;
  
 		/// <summary>
 		/// Get/set the item image.
@@ -46,10 +46,11 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_image = value; RaisePropertyChanged(() => Image);
+				_image = value;
+				RaisePropertyChanged(() => Image);
 			}
 		}
-		private System.Drawing.Image _image; 
+		private System.Drawing.Image _image;
  
 		/// <summary>
 		/// Get/set the IsVisible flag.
@@ -66,19 +67,19 @@ namespace AutoMerge.Base
 				RaisePropertyChanged(() => IsVisible);
 			}
 		}
-		private bool _isVisible = true; 
+		private bool _isVisible = true;
  
-		/// <summary> 
-		/// Invalidate the item state. 
+		/// <summary>
+		/// Invalidate the item state.
 		/// </summary> 
-		public virtual void Invalidate() 
+		public virtual void Invalidate()
 		{ 
 		} 
  
-		/// <summary> 
-		/// Execute the item action. 
+		/// <summary>
+		/// Execute the item action.
 		/// </summary> 
-		public virtual void Execute() 
+		public virtual void Execute()
 		{
 		}
 

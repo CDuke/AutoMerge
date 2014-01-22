@@ -1,14 +1,13 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 using AutoMerge.Base;
-using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.VisualStudio.Shell;
 
 namespace AutoMerge
 {
-	[TeamExplorerNavigationLink(LinkId, TeamExplorerNavigationItemIds.PendingChanges, 200)]
-	public class AutoMergeNavigationLink : TeamExplorerBaseNavigationLink
+	[TeamExplorerNavigationItem(LinkId, 200)]
+	public class AutoMergeNavigationItem : TeamExplorerBaseNavigationItem
 	{
 		#region Members
 
@@ -20,12 +19,11 @@ namespace AutoMerge
 		/// Constructor.
 		/// </summary>
 		[ImportingConstructor]
-		public AutoMergeNavigationLink([Import(typeof(SVsServiceProvider))] IServiceProvider serviceProvider)
+		public AutoMergeNavigationItem([Import(typeof(SVsServiceProvider))] IServiceProvider serviceProvider)
 			: base(serviceProvider)
 		{
 			Text = Resources.AutoMergePageName;
 			IsVisible = true;
-			IsEnabled = true;
 		}
 
 		/// <summary> 
@@ -44,13 +42,13 @@ namespace AutoMerge
 		public override void Invalidate()
 		{
 			base.Invalidate();
-			IsEnabled = true;
-			IsVisible = true;
+			IsVisible = HasCollection();
 		}
 
-		protected override void ContextChanged(object sender, ContextChangedEventArgs e)
+		private bool HasCollection()
 		{
-			base.ContextChanged(sender, e);
+			return CurrentContext != null
+				&& CurrentContext.HasCollection;
 		}
 	}
 }
