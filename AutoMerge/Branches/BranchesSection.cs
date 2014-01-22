@@ -8,6 +8,7 @@ using AutoMerge.Base;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Events;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
@@ -33,6 +34,13 @@ namespace AutoMerge
 			NothingMerge,
 			CheckInFail,
 			CheckInEvaluateFail
+		}
+
+		private class BranchContext
+		{
+			public Changeset Changeset { get; set; }
+
+			public ObservableCollection<MergeInfoModel> Branches { get; set; }
 		}
 
 		private readonly IEventAggregator _eventAggregator;
@@ -81,9 +89,22 @@ namespace AutoMerge
 
 		public ICommand MergeCommand { get; private set; }
 
-		public override void Initialize(object sender, SectionInitializeEventArgs e)
+		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
 			base.Initialize(sender, e);
+
+			if (e.Context != null && e.Context is BranchContext)
+			{
+				// Restore the context instead of refreshing
+				var context = (BranchContext)e.Context;
+				_changeset = context.Changeset;
+				Branches = context.Branches;
+			}
+			else
+			{
+				// Kick off the initial refresh
+				await RefreshAsync();
+			}
 
 			_eventAggregator.GetEvent<SelectChangesetEvent>()
 				.Subscribe(OnSelectedChangeset);
@@ -109,7 +130,10 @@ namespace AutoMerge
 				IsBusy = true;
 
 				if (_changeset == null)
+				{
+					Branches = new ObservableCollection<MergeInfoModel>();
 					return;
+				}
 
 				var branches = await Task.Run(() => GetBranches(_changeset));
 
@@ -262,7 +286,7 @@ namespace AutoMerge
 			return result;
 		}
 
-		private CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoModel mergeInfo, Workspace workspace,
+		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoModel mergeInfo, Workspace workspace,
 			WorkItemCheckinInfo[] workItems, string sourceComment)
 		{
 			if (targetPendingChanges.Count == 0)
@@ -403,12 +427,40 @@ namespace AutoMerge
 			return result.ToArray();
 		}
 
-		private bool CanCheckIn(CheckinEvaluationResult checkinEvaluationResult)
+		private static bool CanCheckIn(CheckinEvaluationResult checkinEvaluationResult)
 		{
 			return checkinEvaluationResult.Conflicts.IsNullOrEmpty()
 				&& checkinEvaluationResult.NoteFailures.IsNullOrEmpty()
 				&& checkinEvaluationResult.PolicyFailures.IsNullOrEmpty()
 				&& checkinEvaluationResult.PolicyEvaluationException == null;
+		}
+
+		public override void SaveContext(object sender, SectionSaveContextEventArgs e)
+		{
+			base.SaveContext(sender, e);
+
+			_eventAggregator.GetEvent<SelectChangesetEvent>()
+				.Unsubscribe(OnSelectedChangeset);
+
+			var context = new BranchContext
+			{
+				Changeset = _changeset,
+				Branches = Branches
+			};
+
+			e.Context = context;
+		}
+
+		protected override async void ContextChanged(object sender, ContextChangedEventArgs e)
+		{
+			base.ContextChanged(sender, e);
+
+			// If the team project collection or team project changed, refresh 
+			// the data for this section 
+			if (e.TeamProjectCollectionChanged || e.TeamProjectChanged)
+			{
+				await RefreshAsync();
+			}
 		}
 	}
 }
