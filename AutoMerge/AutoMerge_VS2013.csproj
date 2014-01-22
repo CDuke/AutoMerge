@@ -153,6 +153,7 @@
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerBasePage.cs" />
     <Compile Include="Base\TeamExplorerBaseSection.cs" />
+    <Compile Include="Branches\BoolToVisabilityConverter.cs" />
     <Compile Include="Branches\BranchesSection.cs" />
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
@@ -164,6 +165,7 @@
     <Compile Include="Events\SelectChangesetEvent.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
+    <Compile Include="Helpers\EnvironmentColors.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\RecentChangesetSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
