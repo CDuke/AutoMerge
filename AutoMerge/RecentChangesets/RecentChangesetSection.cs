@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -150,17 +151,6 @@ namespace AutoMerge
 		/// </summary>
 		private void OnViewChangesetDetails()
 		{
-			// The preferred method would be to use VersionControlExt.ViewChangesetDetails, but that
-			// method still uses the modal Changeset Details dialog at this time.  As a temporary
-			// workaround, navigate to the Changeset Details Team Explorer page and pass the
-			// changeset ID.
-
-			//VersionControlExt vcExt = Helpers.GetVersionControlExt(ParentSection.ServiceProvider);
-			//if (vcExt != null)
-			//{
-			//    vcExt.ViewChangesetDetails(changesetId);
-			//}
-
 			var changesetId = SelectedChangeset.ChangesetId;
 
 			var teamExplorer = GetService<ITeamExplorer>();
@@ -196,40 +186,25 @@ namespace AutoMerge
 				IsBusy = true;
 				Changesets.Clear();
 
-				var changesets = new ObservableCollection<Changeset>();
-
-				// Make the server call asynchronously to avoid blocking the UI
-				await Task.Run(() =>
+				ICollection<Changeset> changesets = new List<Changeset>();
+				var context = CurrentContext;
+				if (context != null && context.HasCollection && context.HasTeamProject)
 				{
-					var context = CurrentContext;
-					if (context != null && context.HasCollection && context.HasTeamProject)
+					var vcs = context.TeamProjectCollection.GetService<VersionControlServer>();
+					if (vcs != null)
 					{
-						var vcs = context.TeamProjectCollection.GetService<VersionControlServer>();
-						if (vcs != null)
-						{
-							// Ask the derived section for the history parameters 
-							string user;
-							int maxCount;
-							GetHistoryParameters(vcs, out user, out maxCount);
-
-							var path = "$/" + context.TeamProjectName;
-							foreach (Changeset changeset in vcs.QueryHistory(path, VersionSpec.Latest, 0, RecursionType.Full,
-								user, null, null, maxCount, true, true))
-							{
-								changesets.Add(changeset);
-							}
-						}
+						var changesetService = new ChangesetService(vcs, context.TeamProjectName);
+						changesets = await changesetService.GetUserChangesets(vcs.AuthorizedUser);
 					}
-				});
+				}
 
-				// Now back on the UI thread, update the bound collection and section title 
-				Changesets = changesets;
+				Changesets = new ObservableCollection<Changeset>(changesets);
 				Title = Changesets.Count > 0
 					? string.Format("{0} ({1})", BaseTitle, Changesets.Count)
 					: BaseTitle;
 
-				if (changesets.Count > 0)
-					SelectedChangeset = changesets[0];
+				if (Changesets.Count > 0)
+					SelectedChangeset = Changesets[0];
 			}
 			catch (Exception ex)
 			{
@@ -240,15 +215,6 @@ namespace AutoMerge
 				// Always clear our busy flag when done 
 				IsBusy = false;
 			}
-		} 
-
-		/// <summary>
-		/// Get the parameters for the history query.
-		/// </summary>
-		private static void GetHistoryParameters(VersionControlServer vcs, out string user, out int maxCount)
-		{
-			user = vcs.AuthorizedUser;
-			maxCount = 10;
 		}
 
 		/// <summary>

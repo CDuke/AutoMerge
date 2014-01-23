@@ -9,7 +9,7 @@
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
-        <autoMerge:BoolToVisabilityConverter x:Key="BoolToVisabilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -31,7 +31,7 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" Visibility="{Binding CanMerge, Converter={StaticResource BoolToVisabilityConverter}}" IsThreeState="False" />
+                                <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" Visibility="{Binding CanMerge, Converter={StaticResource BooleanToVisibilityConverter}}" IsThreeState="False" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
