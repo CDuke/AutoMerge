@@ -191,8 +191,9 @@ namespace AutoMerge.Behaviours
 		/// <summary>
 		/// ListViewResizeBehavior class that gets attached to the ListView control
 		/// </summary>
-		public class ListViewResizeBehavior
+		public sealed class ListViewResizeBehavior : IDisposable
 		{
+			private bool _disposed;
 			private const int Margin = 25;
 			private const long RefreshTime = Timeout.Infinite;
 			private const long Delay = 500;
@@ -286,6 +287,16 @@ namespace AutoMerge.Behaviours
 					}
 				}
 				return totalWidth;
+			}
+
+			public void Dispose()
+			{
+				if (!_disposed)
+				{
+					_timer.Dispose();
+				}
+
+				_disposed = true;
 			}
 		}
 
