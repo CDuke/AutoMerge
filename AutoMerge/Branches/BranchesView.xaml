@@ -50,6 +50,7 @@
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsCurrentBranch}" Value="true">
                             <Setter Property="FontWeight" Value="Light" />
+                            <!--<Setter Property="IsEnabled" Value="False"></Setter>-->
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>

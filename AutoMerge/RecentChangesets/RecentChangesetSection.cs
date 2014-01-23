@@ -86,9 +86,9 @@ namespace AutoMerge
 
 		private string BaseTitle { get; set; }
 
-		/// <summary> 
-		/// Initialize override. 
-		/// </summary> 
+		/// <summary>
+		/// Initialize override.
+		/// </summary>
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
 			base.Initialize(sender, e);
@@ -183,7 +183,7 @@ namespace AutoMerge
 			{
 				await RefreshAsync();
 			}
-		} 
+		}
 
 		/// <summary>
 		/// Refresh the changeset data asynchronously.
@@ -227,6 +227,9 @@ namespace AutoMerge
 				Title = Changesets.Count > 0
 					? string.Format("{0} ({1})", BaseTitle, Changesets.Count)
 					: BaseTitle;
+
+				if (changesets.Count > 0)
+					SelectedChangeset = changesets[0];
 			}
 			catch (Exception ex)
 			{
