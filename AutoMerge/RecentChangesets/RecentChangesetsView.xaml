@@ -37,7 +37,7 @@
                         <GridViewColumnHeader Content="Comment"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Comment, Converter={StaticResource ChangesetCommentConverter}}"/>
+                                <TextBlock Text="{Binding Path=Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

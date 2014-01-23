@@ -4,23 +4,21 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             mc:Ignorable="d" 
+             xmlns:behaviours="clr-namespace:AutoMerge.Behaviours"
+             mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <WrapPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,6">
+    <DockPanel>
+        <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
             <Button Click="Merge">Merge</Button>
         </WrapPanel>
-        <ListView Grid.Row="1" ItemsSource="{Binding Path=ParentSection.Branches}" BorderThickness="0" 
-                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+        <ListView ItemsSource="{Binding Path=ParentSection.Branches}" BorderThickness="0" 
+                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                  behaviours:GridViewColumnResize.Enabled="True">
             <ListView.View>
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>
@@ -35,7 +33,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Target">
+                    <GridViewColumn Header="Target" behaviours:GridViewColumnResize.Width="*">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"></TextBlock>
@@ -56,5 +54,5 @@
                 </Style>
             </ListView.ItemContainerStyle>
         </ListView>
-    </Grid>
+    </DockPanel>
 </UserControl>

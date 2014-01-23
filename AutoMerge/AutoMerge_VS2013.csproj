@@ -153,6 +153,7 @@
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerBasePage.cs" />
     <Compile Include="Base\TeamExplorerBaseSection.cs" />
+    <Compile Include="Behaviours\GridViewColumnResize.cs" />
     <Compile Include="Branches\BranchesSection.cs" />
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
