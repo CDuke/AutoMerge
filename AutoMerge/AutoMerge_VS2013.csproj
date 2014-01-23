@@ -143,7 +143,7 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoMergeNavigationLink.cs" />
+    <Compile Include="AutoMergeNavigationItem.cs" />
     <Compile Include="AutoMergePage.cs" />
     <Compile Include="AutoMergePageView.xaml.cs">
       <DependentUpon>AutoMergePageView.xaml</DependentUpon>
