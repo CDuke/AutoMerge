@@ -257,12 +257,13 @@ namespace AutoMerge
 
 			var changeset = _changeset;
 			var workItemStore = tfs.GetService<WorkItemStore>();
+			var versionSpec = new ChangesetVersionSpec(changeset.ChangesetId);
 
 			var sourceChanges = changeset.Changes;
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
 				List<PendingChange> targetPendingChanges;
-				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, workspace, out targetPendingChanges))
+				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, versionSpec, workspace, out targetPendingChanges))
 				{
 					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
 				}
@@ -307,7 +308,7 @@ namespace AutoMerge
 			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
 		}
 
-		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges,
+		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges, VersionSpec version,
 			Workspace workspace, out List<PendingChange> targetPendingChanges)
 		{
 			var conflicts = new List<string>();
@@ -318,7 +319,7 @@ namespace AutoMerge
 				var target = source.Replace(sourceBranch, targetBranch);
 				allTargetsFiles.Add(target);
 
-				var status = workspace.Merge(source, target, null, null, LockLevel.None, RecursionType.None, MergeOptions.None);
+				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, MergeOptions.None);
 
 				if (HasConflicts(status))
 				{
