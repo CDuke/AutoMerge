@@ -21,10 +21,10 @@ namespace AutoMerge
 			}
 		}
 
-		public static ThemeResourceKey ComboBoxItemMouseOverBackgroundBrushKey
-		{
-			get { return VsEnvironmetnColors.ComboBoxItemMouseOverBackgroundBrushKey; }
-		}
+//		public static ThemeResourceKey ComboBoxItemMouseOverBackgroundBrushKey
+//		{
+//			get { return VsEnvironmetnColors.ComboBoxItemMouseOverBackgroundBrushKey; }
+//		}
 
 		public static ThemeResourceKey ToolboxContentMouseOverBrushKey
 		{
