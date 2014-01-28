@@ -8,6 +8,7 @@
              mc:Ignorable="d"
              UseLayoutRounding="True"
              TextOptions.TextFormattingMode="Display"
+             d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <ResourceDictionary>
