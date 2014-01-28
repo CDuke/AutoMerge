@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Shell;
 using VsEnvironmetnColors = Microsoft.VisualStudio.PlatformUI.EnvironmentColors;
 
 namespace AutoMerge
@@ -13,22 +14,41 @@ namespace AutoMerge
 			}
 		}
 
-		public static ThemeResourceKey SystemHighlightBrushKey
-		{
-			get
-			{
-				return VsEnvironmetnColors.SystemHighlightBrushKey;
-			}
-		}
-
-//		public static ThemeResourceKey ComboBoxItemMouseOverBackgroundBrushKey
-//		{
-//			get { return VsEnvironmetnColors.ComboBoxItemMouseOverBackgroundBrushKey; }
-//		}
-
 		public static ThemeResourceKey ToolboxContentMouseOverBrushKey
 		{
 			get { return VsEnvironmetnColors.ToolboxContentMouseOverBrushKey; }
+		}
+
+		public static ThemeResourceKey SelectedItemActiveBrushKey
+		{
+			get
+			{
+				return TreeViewColors.SelectedItemActiveBrushKey;
+			}
+		}
+
+		public static ThemeResourceKey SelectedItemActiveTextBrushKey
+		{
+			get
+			{
+				return TreeViewColors.SelectedItemActiveTextBrushKey;
+			}
+		}
+
+		public static ThemeResourceKey SelectedItemInactiveBrushKey
+		{
+			get
+			{
+				return TreeViewColors.SelectedItemInactiveBrushKey;
+			}
+		}
+
+		public static ThemeResourceKey SelectedItemInactiveTextBrushKey
+		{
+			get
+			{
+				return TreeViewColors.SelectedItemInactiveTextBrushKey;
+			}
 		}
 	}
 }

@@ -163,10 +163,12 @@ namespace AutoMerge
 
 			var sourceBranches = versionControl.QueryBranchObjectOwnership(new []{changeset.ChangesetId});
 
+			var result = new ObservableCollection<MergeInfoModel>();
+			if (sourceBranches.Length == 0)
+				return result;
+
 			var sourceBranchIdentifier = sourceBranches[0].RootItem;
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
-
-			var result = new ObservableCollection<MergeInfoModel>();
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
