@@ -263,7 +263,7 @@ namespace AutoMerge
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
 				List<PendingChange> targetPendingChanges;
-				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, versionSpec, workspace, out targetPendingChanges))
+				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, versionSpec, false, workspace, out targetPendingChanges))
 				{
 					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
 				}
@@ -308,7 +308,7 @@ namespace AutoMerge
 			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
 		}
 
-		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges, VersionSpec version,
+		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges, VersionSpec version, bool discard,
 			Workspace workspace, out List<PendingChange> targetPendingChanges)
 		{
 			var conflicts = new List<string>();
@@ -319,7 +319,8 @@ namespace AutoMerge
 				var target = source.Replace(sourceBranch, targetBranch);
 				allTargetsFiles.Add(target);
 
-				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, MergeOptions.None);
+				var mergeOptions = discard ? MergeOptions.AlwaysAcceptMine : MergeOptions.None;
+				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
 
 				if (HasConflicts(status))
 				{
@@ -359,6 +360,12 @@ namespace AutoMerge
 		private static bool ResolveConflict(Workspace workspace, string[] targetPath)
 		{
 			var conflicts = workspace.QueryConflicts(targetPath, false);
+			if (conflicts.IsNullOrEmpty())
+				return true;
+
+			workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
+
+			conflicts = workspace.QueryConflicts(targetPath, false);
 			if (conflicts.IsNullOrEmpty())
 				return true;
 
