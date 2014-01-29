@@ -213,6 +213,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Base\VsListBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Branches\BranchesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

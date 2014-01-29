@@ -20,7 +20,10 @@
 
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoModel">
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" Visibility="{Binding CanMerge, Converter={StaticResource BooleanToVisibilityConverter}}" IsThreeState="False" />
+                    <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}"
+                              Visibility="{Binding CanMerge, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              IsThreeState="False"
+                              Margin="0,0,5,0" />
                     <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"></TextBlock>
                 </StackPanel>
             </DataTemplate>
