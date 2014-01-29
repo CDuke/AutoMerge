@@ -167,18 +167,23 @@ namespace AutoMerge
 			if (sourceBranches.Length == 0)
 				return result;
 
+			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
+
 			var sourceBranchIdentifier = sourceBranches[0].RootItem;
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
 			{
+				var parentBranch = sourceBranchInfo.Properties.ParentBranch.Item;
 				var mergeInfo = new MergeInfoModel
 				{
 					SourceBranch = sourceBranchIdentifier.Item,
-					TargetBranch = sourceBranchInfo.Properties.ParentBranch.Item,
-					Checked = true
+					TargetBranch = parentBranch,
 				};
+
+				mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, parentBranch, changeset.Changes);
+				mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
 
 				result.Add(mergeInfo);
 			}
@@ -202,11 +207,62 @@ namespace AutoMerge
 						TargetBranch = childBranch.Item
 					};
 
+					mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, childBranch.Item, changeset.Changes);
+
 					result.Add(mergeInfo);
 				}
 			}
 
 			return result;
+		}
+
+		private static BranchValidationResult ValidateBranch(Workspace workspace, string sourceBranch, string targetBranch, Change[] changes)
+		{
+			var result = BranchValidationResult.Success;
+			if (result == BranchValidationResult.Success)
+			{
+				var isMapped = IsMapped(workspace, sourceBranch, targetBranch, changes);
+				if (!isMapped)
+					result = BranchValidationResult.BranchNotMapped;
+			}
+
+			if (result == BranchValidationResult.Success)
+			{
+				var hasLocalChanges = HaskLocalChanges(workspace, sourceBranch, targetBranch, changes);
+				if (hasLocalChanges)
+					result = BranchValidationResult.ItemHasLocalChanges;
+			}
+
+			return result;
+		}
+
+		private static bool IsMapped(Workspace workspace, string sourceBranch, string targetBranch, IEnumerable<Change> changes)
+		{
+			var targetItems = changes
+				.Select(c => c.Item.ServerItem)
+				.Select(path => path.Replace(sourceBranch, targetBranch));
+
+			foreach (var targetItem in targetItems)
+			{
+				var workingFolder = workspace.TryGetWorkingFolderForServerItem(targetItem);
+				if (workingFolder == null)
+					return false;
+			}
+
+			return true;
+		}
+
+		private static bool HaskLocalChanges(Workspace workspace, string sourceBranch, string targetBranch, IEnumerable<Change> changes)
+		{
+			var itemSpecs = changes
+				.Select(c => c.Item.ServerItem)
+				.Select(path => path.Replace(sourceBranch, targetBranch))
+				.Select(path => new ItemSpec(path, RecursionType.None))
+				.ToArray();
+
+			var pendingChanges = workspace.GetPendingChangesEnumerable(itemSpecs);
+
+			return pendingChanges.Any();
 		}
 
 		public async void MergeExecute()
@@ -315,12 +371,16 @@ namespace AutoMerge
 		{
 			var conflicts = new List<string>();
 			var allTargetsFiles = new HashSet<string>();
+			targetPendingChanges = null;
 			foreach (var change in sourceChanges)
 			{
 				var source = change.Item.ServerItem;
 				var target = source.Replace(sourceBranch, targetBranch);
 				allTargetsFiles.Add(target);
 
+				var getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
+				if (!getLatestResult.NoActionNeeded)
+					return false;
 				var mergeOptions = discard ? MergeOptions.AlwaysAcceptMine : MergeOptions.None;
 				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
 
@@ -330,7 +390,6 @@ namespace AutoMerge
 				}
 			}
 
-			targetPendingChanges = null;
 			if (conflicts.Count > 0)
 			{
 				var resolved = ResolveConflict(workspace, conflicts.ToArray());

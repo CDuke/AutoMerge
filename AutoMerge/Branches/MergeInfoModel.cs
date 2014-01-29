@@ -10,6 +10,8 @@ namespace AutoMerge
 
 		public string TargetBranch { get; set; }
 
+		public BranchValidationResult ValidationResult { get; set; }
+
 		public bool CanMerge
 		{
 			get
