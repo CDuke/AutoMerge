@@ -4,57 +4,51 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             xmlns:behaviours="clr-namespace:AutoMerge.Behaviours"
              mc:Ignorable="d"
              UseLayoutRounding="True"
              TextOptions.TextFormattingMode="Display"
              d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
-        <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Base/VsListBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+            <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoModel">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" Visibility="{Binding CanMerge, Converter={StaticResource BooleanToVisibilityConverter}}" IsThreeState="False" />
+                    <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"></TextBlock>
+                </StackPanel>
+            </DataTemplate>
+
+            <Style x:Key="BranchesListBoxItemStyle" TargetType="ListBoxItem" BasedOn="{StaticResource VsListBoxItemStyle}">
+                <Setter Property="Template" Value="{StaticResource VsListBoxItemWithoutSelectTemplate}" />
+            </Style>
+            
+            <Style x:Key="BranchesListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource VsListBoxStyle}">
+                <Setter Property="ItemContainerStyle" Value="{StaticResource BranchesListBoxItemStyle}" />
+                <Setter Property="ItemTemplate" Value="{StaticResource BranchItemTemplate}" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <StackPanel IsItemsHost="True" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel>
+    <DockPanel Margin="6,6,6,6">
         <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
             <Button Click="Merge">Merge</Button>
         </WrapPanel>
-        <ListView ItemsSource="{Binding Path=ParentSection.Branches}" BorderThickness="0" 
-                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                  behaviours:GridViewColumnResize.Enabled="True">
-            <ListView.View>
-                <GridView>
-                    <GridView.ColumnHeaderContainerStyle>
-                        <Style>
-                            <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
-                        </Style>
-                    </GridView.ColumnHeaderContainerStyle>
-                    <GridViewColumn>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}" Visibility="{Binding CanMerge, Converter={StaticResource BooleanToVisibilityConverter}}" IsThreeState="False" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Target" behaviours:GridViewColumnResize.Width="*">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"></TextBlock>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsCurrentBranch}" Value="true">
-                            <Setter Property="FontWeight" Value="Light" />
-                            <!--<Setter Property="IsEnabled" Value="False"></Setter>-->
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
+        <ListBox ItemsSource="{Binding Path=ParentSection.Branches}"
+                 Style="{DynamicResource BranchesListBoxStyle}">
+        </ListBox>
     </DockPanel>
 </UserControl>

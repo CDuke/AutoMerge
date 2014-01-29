@@ -4,86 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
+             xmlns:client="clr-namespace:Microsoft.TeamFoundation.VersionControl.Client;assembly=Microsoft.TeamFoundation.VersionControl.Client"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
              UseLayoutRounding="True"
              TextOptions.TextFormattingMode="Display"
+             d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
-        <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Base/VsListBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter"/>
+
+            <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="client:Changeset">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Path=ChangesetId}" Margin="0, 0, 20, 0" />
+                    <TextBlock Text="{Binding Path=Comment, Converter={StaticResource ChangesetCommentConverter}}" />
+                </StackPanel>
+            </DataTemplate>
+            <Style x:Key="ChangesetListStyle" TargetType="ListBox" BasedOn="{StaticResource VsListBoxStyle}">
+                <Setter Property="ItemTemplate" Value="{StaticResource ChangesetItemDataTemplate}" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <StackPanel IsItemsHost="True" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="6,6,6,6">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <!-- Changesets list view -->
-        <ListView Grid.Row="0" ItemsSource="{Binding Path=ParentSection.Changesets}" SelectedItem="{Binding Path=ParentSection.SelectedChangeset}" BorderThickness="0" 
-                  SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                  MouseDoubleClick="List_MouseDoubleClick" KeyDown="List_KeyDown">
-            <ListView.View>
-                <GridView>
-                    <GridView.ColumnHeaderContainerStyle>
-                        <Style>
-                            <Setter Property="FrameworkElement.Visibility" Value="Collapsed"/>
-                        </Style>
-                    </GridView.ColumnHeaderContainerStyle>
-                    <GridViewColumn>
-                        <GridViewColumnHeader Content="Changeset"/>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=ChangesetId}"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn>
-                        <GridViewColumnHeader Content="Comment"/>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Path=Comment, Converter={StaticResource ChangesetCommentConverter}}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolboxContentMouseOverBrushKey}}" />
-                        </Trigger>
-                    </Style.Triggers>
-                    <Setter Property="Foreground" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolWindowTextBrushKey}}" />
-                    <Setter Property="ToolTip">
-                        <Setter.Value>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,6,3" Text="Changeset ID:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=ChangesetId}"/>
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,6,3" Text="Owner:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=OwnerDisplayName}"/>
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,6,3" Text="Date:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=CreationDate}"/>
-
-                                <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,6,3" Text="Comment:" FontWeight="Bold"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,0,3" Text="{Binding Path=Comment}" TextWrapping="Wrap" MaxWidth="500"/>
-                            </Grid>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
-    </Grid>
+    <StackPanel Margin="6, 6, 6, 6">
+        <ListBox ItemsSource="{Binding Path=ParentSection.Changesets}"
+                 SelectedItem="{Binding Path=ParentSection.SelectedChangeset}"
+                 Style="{DynamicResource ChangesetListStyle}"
+                 MouseDoubleClick="List_MouseDoubleClick" KeyDown="List_KeyDown">
+        </ListBox>
+    </StackPanel>
 </UserControl>
