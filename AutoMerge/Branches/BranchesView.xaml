@@ -14,26 +14,42 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Base/VsListBox.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
+
             <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
             <autoMerge:ValidationResultToEnableConverter x:Key="ValidationResultToEnableConverter" />
+            <autoMerge:ValidationResultToTextConverter x:Key="ValidationResultToTextConverter"/>
+            <autoMerge:ValidationResultToVisibilityConverter x:Key="ValidationResultToVisibilityConverter" />
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoModel">
                 <StackPanel Orientation="Horizontal">
+                    <Image Source="../Images/warning_12x12.png"
+                           ToolTip="{Binding ValidationResult, Converter={StaticResource ValidationResultToTextConverter}}"
+                           Visibility="{Binding ImageVisibility}"
+                           Margin="0,0,6,0">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <Trigger Property="ToolTip" Value="{x:Null}">
+                                        <Setter Property="ToolTipService.IsEnabled" Value="False" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
                     <CheckBox IsChecked="{Binding Checked, Mode=TwoWay}"
-                              Visibility="{Binding CanMerge, Converter={StaticResource BooleanToVisibilityConverter}}"
-                              IsEnabled="{Binding ValidationResult, Converter={StaticResource ValidationResultToEnableConverter}}"
+                              Visibility="{Binding GetCheckBoxVisibility}"
                               IsThreeState="False"
-                              Margin="0,0,5,0" />
-                    <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"></TextBlock>
+                              Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}"
+                               Margin="0,0,0,0" />
                 </StackPanel>
             </DataTemplate>
 
             <Style x:Key="BranchesListBoxItemStyle" TargetType="ListBoxItem" BasedOn="{StaticResource VsListBoxItemStyle}">
                 <Setter Property="Template" Value="{StaticResource VsListBoxItemWithoutSelectTemplate}" />
             </Style>
-            
+
             <Style x:Key="BranchesListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource VsListBoxStyle}">
                 <Setter Property="ItemContainerStyle" Value="{StaticResource BranchesListBoxItemStyle}" />
                 <Setter Property="ItemTemplate" Value="{StaticResource BranchItemTemplate}" />

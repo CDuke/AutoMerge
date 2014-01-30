@@ -182,7 +182,7 @@ namespace AutoMerge
 					TargetBranch = parentBranch,
 				};
 
-				mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, parentBranch, changeset.Changes);
+				mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, parentBranch, changeset.Changes, changeset.ChangesetId);
 				mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
 
 				result.Add(mergeInfo);
@@ -191,7 +191,8 @@ namespace AutoMerge
 			var currentBranchInfo = new MergeInfoModel
 			{
 				SourceBranch = sourceBranchIdentifier.Item,
-				TargetBranch = sourceBranchIdentifier.Item
+				TargetBranch = sourceBranchIdentifier.Item,
+				ValidationResult = BranchValidationResult.Success
 			};
 			result.Add(currentBranchInfo);
 
@@ -207,7 +208,7 @@ namespace AutoMerge
 						TargetBranch = childBranch.Item
 					};
 
-					mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, childBranch.Item, changeset.Changes);
+					mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, childBranch.Item, changeset.Changes, changeset.ChangesetId);
 
 					result.Add(mergeInfo);
 				}
@@ -216,7 +217,7 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static BranchValidationResult ValidateBranch(Workspace workspace, string sourceBranch, string targetBranch, Change[] changes)
+		private static BranchValidationResult ValidateBranch(Workspace workspace, string sourceBranch, string targetBranch, Change[] changes, int changesetId)
 		{
 			var result = BranchValidationResult.Success;
 			if (result == BranchValidationResult.Success)
@@ -233,7 +234,31 @@ namespace AutoMerge
 					result = BranchValidationResult.ItemHasLocalChanges;
 			}
 
+			if (result == BranchValidationResult.Success)
+			{
+				var isMerge = IsMerged(workspace.VersionControlServer, sourceBranch, targetBranch, changes, changesetId);
+				if (isMerge)
+					result = BranchValidationResult.AlreadyMerged;
+			}
+
 			return result;
+		}
+
+		private static bool IsMerged(VersionControlServer versionControlServer, string sourceBranch, string targetBranch, Change[] changes, int changesetId)
+		{
+			foreach (var change in changes)
+			{
+				var source = change.Item.ServerItem;
+				var target = source.Replace(sourceBranch, targetBranch);
+
+				var mergeCandidates = versionControlServer.GetMergeCandidates(source, target, RecursionType.None);
+				if (mergeCandidates.Any(m => m.Changeset.ChangesetId == changesetId))
+					continue;
+
+				return true;
+			}
+
+			return false;
 		}
 
 		private static bool IsMapped(Workspace workspace, string sourceBranch, string targetBranch, IEnumerable<Change> changes)

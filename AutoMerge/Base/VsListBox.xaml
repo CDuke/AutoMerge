@@ -32,18 +32,6 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolboxContentMouseOverBrushKey}}" />
             </Trigger>
-<!--            <Trigger Property="IsSelected" Value="True">-->
-<!--                <Setter Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.SelectedItemActiveBrushKey}}" Property="Background" />-->
-<!--                <Setter Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.SelectedItemActiveTextBrushKey}}" Property="Foreground" />-->
-<!--            </Trigger>-->
-<!--            <MultiTrigger>-->
-<!--                <MultiTrigger.Conditions>-->
-<!--                    <Condition Property="IsSelected" Value="True" />-->
-<!--                    <Condition Property="Selector.IsSelectionActive" Value="False" />-->
-<!--                </MultiTrigger.Conditions>-->
-<!--                <Setter Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.SelectedItemInactiveBrushKey}}" Property="Background" />-->
-<!--                <Setter Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.SelectedItemInactiveTextBrushKey}}" Property="Foreground" />-->
-<!--            </MultiTrigger>-->
         </ControlTemplate.Triggers>
     </ControlTemplate>
 

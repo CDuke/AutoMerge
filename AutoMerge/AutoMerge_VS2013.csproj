@@ -163,6 +163,8 @@
     <Compile Include="Branches\BranchValidationResult.cs" />
     <Compile Include="Branches\MergeInfoModel.cs" />
     <Compile Include="Branches\ValidationResultToEnableConverter.cs" />
+    <Compile Include="Branches\ValidationResultToTextConverter.cs" />
+    <Compile Include="Branches\ValidationResultToVisibilityConverter.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\SelectChangesetEvent.cs" />
     <Compile Include="Guids.cs" />
@@ -206,6 +208,8 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\Warning_grey_7315_16x16.png" />
+    <Resource Include="Images\warning_12x12.png" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup>

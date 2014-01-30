@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 
 namespace AutoMerge
 {
@@ -25,6 +26,35 @@ namespace AutoMerge
 			get
 			{
 				return string.Equals(SourceBranch, TargetBranch, StringComparison.OrdinalIgnoreCase);
+			}
+		}
+
+		public Visibility GetCheckBoxVisibility
+		{
+			get
+			{
+				if (IsCurrentBranch)
+					return Visibility.Collapsed;
+
+				if (!IsCurrentBranch && ValidationResult == BranchValidationResult.Success)
+					return Visibility.Visible;
+
+				return Visibility.Collapsed;
+			}
+		}
+
+		public Visibility ImageVisibility
+		{
+			get
+			{
+				if (IsCurrentBranch)
+					return Visibility.Collapsed;
+
+				if (!IsCurrentBranch && ValidationResult != BranchValidationResult.Success)
+					return Visibility.Visible;
+
+				return Visibility.Collapsed;
+
 			}
 		}
 	}
