@@ -124,7 +124,7 @@ namespace AutoMerge
 
 			_eventAggregator.GetEvent<SelectChangesetEvent>()
 				.Subscribe(OnSelectedChangeset);
-			_eventAggregator.GetEvent<BranchSelectedChanged>()
+			_eventAggregator.GetEvent<BranchSelectedChangedEvent>()
 				.Subscribe(OnBranchSelectedChanged);
 		}
 
@@ -348,6 +348,7 @@ namespace AutoMerge
 						ShowNotification("Merge success", NotificationType.Information);
 						break;
 				}
+				_eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
 			}
 			catch (Exception ex)
 			{

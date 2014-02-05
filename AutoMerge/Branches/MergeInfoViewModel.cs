@@ -24,7 +24,7 @@ namespace AutoMerge
 			set
 			{
 				_checked = value;
-				_eventAggregator.GetEvent<BranchSelectedChanged>().Publish(this);
+				_eventAggregator.GetEvent<BranchSelectedChangedEvent>().Publish(this);
 			}
 		}
 

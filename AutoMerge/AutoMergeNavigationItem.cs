@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace AutoMerge
 {
-	[TeamExplorerNavigationItem(LinkId, 200)]
+	[TeamExplorerNavigationItem(LinkId, 210)]
 	public class AutoMergeNavigationItem : TeamExplorerBaseNavigationItem
 	{
 		#region Members
