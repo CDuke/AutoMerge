@@ -11,6 +11,7 @@ using Microsoft.Practices.Prism.Events;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.VersionControl.Client;
+using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
 namespace AutoMerge
@@ -251,14 +252,14 @@ namespace AutoMerge
 				var source = change.Item.ServerItem;
 				var target = source.Replace(sourceBranch, targetBranch);
 
-				var mergeCandidates = versionControlServer.GetMergeCandidates(source, target, RecursionType.None);
+				var mergeCandidates = versionControlServer.GetMergeCandidates(new ItemSpec(source, RecursionType.None), target, MergeOptionsEx.Conservative);
 				if (mergeCandidates.Any(m => m.Changeset.ChangesetId == changesetId))
-					continue;
-
-				return true;
+				{
+					return false;
+				}
 			}
 
-			return false;
+			return true;
 		}
 
 		private static bool IsMapped(Workspace workspace, string sourceBranch, string targetBranch, IEnumerable<Change> changes)
