@@ -13,6 +13,7 @@ using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace AutoMerge
 {
@@ -41,7 +42,7 @@ namespace AutoMerge
 		{
 			public Changeset Changeset { get; set; }
 
-			public ObservableCollection<MergeInfoModel> Branches { get; set; }
+			public ObservableCollection<MergeInfoViewModel> Branches { get; set; }
 		}
 
 		private readonly IEventAggregator _eventAggregator;
@@ -74,7 +75,7 @@ namespace AutoMerge
 			get { return SectionContent as BranchesView; }
 		}
 
-		public ObservableCollection<MergeInfoModel> Branches
+		public ObservableCollection<MergeInfoViewModel> Branches
 		{
 			get
 			{
@@ -86,7 +87,21 @@ namespace AutoMerge
 				RaisePropertyChanged(() => Branches);
 			}
 		}
-		private ObservableCollection<MergeInfoModel> _branches;
+		private ObservableCollection<MergeInfoViewModel> _branches;
+
+		public bool MergeEnabled
+		{
+			get
+			{
+				return _mergeEnabled;
+			}
+			set
+			{
+				_mergeEnabled = value;
+				RaisePropertyChanged(() => MergeEnabled);
+			}
+		}
+		private bool _mergeEnabled;
 
 		public ICommand MergeCommand { get; private set; }
 
@@ -109,6 +124,18 @@ namespace AutoMerge
 
 			_eventAggregator.GetEvent<SelectChangesetEvent>()
 				.Subscribe(OnSelectedChangeset);
+			_eventAggregator.GetEvent<BranchSelectedChanged>()
+				.Subscribe(OnBranchSelectedChanged);
+		}
+
+		private void OnBranchSelectedChanged(MergeInfoViewModel obj)
+		{
+			ValidateMergeEnabled();
+		}
+
+		private void ValidateMergeEnabled()
+		{
+			MergeEnabled = _branches.Any(b => b.Checked);
 		}
 
 		/// <summary>
@@ -132,13 +159,14 @@ namespace AutoMerge
 
 				if (_changeset == null)
 				{
-					Branches = new ObservableCollection<MergeInfoModel>();
+					Branches = new ObservableCollection<MergeInfoViewModel>();
 					return;
 				}
 
 				var branches = await Task.Run(() => GetBranches(_changeset));
 
 				Branches = branches;
+				ValidateMergeEnabled();
 			}
 			catch (Exception ex)
 			{
@@ -157,14 +185,14 @@ namespace AutoMerge
 			Refresh();
 		}
 
-		private ObservableCollection<MergeInfoModel> GetBranches(Changeset changeset)
+		private ObservableCollection<MergeInfoViewModel> GetBranches(Changeset changeset)
 		{
 			var tfs = CurrentContext.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
 
 			var sourceBranches = versionControl.QueryBranchObjectOwnership(new []{changeset.ChangesetId});
 
-			var result = new ObservableCollection<MergeInfoModel>();
+			var result = new ObservableCollection<MergeInfoViewModel>();
 			if (sourceBranches.Length == 0)
 				return result;
 
@@ -177,7 +205,7 @@ namespace AutoMerge
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
 			{
 				var parentBranch = sourceBranchInfo.Properties.ParentBranch.Item;
-				var mergeInfo = new MergeInfoModel
+				var mergeInfo = new MergeInfoViewModel(_eventAggregator)
 				{
 					SourceBranch = sourceBranchIdentifier.Item,
 					TargetBranch = parentBranch,
@@ -189,7 +217,7 @@ namespace AutoMerge
 				result.Add(mergeInfo);
 			}
 
-			var currentBranchInfo = new MergeInfoModel
+			var currentBranchInfo = new MergeInfoViewModel(_eventAggregator)
 			{
 				SourceBranch = sourceBranchIdentifier.Item,
 				TargetBranch = sourceBranchIdentifier.Item,
@@ -203,7 +231,7 @@ namespace AutoMerge
 					.Reverse();
 				foreach (var childBranch in childBranches)
 				{
-					var mergeInfo = new MergeInfoModel
+					var mergeInfo = new MergeInfoViewModel(_eventAggregator)
 					{
 						SourceBranch = sourceBranchIdentifier.Item,
 						TargetBranch = childBranch.Item
@@ -252,7 +280,7 @@ namespace AutoMerge
 				var source = change.Item.ServerItem;
 				var target = source.Replace(sourceBranch, targetBranch);
 
-				var mergeCandidates = versionControlServer.GetMergeCandidates(new ItemSpec(source, RecursionType.None), target, MergeOptionsEx.Conservative);
+				var mergeCandidates = versionControlServer.GetMergeCandidates(new ItemSpec(source, RecursionType.None), target);
 				if (mergeCandidates.Any(m => m.Changeset.ChangesetId == changesetId))
 				{
 					return false;
@@ -371,13 +399,13 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoModel mergeInfo, Workspace workspace,
+		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoViewModel mergeInfoView, Workspace workspace,
 			WorkItemCheckinInfo[] workItems, string sourceComment)
 		{
 			if (targetPendingChanges.Count == 0)
 				return CheckInResult.NothingMerge;
 
-			var comment = EvaluateComment(sourceComment, mergeInfo.SourceBranch, mergeInfo.TargetBranch);
+			var comment = EvaluateComment(sourceComment, mergeInfoView.SourceBranch, mergeInfoView.TargetBranch);
 			var evaluateCheckIn = workspace.EvaluateCheckin2(CheckinEvaluationOptions.All,
 				targetPendingChanges,
 				comment,

@@ -1,11 +1,32 @@
 ﻿using System;
 using System.Windows;
+using AutoMerge.Events;
+using Microsoft.Practices.Prism.Events;
 
 namespace AutoMerge
 {
-	public class MergeInfoModel
+	public class MergeInfoViewModel
 	{
-		public bool Checked { get; set; }
+		private readonly IEventAggregator _eventAggregator;
+		private bool _checked;
+
+		public MergeInfoViewModel(IEventAggregator eventAggregator)
+		{
+			_eventAggregator = eventAggregator;
+		}
+
+		public bool Checked
+		{
+			get
+			{
+				return _checked;
+			}
+			set
+			{
+				_checked = value;
+				_eventAggregator.GetEvent<BranchSelectedChanged>().Publish(this);
+			}
+		}
 
 		public string SourceBranch { get; set; }
 
