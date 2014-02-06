@@ -16,12 +16,14 @@
                 <ResourceDictionary Source="../Base/VsListBox.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter"/>
+            <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter" />
+            <autoMerge:BranchesListConverter x:Key="BranchesListConverter" />
 
-            <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="client:Changeset">
+            <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="autoMerge:ChangesetViewModel">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Path=ChangesetId}" Margin="0, 0, 20, 0" />
-                    <TextBlock Text="{Binding Path=Comment, Converter={StaticResource ChangesetCommentConverter}}" />
+<!--                    <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}" Margin="0, 0, 20, 0" />-->
+                    <TextBlock Text="{Binding ChangesetId}" Margin="0, 0, 20, 0" />
+                    <TextBlock Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                 </StackPanel>
             </DataTemplate>
             <Style x:Key="ChangesetListStyle" TargetType="ListBox" BasedOn="{StaticResource VsListBoxStyle}">

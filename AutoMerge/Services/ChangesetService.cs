@@ -39,5 +39,12 @@ namespace AutoMerge
 
 			return changeset;
 		}
+
+		public List<ItemIdentifier> GetAssociatedBranches(int changesetId)
+		{
+			var branches = _versionControlServer.QueryBranchObjectOwnership(new[] { changesetId });
+
+			return branches.Select(b => b.RootItem).ToList();
+		}
 	}
 }

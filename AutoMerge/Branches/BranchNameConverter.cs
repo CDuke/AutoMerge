@@ -9,10 +9,7 @@ namespace AutoMerge
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			var fullBranchName = (value is string) ? (string)value : String.Empty;
-
-			var pos = fullBranchName.LastIndexOf('/');
-			var name = fullBranchName.Substring(pos + 1);
-			return name;
+			return BranchHelper.GetShortBranchName(fullBranchName);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

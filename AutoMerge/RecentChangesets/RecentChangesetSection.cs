@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using AutoMerge.Base;
@@ -58,8 +59,8 @@ namespace AutoMerge
 			get { return SectionContent as RecentChangesetsView; }
 		}
 
-		private Changeset _selectedChangeset;
-		public Changeset SelectedChangeset
+		private ChangesetViewModel _selectedChangeset;
+		public ChangesetViewModel SelectedChangeset
 		{
 			get
 			{
@@ -76,7 +77,7 @@ namespace AutoMerge
 		/// <summary>
 		/// List of changesets.
 		/// </summary>
-		public ObservableCollection<Changeset> Changesets
+		public ObservableCollection<ChangesetViewModel> Changesets
 		{
 			get
 			{
@@ -88,7 +89,7 @@ namespace AutoMerge
 				RaisePropertyChanged(() => Changesets);
 			}
 		}
-		private ObservableCollection<Changeset> _changesets = new ObservableCollection<Changeset>();
+		private ObservableCollection<ChangesetViewModel> _changesets = new ObservableCollection<ChangesetViewModel>();
 
 		public ICommand ViewChangesetDetailsCommand { get; private set; }
 
@@ -193,7 +194,7 @@ namespace AutoMerge
 				IsBusy = true;
 				Changesets.Clear();
 
-				ICollection<Changeset> changesets = new List<Changeset>();
+				ICollection<ChangesetViewModel> changesets = new List<ChangesetViewModel>();
 				var context = CurrentContext;
 				if (context != null && context.HasCollection && context.HasTeamProject)
 				{
@@ -201,11 +202,23 @@ namespace AutoMerge
 					if (vcs != null)
 					{
 						var changesetService = new ChangesetService(vcs, context.TeamProjectName);
-						changesets = await changesetService.GetUserChangesets(vcs.AuthorizedUser);
+						var tfsChangesets = await changesetService.GetUserChangesets(vcs.AuthorizedUser);
+						foreach (var tfsChangeset in tfsChangesets)
+						{
+							var changeset = new ChangesetViewModel
+							{
+								ChangesetId = tfsChangeset.ChangesetId,
+								Comment = tfsChangeset.Comment,
+								Branches = changesetService.GetAssociatedBranches(tfsChangeset.ChangesetId)
+									.Select(i => i.Item)
+									.ToList()
+							};
+							changesets.Add(changeset);
+						}
 					}
 				}
 
-				Changesets = new ObservableCollection<Changeset>(changesets);
+				Changesets = new ObservableCollection<ChangesetViewModel>(changesets);
 				Title = Changesets.Count > 0
 					? string.Format("{0} ({1})", BaseTitle, Changesets.Count)
 					: BaseTitle;
@@ -229,8 +242,8 @@ namespace AutoMerge
 		/// </summary>
 		private class ChangesSectionContext
 		{
-			public ObservableCollection<Changeset> Changesets { get; set; }
-			public Changeset SelectedChangeset { get; set; }
+			public ObservableCollection<ChangesetViewModel> Changesets { get; set; }
+			public ChangesetViewModel SelectedChangeset { get; set; }
 		}
 	}
 }

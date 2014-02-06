@@ -201,10 +201,10 @@ namespace AutoMerge
 
 			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
-			var sourceBranchIdentifier = sourceBranches[0].RootItem;
+			var changesetService = new ChangesetService(versionControl, CurrentContext.TeamProjectName);
+			var sourceBranchIdentifier = changesetService.GetAssociatedBranches(changesetId)[0];
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
 
-			var changesetService = new ChangesetService(versionControl, CurrentContext.TeamProjectName);
 			var changeset = changesetService.GetChanget(changesetId);
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
