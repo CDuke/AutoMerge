@@ -11,9 +11,7 @@ using Microsoft.Practices.Prism.Events;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.VersionControl.Client;
-using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace AutoMerge
 {
@@ -40,7 +38,7 @@ namespace AutoMerge
 
 		private class BranchContext
 		{
-			public Changeset Changeset { get; set; }
+			public int ChangesetId { get; set; }
 
 			public ObservableCollection<MergeInfoViewModel> Branches { get; set; }
 		}
@@ -48,7 +46,7 @@ namespace AutoMerge
 		private readonly IEventAggregator _eventAggregator;
 		public const string SectionId = "36BF6F52-F4AC-44A0-9985-817B2A65B3B0";
 
-		private Changeset _changeset;
+		private int _changesetId;
 
 		/// <summary>
 		/// Constructor.
@@ -113,7 +111,7 @@ namespace AutoMerge
 			{
 				// Restore the context instead of refreshing
 				var context = (BranchContext)e.Context;
-				_changeset = context.Changeset;
+				_changesetId = context.ChangesetId;
 				Branches = context.Branches;
 			}
 			else
@@ -152,22 +150,22 @@ namespace AutoMerge
 		/// </summary>
 		private async Task RefreshAsync()
 		{
-			var changeset = _changeset;
+			var changesetId = _changesetId;
 			try
 			{
 				// Set our busy flag and clear the previous data
 				IsBusy = true;
 				MergeEnabled = false;
-				if (changeset == null)
+				if (changesetId <= 0)
 				{
 					Branches = new ObservableCollection<MergeInfoViewModel>();
 					return;
 				}
 
-				var branches = await Task.Run(() => GetBranches(changeset));
+				var branches = await Task.Run(() => GetBranches(changesetId));
 
 				// Selected changeset in sequence
-				if (changeset == _changeset)
+				if (changesetId == _changesetId)
 				{
 					Branches = branches;
 					ValidateMergeEnabled();
@@ -184,18 +182,18 @@ namespace AutoMerge
 			}
 		}
 
-		private void OnSelectedChangeset(Changeset changeset)
+		private void OnSelectedChangeset(int changesetId)
 		{
-			_changeset = changeset;
+			_changesetId = changesetId;
 			Refresh();
 		}
 
-		private ObservableCollection<MergeInfoViewModel> GetBranches(Changeset changeset)
+		private ObservableCollection<MergeInfoViewModel> GetBranches(int changesetId)
 		{
 			var tfs = CurrentContext.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
 
-			var sourceBranches = versionControl.QueryBranchObjectOwnership(new []{changeset.ChangesetId});
+			var sourceBranches = versionControl.QueryBranchObjectOwnership(new[] { changesetId });
 
 			var result = new ObservableCollection<MergeInfoViewModel>();
 			if (sourceBranches.Length == 0)
@@ -205,6 +203,9 @@ namespace AutoMerge
 
 			var sourceBranchIdentifier = sourceBranches[0].RootItem;
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
+
+			var changesetService = new ChangesetService(versionControl, CurrentContext.TeamProjectName);
+			var changeset = changesetService.GetChanget(changesetId);
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
@@ -373,7 +374,8 @@ namespace AutoMerge
 			
 			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
-			var changeset = _changeset;
+			var changesetService = new ChangesetService(versionControl, CurrentContext.TeamProjectName);
+			var changeset = changesetService.GetChanget(_changesetId);
 			var workItemStore = tfs.GetService<WorkItemStore>();
 			var versionSpec = new ChangesetVersionSpec(changeset.ChangesetId);
 
@@ -573,7 +575,7 @@ namespace AutoMerge
 
 			var context = new BranchContext
 			{
-				Changeset = _changeset,
+				ChangesetId = _changesetId,
 				Branches = Branches
 			};
 

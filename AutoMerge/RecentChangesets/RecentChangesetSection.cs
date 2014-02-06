@@ -69,7 +69,7 @@ namespace AutoMerge
 			{
 				_selectedChangeset = value;
 				RaisePropertyChanged(() => SelectedChangeset);
-				_eventAggregator.GetEvent<SelectChangesetEvent>().Publish(value);
+				_eventAggregator.GetEvent<SelectChangesetEvent>().Publish(value.ChangesetId);
 			}
 		}
 
