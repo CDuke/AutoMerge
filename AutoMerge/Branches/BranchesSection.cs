@@ -152,21 +152,27 @@ namespace AutoMerge
 		/// </summary>
 		private async Task RefreshAsync()
 		{
+			var changeset = _changeset;
 			try
 			{
 				// Set our busy flag and clear the previous data
 				IsBusy = true;
-
-				if (_changeset == null)
+				MergeEnabled = false;
+				if (changeset == null)
 				{
 					Branches = new ObservableCollection<MergeInfoViewModel>();
 					return;
 				}
 
-				var branches = await Task.Run(() => GetBranches(_changeset));
+				var branches = await Task.Run(() => GetBranches(changeset));
 
-				Branches = branches;
-				ValidateMergeEnabled();
+				// Selected changeset in sequence
+				if (changeset == _changeset)
+				{
+					Branches = branches;
+					ValidateMergeEnabled();
+				}
+
 			}
 			catch (Exception ex)
 			{
@@ -174,7 +180,6 @@ namespace AutoMerge
 			}
 			finally
 			{
-				// Always clear our busy flag when done 
 				IsBusy = false;
 			}
 		}
