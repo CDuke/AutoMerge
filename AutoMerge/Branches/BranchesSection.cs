@@ -442,7 +442,13 @@ namespace AutoMerge
 
 				var getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
 				if (!getLatestResult.NoActionNeeded)
-					return false;
+				{
+					// HACK.
+					getLatestResult = workspace.Get(new[] { target }, VersionSpec.Latest, RecursionType.None, GetOptions.None);
+					if (!getLatestResult.NoActionNeeded)
+						return false;
+				}
+
 				var mergeOptions = discard ? MergeOptions.AlwaysAcceptMine : MergeOptions.None;
 				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
 
