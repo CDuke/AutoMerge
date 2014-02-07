@@ -170,9 +170,12 @@
     <Compile Include="Events\MergeCompleteEvent.cs" />
     <Compile Include="Events\SelectChangesetEvent.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\EnvironmentColors.cs" />
+    <Compile Include="RecentChangesets\BranchesListConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
+    <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\RecentChangesetSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
