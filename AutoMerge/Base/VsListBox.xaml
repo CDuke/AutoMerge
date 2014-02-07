@@ -21,6 +21,9 @@
                 <Setter Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.SelectedItemInactiveBrushKey}}" Property="Background" />
                 <Setter Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.SelectedItemInactiveTextBrushKey}}" Property="Foreground" />
             </MultiTrigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static autoMerge:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}" />
+            </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
 

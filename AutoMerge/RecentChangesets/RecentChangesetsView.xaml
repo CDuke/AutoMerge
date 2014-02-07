@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             xmlns:client="clr-namespace:Microsoft.TeamFoundation.VersionControl.Client;assembly=Microsoft.TeamFoundation.VersionControl.Client"
              mc:Ignorable="d"
              UseLayoutRounding="True"
              TextOptions.TextFormattingMode="Display"
@@ -26,8 +25,16 @@
                     <TextBlock Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                 </StackPanel>
             </DataTemplate>
+            <Style x:Key="ChangesetListItemStyle" BasedOn="{StaticResource VsListBoxItemStyle}" TargetType="ListBoxItem">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding CanMerge}" Value="False">
+                        <Setter Property="IsEnabled" Value="False" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
             <Style x:Key="ChangesetListStyle" TargetType="ListBox" BasedOn="{StaticResource VsListBoxStyle}">
                 <Setter Property="ItemTemplate" Value="{StaticResource ChangesetItemDataTemplate}" />
+                <Setter Property="ItemContainerStyle" Value="{StaticResource ChangesetListItemStyle}" />
                 <Setter Property="SelectionMode" Value="Single" />
                 <Setter Property="Template">
                     <Setter.Value>

@@ -14,9 +14,20 @@ namespace AutoMerge
 			}
 		}
 
+		public static ThemeResourceKey ToolboxDisabledContentTextBrushKey
+		{
+			get
+			{
+				return VsEnvironmetnColors.ToolboxDisabledContentTextBrushKey;
+			}
+		}
+
 		public static ThemeResourceKey ToolboxContentMouseOverBrushKey
 		{
-			get { return VsEnvironmetnColors.ToolboxContentMouseOverBrushKey; }
+			get
+			{
+				return VsEnvironmetnColors.ToolboxContentMouseOverBrushKey;
+			}
 		}
 
 		public static ThemeResourceKey SelectedItemActiveBrushKey

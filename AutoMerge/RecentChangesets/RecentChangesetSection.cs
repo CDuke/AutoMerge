@@ -70,7 +70,7 @@ namespace AutoMerge
 			{
 				_selectedChangeset = value;
 				RaisePropertyChanged(() => SelectedChangeset);
-				_eventAggregator.GetEvent<SelectChangesetEvent>().Publish(value.ChangesetId);
+				_eventAggregator.GetEvent<SelectChangesetEvent>().Publish(value== null ? 0 : value.ChangesetId);
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace AutoMerge
 					: BaseTitle;
 
 				if (Changesets.Count > 0)
-					SelectedChangeset = Changesets[0];
+					SelectedChangeset = Changesets.FirstOrDefault(c => c.CanMerge);
 			}
 			catch (Exception ex)
 			{
