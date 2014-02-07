@@ -339,7 +339,7 @@ namespace AutoMerge
 						ShowNotification("Check In evaluate failed", NotificationType.Error);
 						break;
 					case MergeResult.CheckInFail:
-						ShowNotification("Check In  failed", NotificationType.Error);
+						ShowNotification("Check In failed", NotificationType.Error);
 						break;
 					case MergeResult.NothingMerge:
 						ShowNotification("Nothing merged", NotificationType.Warning);
@@ -351,7 +351,7 @@ namespace AutoMerge
 						ShowNotification("Unresolved conflicts", NotificationType.Error);
 						break;
 					case MergeResult.Success:
-						ShowNotification("Merge success", NotificationType.Information);
+						ShowNotification("Merge is successful", NotificationType.Information);
 						break;
 				}
 				_eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
