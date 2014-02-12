@@ -216,7 +216,6 @@
     <Resource Include="Images\Warning_grey_7315_16x16.png" />
     <Resource Include="Images\warning_12x12.png" />
     <Content Include="LICENSE.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Resources\Package.ico" />

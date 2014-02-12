@@ -391,7 +391,7 @@ namespace AutoMerge
 				// Another user can update workitem. Need re-read before update.
 				// TODO: maybe move to workspace.CheckIn operation
 				var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);
-				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.Comment);
+				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.Comment, changeset.PolicyOverride);
 				switch (checkInResult)
 				{
 					case CheckInResult.CheckInEvaluateFail:
@@ -407,8 +407,8 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoViewModel mergeInfoView, Workspace workspace,
-			WorkItemCheckinInfo[] workItems, string sourceComment)
+		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoViewModel mergeInfoView,
+			Workspace workspace, WorkItemCheckinInfo[] workItems, string sourceComment, PolicyOverrideInfo policyOverride)
 		{
 			if (targetPendingChanges.Count == 0)
 				return CheckInResult.NothingMerge;
@@ -420,11 +420,13 @@ namespace AutoMerge
 				null,
 				workItems);
 
-			if (!CanCheckIn(evaluateCheckIn))
+			var skipPolicyValidate = !policyOverride.PolicyFailures.IsNullOrEmpty();
+			if (!CanCheckIn(evaluateCheckIn, skipPolicyValidate))
 				return CheckInResult.CheckInEvaluateFail;
 
 			//var changesetId = 1;
-			var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), comment, null, workItems, null);
+			var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), null, comment,
+				null, workItems, policyOverride);
 			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
 		}
 
@@ -564,12 +566,15 @@ namespace AutoMerge
 			return result.ToArray();
 		}
 
-		private static bool CanCheckIn(CheckinEvaluationResult checkinEvaluationResult)
+		private static bool CanCheckIn(CheckinEvaluationResult checkinEvaluationResult, bool skipPolicy)
 		{
-			return checkinEvaluationResult.Conflicts.IsNullOrEmpty()
+			var result = checkinEvaluationResult.Conflicts.IsNullOrEmpty()
 				&& checkinEvaluationResult.NoteFailures.IsNullOrEmpty()
-				&& checkinEvaluationResult.PolicyFailures.IsNullOrEmpty()
 				&& checkinEvaluationResult.PolicyEvaluationException == null;
+
+			if (!skipPolicy)
+				result &= checkinEvaluationResult.PolicyFailures.IsNullOrEmpty();
+			return result;
 		}
 
 		public override void SaveContext(object sender, SectionSaveContextEventArgs e)
