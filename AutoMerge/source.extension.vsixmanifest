@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="74D93293-619D-4399-A193-86732970E705" Version="0.1" Language="en-US" Publisher="Kulikov Denis" />
-		<DisplayName>Auto Merge for Visual Studio 2013 Beta</DisplayName>
+		<Identity Id="F05BAC3E-6794-4A9E-9EE7-1B8A200778EE" Version="0.1" Language="en-US" Publisher="Kulikov Denis" />
+		<DisplayName>Auto Merge</DisplayName>
 		<Description>Let auto merge changesets</Description>
 		<License>LICENSE.txt</License>
 		<Tags>tfs, merge</Tags>
