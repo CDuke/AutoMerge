@@ -20,6 +20,9 @@
 
             <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="autoMerge:ChangesetViewModel">
                 <StackPanel Orientation="Horizontal">
+                    <StackPanel.ToolTip>
+                        <ToolTip Content="{Binding Comment}" />
+                    </StackPanel.ToolTip>
 <!--                    <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}" Margin="0, 0, 20, 0" />-->
                     <TextBlock Text="{Binding ChangesetId}" Margin="0, 0, 20, 0" />
                     <TextBlock Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
