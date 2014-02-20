@@ -215,7 +215,6 @@
   <ItemGroup>
     <Resource Include="Images\Warning_grey_7315_16x16.png" />
     <Resource Include="Images\warning_12x12.png" />
-    <Resource Include="Images\merge.png" />
     <Content Include="LICENSE.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
