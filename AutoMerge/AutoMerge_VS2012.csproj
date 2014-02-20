@@ -213,6 +213,7 @@
     <Content Include="LICENSE.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\merge.png" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup>
