@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Composition;
+using System.Drawing;
 using AutoMerge.Base;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.VisualStudio.Shell;
@@ -23,6 +24,7 @@ namespace AutoMerge
 			: base(serviceProvider)
 		{
 			Text = Resources.AutoMergePageName;
+			Image = Resources.MergeImage;
 			IsVisible = true;
 		}
 
