@@ -4,6 +4,7 @@
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:teamExplorer="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;assembly=Microsoft.TeamFoundation.Controls"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              TextOptions.TextFormattingMode="Display"
              UseLayoutRounding="True"
@@ -21,6 +22,7 @@
             <autoMerge:ValidationResultToTextConverter x:Key="ValidationResultToTextConverter" />
             <autoMerge:ValidationResultToVisibilityConverter x:Key="ValidationResultToVisibilityConverter" />
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <autoMerge:MergeOptionToCheckedConverter x:Key="MergeOptionToCheckedConverter" />
 
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoViewModel">
                 <StackPanel Orientation="Horizontal">
@@ -75,6 +77,48 @@
                    DockPanel.Dock="Top"
                    Orientation="Horizontal">
             <Button Click="Merge" IsEnabled="{Binding ParentSection.MergeEnabled}">Merge</Button>
+            <teamExplorer:DropDownLink Margin="12,0,0,0"
+                                       VerticalAlignment="Center"
+                                       ShowArrow="True"
+                                       Text="Merge Options">
+                <teamExplorer:DropDownLink.DropDownMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Overwrite target" IsCheckable="True">
+                            <MenuItem.IsChecked>
+                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                         Mode="TwoWay"
+                                         Path="ParentSection.MergeOption">
+                                    <Binding.ConverterParameter>
+                                        <autoMerge:MergeOption>OverwriteTarget</autoMerge:MergeOption>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </MenuItem.IsChecked>
+                        </MenuItem>
+                        <MenuItem Header="Keep target (discard)" IsCheckable="True">
+                            <MenuItem.IsChecked>
+                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                         Mode="TwoWay"
+                                         Path="ParentSection.MergeOption">
+                                    <Binding.ConverterParameter>
+                                        <autoMerge:MergeOption>KeepTarget</autoMerge:MergeOption>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </MenuItem.IsChecked>
+                        </MenuItem>
+                        <MenuItem Header="Manual resolve conflict" IsCheckable="True">
+                            <MenuItem.IsChecked>
+                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                         Mode="TwoWay"
+                                         Path="ParentSection.MergeOption">
+                                    <Binding.ConverterParameter>
+                                        <autoMerge:MergeOption>ManualResolveConflict</autoMerge:MergeOption>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </MenuItem.IsChecked>
+                        </MenuItem>
+                    </ContextMenu>
+                </teamExplorer:DropDownLink.DropDownMenu>
+            </teamExplorer:DropDownLink>
         </WrapPanel>
         <ListBox ItemsSource="{Binding Path=ParentSection.Branches}" Style="{DynamicResource BranchesListBoxStyle}" />
     </DockPanel>

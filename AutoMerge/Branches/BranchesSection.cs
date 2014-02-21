@@ -103,6 +103,16 @@ namespace AutoMerge
 
 		public ICommand MergeCommand { get; private set; }
 
+		public MergeOption MergeOption
+		{
+			get { return _mergeOption; }
+			set 
+			{	_mergeOption = value;
+				RaisePropertyChanged(() => MergeOption);
+			}
+		}
+		private MergeOption _mergeOption;
+
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
 			base.Initialize(sender, e);

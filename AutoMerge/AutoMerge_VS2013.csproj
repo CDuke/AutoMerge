@@ -163,6 +163,8 @@
     <Compile Include="Branches\BranchTransitionNameConverter.cs" />
     <Compile Include="Branches\BranchValidationResult.cs" />
     <Compile Include="Branches\MergeInfoViewModel.cs" />
+    <Compile Include="Branches\MergeOption.cs" />
+    <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
     <Compile Include="Branches\ValidationResultToEnableConverter.cs" />
     <Compile Include="Branches\ValidationResultToTextConverter.cs" />
     <Compile Include="Branches\ValidationResultToVisibilityConverter.cs" />
