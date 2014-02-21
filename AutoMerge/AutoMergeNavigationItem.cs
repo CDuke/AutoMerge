@@ -2,6 +2,7 @@
 using System.ComponentModel.Composition;
 using System.Drawing;
 using AutoMerge.Base;
+using AutoMerge.VersionControl;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.VisualStudio.Shell;
 
@@ -44,13 +45,19 @@ namespace AutoMerge
 		public override void Invalidate()
 		{
 			base.Invalidate();
-			IsVisible = HasCollection();
+			IsVisible = CalculateIsVisible();
 		}
 
-		private bool HasCollection()
+		private bool CalculateIsVisible()
 		{
 			return CurrentContext != null
-				&& CurrentContext.HasCollection;
+				&& CurrentContext.HasCollection
+				&& IsTfs();
+		}
+
+		private bool IsTfs()
+		{
+			return VersionControlNavigationHelper.IsProviderActive(ServiceProvider, VersionControlProvider.TFVC);
 		}
 	}
 }
