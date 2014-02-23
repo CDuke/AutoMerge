@@ -175,7 +175,6 @@
     <Compile Include="Guids.cs" />
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
-    <Compile Include="Helpers\EnvironmentColors.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
     <Compile Include="RecentChangesets\BranchesListConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
@@ -218,8 +217,6 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Warning_grey_7315_16x16.png" />
-    <Resource Include="Images\warning_12x12.png" />
     <Content Include="LICENSE.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -230,10 +227,6 @@
     <Page Include="AutoMergePageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Base\VsListBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Branches\BranchesView.xaml">
       <SubType>Designer</SubType>

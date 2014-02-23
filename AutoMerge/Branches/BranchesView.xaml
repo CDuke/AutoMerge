@@ -14,98 +14,77 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Base/VsListBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
-            <autoMerge:ValidationResultToEnableConverter x:Key="ValidationResultToEnableConverter" />
             <autoMerge:ValidationResultToTextConverter x:Key="ValidationResultToTextConverter" />
-            <autoMerge:ValidationResultToVisibilityConverter x:Key="ValidationResultToVisibilityConverter" />
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <autoMerge:MergeOptionToCheckedConverter x:Key="MergeOptionToCheckedConverter" />
 
+            
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoViewModel">
                 <StackPanel Orientation="Horizontal">
                     <Image Margin="0,0,6,0"
-                           Source="../Images/warning_12x12.png"
+                           Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/images/warning16.png"
                            ToolTip="{Binding ValidationResult,
                                              Converter={StaticResource ValidationResultToTextConverter}}"
                            Visibility="{Binding ImageVisibility}">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Style.Triggers>
-                                    <Trigger Property="ToolTip" Value="{x:Null}">
-                                        <Setter Property="ToolTipService.IsEnabled" Value="False" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
+<!--                        <Image.Style>-->
+<!--                            <Style TargetType="Image">-->
+<!--                                <Style.Triggers>-->
+<!--                                    <Trigger Property="ToolTip" Value="{x:Null}">-->
+<!--                                        <Setter Property="ToolTipService.IsEnabled" Value="False" />-->
+<!--                                    </Trigger>-->
+<!--                                </Style.Triggers>-->
+<!--                            </Style>-->
+<!--                        </Image.Style>-->
                     </Image>
                     <CheckBox Margin="0,0,5,0"
                               IsChecked="{Binding Checked,
                                                   Mode=TwoWay}"
                               IsThreeState="False"
-                              Visibility="{Binding GetCheckBoxVisibility}" />
+                              Visibility="{Binding GetCheckBoxVisibility}"/>
                     <TextBlock Margin="0,0,0,0" Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}" />
                 </StackPanel>
             </DataTemplate>
 
-            <Style x:Key="BranchesListBoxItemStyle"
-                   BasedOn="{StaticResource VsListBoxItemStyle}"
-                   TargetType="ListBoxItem">
-                <Setter Property="Template" Value="{StaticResource VsListBoxItemWithoutSelectTemplate}" />
-            </Style>
+<!--            <Style x:Key="BranchesListBoxItemStyle"-->
+<!--                   BasedOn="{StaticResource VsListBoxItemStyle}"-->
+<!--                   TargetType="ListBoxItem">-->
+<!--                <Setter Property="Template" Value="{StaticResource VsListBoxItemWithoutSelectTemplate}" />-->
+<!--            </Style>-->
 
             <Style x:Key="BranchesListBoxStyle"
-                   BasedOn="{StaticResource VsListBoxStyle}"
+                   BasedOn="{StaticResource {x:Type ListBox}}"
                    TargetType="ListBox">
-                <Setter Property="ItemContainerStyle" Value="{StaticResource BranchesListBoxItemStyle}" />
                 <Setter Property="ItemTemplate" Value="{StaticResource BranchItemTemplate}" />
+                <Setter Property="ItemContainerStyle" Value="{StaticResource ListBoxItemStyle}"/>
                 <Setter Property="SelectionMode" Value="Single" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBox">
-                            <StackPanel IsItemsHost="True" />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <Setter Property="BorderThickness" Value="0" />
             </Style>
+
+            <Style x:Key="MenuItemStyle" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
+                <Setter Property="IsCheckable" Value="True" />
+            </Style>
+            <Style x:Key="ContextMenuStyle" TargetType="{x:Type ContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
+                <Setter Property="ItemContainerStyle" Value="{StaticResource MenuItemStyle}" />
+            </Style>            
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel Margin="6,6,6,6">
         <WrapPanel Margin="0,0,0,6"
                    DockPanel.Dock="Top"
                    Orientation="Horizontal">
-            <Button Click="Merge" IsEnabled="{Binding ParentSection.MergeEnabled}">Merge</Button>
+            <Button Click="Merge" IsEnabled="{Binding ParentSection.MergeEnabled}" Content="Merge" />
             <teamExplorer:DropDownLink Margin="12,0,0,0"
                                        VerticalAlignment="Center"
                                        ShowArrow="True"
                                        Text="Merge Options">
                 <teamExplorer:DropDownLink.DropDownMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Overwrite target" IsCheckable="True">
-                            <MenuItem.IsChecked>
-                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
-                                         Mode="TwoWay"
-                                         Path="ParentSection.MergeOption">
-                                    <Binding.ConverterParameter>
-                                        <autoMerge:MergeOption>OverwriteTarget</autoMerge:MergeOption>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </MenuItem.IsChecked>
-                        </MenuItem>
-                        <MenuItem Header="Keep target (discard)" IsCheckable="True">
-                            <MenuItem.IsChecked>
-                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
-                                         Mode="TwoWay"
-                                         Path="ParentSection.MergeOption">
-                                    <Binding.ConverterParameter>
-                                        <autoMerge:MergeOption>KeepTarget</autoMerge:MergeOption>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </MenuItem.IsChecked>
-                        </MenuItem>
-                        <MenuItem Header="Manual resolve conflict" IsCheckable="True">
+                    <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                        <MenuItem Header="Manual resolve conflict">
                             <MenuItem.IsChecked>
                                 <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
                                          Mode="TwoWay"
@@ -116,10 +95,32 @@
                                 </Binding>
                             </MenuItem.IsChecked>
                         </MenuItem>
+                        <MenuItem Header="Keep target (discard)">
+                            <MenuItem.IsChecked>
+                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                         Mode="TwoWay"
+                                         Path="ParentSection.MergeOption">
+                                    <Binding.ConverterParameter>
+                                        <autoMerge:MergeOption>KeepTarget</autoMerge:MergeOption>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </MenuItem.IsChecked>
+                        </MenuItem>
+                        <MenuItem Header="Overwrite target (force)">
+                            <MenuItem.IsChecked>
+                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                         Mode="TwoWay"
+                                         Path="ParentSection.MergeOption">
+                                    <Binding.ConverterParameter>
+                                        <autoMerge:MergeOption>OverwriteTarget</autoMerge:MergeOption>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </MenuItem.IsChecked>
+                        </MenuItem>
                     </ContextMenu>
                 </teamExplorer:DropDownLink.DropDownMenu>
             </teamExplorer:DropDownLink>
         </WrapPanel>
-        <ListBox ItemsSource="{Binding Path=ParentSection.Branches}" Style="{DynamicResource BranchesListBoxStyle}" />
+        <ListBox ItemsSource="{Binding Path=ParentSection.Branches}" Style="{StaticResource BranchesListBoxStyle}" />
     </DockPanel>
 </UserControl>

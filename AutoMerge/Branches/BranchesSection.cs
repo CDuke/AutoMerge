@@ -386,6 +386,7 @@ namespace AutoMerge
 
 			var changesetService = new ChangesetService(versionControl, CurrentContext.TeamProjectName);
 			var changeset = changesetService.GetChanget(_changesetId);
+			var mergeOption = _mergeOption;
 			var workItemStore = tfs.GetService<WorkItemStore>();
 			var versionSpec = new ChangesetVersionSpec(changeset.ChangesetId);
 
@@ -393,7 +394,7 @@ namespace AutoMerge
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
 				List<PendingChange> targetPendingChanges;
-				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, versionSpec, false, workspace, out targetPendingChanges))
+				if (!MergeToBranch(mergeInfo.SourceBranch, mergeInfo.TargetBranch, sourceChanges, versionSpec, mergeOption, workspace, out targetPendingChanges))
 				{
 					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
 				}
@@ -440,7 +441,7 @@ namespace AutoMerge
 			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
 		}
 
-		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges, VersionSpec version, bool discard,
+		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges, VersionSpec version, MergeOption mergeOption,
 			Workspace workspace, out List<PendingChange> targetPendingChanges)
 		{
 			var conflicts = new List<string>();
@@ -461,7 +462,7 @@ namespace AutoMerge
 						return false;
 				}
 
-				var mergeOptions = discard ? MergeOptions.AlwaysAcceptMine : MergeOptions.None;
+				var mergeOptions = ToTfsMergeOptions(mergeOption);
 				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
 
 				if (HasConflicts(status))
@@ -487,10 +488,24 @@ namespace AutoMerge
 			return true;
 		}
 
+		private static MergeOptions ToTfsMergeOptions(MergeOption mergeOption)
+		{
+			switch (mergeOption)
+			{
+				case MergeOption.KeepTarget:
+					return MergeOptions.AlwaysAcceptMine;
+				case MergeOption.OverwriteTarget:
+					return MergeOptions.ForceMerge;
+				case MergeOption.ManualResolveConflict:
+					return MergeOptions.None;
+				default:
+					return MergeOptions.None;
+			}
+		}
+
 		public bool MergeCanEcexute()
 		{
-			return true;
-			//return _branches.Any(b => b.Checked);
+			return _branches.Any(b => b.Checked);
 		}
 
 		private static bool HasConflicts(GetStatus mergeStatus)

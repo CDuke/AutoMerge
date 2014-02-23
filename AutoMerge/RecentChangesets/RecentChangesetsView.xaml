@@ -12,7 +12,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Base/VsListBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter" />
@@ -28,32 +28,28 @@
                     <TextBlock Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                 </StackPanel>
             </DataTemplate>
-            <Style x:Key="ChangesetListItemStyle" BasedOn="{StaticResource VsListBoxItemStyle}" TargetType="ListBoxItem">
+            <Style x:Key="ChangesetListItemStyle" BasedOn="{StaticResource ListBoxItemStyle}" TargetType="ListBoxItem">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding CanMerge}" Value="False">
                         <Setter Property="IsEnabled" Value="False" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-            <Style x:Key="ChangesetListStyle" TargetType="ListBox" BasedOn="{StaticResource VsListBoxStyle}">
+            <Style x:Key="ChangesetListStyle" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
                 <Setter Property="ItemTemplate" Value="{StaticResource ChangesetItemDataTemplate}" />
                 <Setter Property="ItemContainerStyle" Value="{StaticResource ChangesetListItemStyle}" />
                 <Setter Property="SelectionMode" Value="Single" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBox">
-                            <StackPanel IsItemsHost="True" />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+                <Setter Property="BorderThickness" Value="0" />
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Margin="6, 6, 6, 6">
         <ListBox ItemsSource="{Binding Path=ParentSection.Changesets}"
                  SelectedItem="{Binding Path=ParentSection.SelectedChangeset}"
-                 Style="{DynamicResource ChangesetListStyle}"
-                 MouseDoubleClick="List_MouseDoubleClick" KeyDown="List_KeyDown">
+                 Style="{StaticResource ChangesetListStyle}"
+                 MouseDoubleClick="List_MouseDoubleClick">
         </ListBox>
     </StackPanel>
 </UserControl>
