@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.TeamFoundation.VersionControl.Client;
 
 namespace AutoMerge
@@ -17,23 +16,24 @@ namespace AutoMerge
 			_teamProjectName = teamProjectName;
 		}
 
-		public async Task<ICollection<Changeset>> GetUserChangesets(string userName)
+		public ICollection<Changeset> GetUserChangesets(string userName)
 		{
-			return await Task.Run(() =>
-			{
-				var result = new List<Changeset>();
-				var path = "$/" + _teamProjectName;
-				foreach (Changeset changeset in _versionControlServer.QueryHistory(path, VersionSpec.Latest, 0, RecursionType.Full,
-					userName, null, null, MaxChangesets, false, true))
-				{
-					result.Add(changeset);
-				}
-
-				return result;
-			});
+			var path = "$/" + _teamProjectName;
+			return _versionControlServer.QueryHistory(path,
+				VersionSpec.Latest,
+				0,
+				RecursionType.Full,
+				userName,
+				null,
+				null,
+				MaxChangesets,
+				false,
+				true)
+				.Cast<Changeset>()
+				.ToList();
 		}
 
-		public Changeset GetChanget(int changesetId)
+		public Changeset GetChangeset(int changesetId)
 		{
 			var changeset = _versionControlServer.GetChangeset(changesetId, true, false);
 

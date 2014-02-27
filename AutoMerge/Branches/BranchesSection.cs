@@ -15,7 +15,7 @@ using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
 namespace AutoMerge
 {
-	[TeamExplorerSection(SectionId, AutoMergePage.PageId, 20)]
+	[TeamExplorerSection(SectionId, GuidList.AutoMergePageId, 20)]
 	public class BranchesSection : TeamExplorerBaseSection
 	{
 		private enum MergeResult
@@ -215,7 +215,7 @@ namespace AutoMerge
 			var sourceBranchIdentifier = changesetService.GetAssociatedBranches(changesetId)[0];
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
 
-			var changeset = changesetService.GetChanget(changesetId);
+			var changeset = changesetService.GetChangeset(changesetId);
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
@@ -385,7 +385,7 @@ namespace AutoMerge
 			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
 			var changesetService = new ChangesetService(versionControl, CurrentContext.TeamProjectName);
-			var changeset = changesetService.GetChanget(_changesetId);
+			var changeset = changesetService.GetChangeset(_changesetId);
 			var mergeOption = _mergeOption;
 			var workItemStore = tfs.GetService<WorkItemStore>();
 			var versionSpec = new ChangesetVersionSpec(changeset.ChangesetId);

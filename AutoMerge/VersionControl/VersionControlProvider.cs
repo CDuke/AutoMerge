@@ -2,7 +2,7 @@
 {
 	public enum VersionControlProvider
 	{
-		TFVC = 1,
-		GIT = 2,
+		TeamFoundation = 1,
+		Git = 2,
 	}
 }

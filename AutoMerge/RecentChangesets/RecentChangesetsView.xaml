@@ -3,12 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
              mc:Ignorable="d"
              UseLayoutRounding="True"
              TextOptions.TextFormattingMode="Display"
-             d:DesignHeight="300" d:DesignWidth="300"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+             d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -46,10 +46,15 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Margin="6, 6, 6, 6">
-        <ListBox ItemsSource="{Binding Path=ParentSection.Changesets}"
-                 SelectedItem="{Binding Path=ParentSection.SelectedChangeset}"
+        <ListBox ItemsSource="{Binding Changesets}"
+                 SelectedItem="{Binding SelectedChangeset}"
                  Style="{StaticResource ChangesetListStyle}"
-                 MouseDoubleClick="List_MouseDoubleClick">
+                 d:DataContext="{autoMerge:RecentChangesetViewModel }">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick" >
+                    <i:InvokeCommandAction Command="{Binding ViewChangesetDetailsCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
         </ListBox>
     </StackPanel>
 </UserControl>

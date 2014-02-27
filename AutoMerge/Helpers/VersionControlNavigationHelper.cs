@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMerge.VersionControl;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Common.Internal;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -32,7 +33,7 @@ namespace AutoMerge
 						if (pguidSCCProvider == GetProviderGuid(provider))
 							return true;
 						if (Guid.Empty.Equals(pguidSCCProvider))
-							return provider == VersionControlProvider.TFVC;
+							return provider == VersionControlProvider.TeamFoundation;
 						return false;
 					}
 				}
@@ -45,17 +46,53 @@ namespace AutoMerge
 			return UIContext.FromUIContextGuid(GetProviderGuid(provider));
 		}
 
+		public static bool IsConnectedToTfsCollectionAndProject(IServiceProvider provider)
+		{
+			var context = GetContext(provider);
+			if (context != null)
+			{
+				return context.HasCollection && context.HasTeamProject;
+			}
+
+			return false;
+		}
+
+		public static bool IsConnectedToTfsCollectionAndProject(ITeamFoundationContext context)
+		{
+			if (context != null)
+			{
+				return context.HasCollection && context.HasTeamProject;
+			}
+
+			return false;
+		}
+
 		private static Guid GetProviderGuid(VersionControlProvider provider)
 		{
 			switch (provider)
 			{
-				case VersionControlProvider.TFVC:
+				case VersionControlProvider.TeamFoundation:
 					return TfsProviderGuid;
-				case VersionControlProvider.GIT:
+				case VersionControlProvider.Git:
 					return GitProviderGuid;
 				default:
 					return Guid.Empty;
 			}
+		}
+
+		public static ITeamFoundationContext GetContext(IServiceProvider serviceProvider)
+		{
+			if (serviceProvider != null)
+			{
+				var tfContextManager = serviceProvider.GetService<ITeamFoundationContextManager>();
+				if (tfContextManager != null)
+				{
+					var context = tfContextManager.CurrentContext;
+					return context;
+				}
+			}
+
+			return null;
 		}
 	}
 }
