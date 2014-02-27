@@ -50,6 +50,9 @@
                  SelectedItem="{Binding SelectedChangeset}"
                  Style="{StaticResource ChangesetListStyle}"
                  d:DataContext="{autoMerge:RecentChangesetViewModel }">
+            <ListBox.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
+            </ListBox.InputBindings>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick" >
                     <i:InvokeCommandAction Command="{Binding ViewChangesetDetailsCommand}" />
