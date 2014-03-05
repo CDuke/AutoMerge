@@ -53,6 +53,7 @@
       <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.TeamFoundation.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.TeamFoundation.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.TeamFoundation.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -78,6 +79,10 @@
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
@@ -141,14 +146,14 @@
   <ItemGroup>
     <Compile Include="AutoMergeNavigationItem.cs" />
     <Compile Include="AutoMergePage.cs" />
-    <Compile Include="AutoMergePageView.xaml.cs">
-      <DependentUpon>AutoMergePageView.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Base\PageNavigationItemBase.cs" />
     <Compile Include="Base\TeamExplorerBase.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationItem.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerBasePage.cs" />
     <Compile Include="Base\TeamExplorerBaseSection.cs" />
+    <Compile Include="Base\TeamExplorerSectionBase.cs" />
+    <Compile Include="Base\TeamExplorerSectionViewModelBase.cs" />
     <Compile Include="Behaviours\GridViewColumnResize.cs" />
     <Compile Include="Branches\BranchesSection.cs" />
     <Compile Include="Branches\BranchesView.xaml.cs">
@@ -158,6 +163,8 @@
     <Compile Include="Branches\BranchTransitionNameConverter.cs" />
     <Compile Include="Branches\BranchValidationResult.cs" />
     <Compile Include="Branches\MergeInfoViewModel.cs" />
+    <Compile Include="Branches\MergeOption.cs" />
+    <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
     <Compile Include="Branches\ValidationResultToEnableConverter.cs" />
     <Compile Include="Branches\ValidationResultToTextConverter.cs" />
     <Compile Include="Branches\ValidationResultToVisibilityConverter.cs" />
@@ -168,14 +175,17 @@
     <Compile Include="Guids.cs" />
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
-    <Compile Include="Helpers\EnvironmentColors.cs" />
+    <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
     <Compile Include="RecentChangesets\BranchesListConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
+    <Compile Include="RecentChangesets\IChangesetProvider.cs" />
+    <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
     <Compile Include="RecentChangesets\RecentChangesetSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RecentChangesets\RecentChangesetViewModel.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -187,6 +197,7 @@
     <Compile Include="Services\ChangesetService.cs" />
     <Compile Include="Services\ILogger.cs" />
     <Compile Include="Services\VsLogger.cs" />
+    <Compile Include="VersionControl\VersionControlProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
@@ -209,7 +220,6 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\warning_12x12.png" />
     <Content Include="LICENSE.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -217,14 +227,6 @@
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AutoMergePageView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Base\VsListBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Branches\BranchesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
