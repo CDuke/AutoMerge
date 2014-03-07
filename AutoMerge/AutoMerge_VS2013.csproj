@@ -159,6 +159,7 @@
     <Compile Include="Base\TeamExplorerSectionViewModelBase.cs" />
     <Compile Include="Behaviours\GridViewColumnResize.cs" />
     <Compile Include="Branches\BranchesSection.cs" />
+    <Compile Include="Branches\BranchesViewModel.cs" />
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
     </Compile>
@@ -184,7 +185,7 @@
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\IChangesetProvider.cs" />
     <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetSection.cs" />
+    <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
     </Compile>

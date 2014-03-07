@@ -4,11 +4,11 @@ using Microsoft.TeamFoundation.Controls;
 namespace AutoMerge
 {
 	[TeamExplorerSection(GuidList.RecentChangesetsSectionId, GuidList.AutoMergePageId, 10)]
-	public class RecentChangesetSection : TeamExplorerSectionBase
+	public class RecentChangesetsSection : TeamExplorerSectionBase
 	{
 		private static readonly object _view;
 
-		static RecentChangesetSection()
+		static RecentChangesetsSection()
 		{
 			_view = new RecentChangesetsView();
 		}
