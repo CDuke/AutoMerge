@@ -45,7 +45,7 @@
         <ListBox ItemsSource="{Binding Changesets}"
                  SelectedItem="{Binding SelectedChangeset}"
                  Style="{StaticResource ChangesetListStyle}"
-                 d:DataContext="{autoMerge:RecentChangesetViewModel }">
+                 d:DataContext="{d:DesignInstance autoMerge:RecentChangesetViewModel }">
             <ListBox.InputBindings>
                 <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
             </ListBox.InputBindings>
