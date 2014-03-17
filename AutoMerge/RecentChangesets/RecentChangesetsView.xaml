@@ -1,18 +1,19 @@
 ﻿<UserControl x:Class="AutoMerge.RecentChangesetsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-             xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
-             mc:Ignorable="d"
-             UseLayoutRounding="True"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              TextOptions.TextFormattingMode="Display"
-             d:DesignHeight="300" d:DesignWidth="300">
+             UseLayoutRounding="True"
+             d:DesignHeight="300"
+             d:DesignWidth="300"
+             mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter" />
@@ -23,21 +24,16 @@
                     <StackPanel.ToolTip>
                         <ToolTip Content="{Binding Comment}" />
                     </StackPanel.ToolTip>
-<!--                    <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}" Margin="0, 0, 20, 0" />-->
-                    <TextBlock Text="{Binding ChangesetId}" Margin="0, 0, 20, 0" />
+                    <!--  <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}" Margin="0, 0, 20, 0" />  -->
+                    <TextBlock Margin="0, 0, 20, 0" Text="{Binding ChangesetId}" />
                     <TextBlock Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                 </StackPanel>
             </DataTemplate>
-            <Style x:Key="ChangesetListItemStyle" BasedOn="{StaticResource ListBoxItemStyle}" TargetType="ListBoxItem">
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding CanMerge}" Value="False">
-                        <Setter Property="IsEnabled" Value="False" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="ChangesetListStyle" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+            <Style x:Key="ChangesetListStyle"
+                   BasedOn="{StaticResource {x:Type ListBox}}"
+                   TargetType="ListBox">
                 <Setter Property="ItemTemplate" Value="{StaticResource ChangesetItemDataTemplate}" />
-                <Setter Property="ItemContainerStyle" Value="{StaticResource ChangesetListItemStyle}" />
+                <Setter Property="ItemContainerStyle" Value="{StaticResource ListBoxItemStyle}" />
                 <Setter Property="SelectionMode" Value="Single" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
@@ -54,7 +50,7 @@
                 <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
             </ListBox.InputBindings>
             <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDoubleClick" >
+                <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction Command="{Binding ViewChangesetDetailsCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>

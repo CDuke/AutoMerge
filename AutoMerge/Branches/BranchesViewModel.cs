@@ -36,7 +36,7 @@ namespace AutoMerge
 
 		private readonly IEventAggregator _eventAggregator;
 
-		private int _changesetId;
+		private ChangesetViewModel _changeset;
 
 		/// <summary>
 		/// Constructor.
@@ -117,21 +117,21 @@ namespace AutoMerge
 		/// </summary>
 		protected override async Task RefreshAsync()
 		{
-			var changesetId = _changesetId;
+			var changeset = _changeset;
 			try
 			{
 				// Set our busy flag and clear the previous data
 				IsBusy = true;
-				if (changesetId <= 0)
+				if (changeset == null || !changeset.CanMerge)
 				{
 					Branches = new ObservableCollection<MergeInfoViewModel>();
 					return;
 				}
 
-				var branches = await Task.Run(() => GetBranches(changesetId));
+				var branches = await Task.Run(() => GetBranches(changeset.ChangesetId));
 
 				// Selected changeset in sequence
-				if (changesetId == _changesetId)
+				if (changeset.ChangesetId == _changeset.ChangesetId)
 				{
 					Branches = branches;
 					MergeCommand.RaiseCanExecuteChanged();
@@ -148,9 +148,9 @@ namespace AutoMerge
 			}
 		}
 
-		private void OnSelectedChangeset(int changesetId)
+		private void OnSelectedChangeset(ChangesetViewModel changeset)
 		{
-			_changesetId = changesetId;
+			_changeset = changeset;
 			Refresh();
 		}
 
@@ -344,7 +344,7 @@ namespace AutoMerge
 			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
 			var changesetService = new ChangesetService(versionControl, context.TeamProjectName);
-			var changeset = changesetService.GetChangeset(_changesetId);
+			var changeset = changesetService.GetChangeset(_changeset.ChangesetId);
 			var mergeOption = _mergeOption;
 			var workItemStore = tfs.GetService<WorkItemStore>();
 			var versionSpec = new ChangesetVersionSpec(changeset.ChangesetId);

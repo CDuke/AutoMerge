@@ -2,7 +2,7 @@
 
 namespace AutoMerge.Events
 {
-	public class SelectChangesetEvent : CompositePresentationEvent<int>
+	public class SelectChangesetEvent : CompositePresentationEvent<ChangesetViewModel>
 	{
 		 
 	}
