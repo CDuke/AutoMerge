@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Commands;
@@ -102,7 +101,7 @@ namespace AutoMerge
 				: _baseTitle;
 
 			if (Changesets.Count > 0)
-				SelectedChangeset = Changesets.FirstOrDefault(c => c.CanMerge);
+				SelectedChangeset = Changesets[0];
 		}
 	}
 }

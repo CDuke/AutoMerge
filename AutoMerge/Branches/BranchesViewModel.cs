@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Events;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
@@ -53,14 +54,6 @@ namespace AutoMerge
 			_eventAggregator = EventAggregatorFactory.Get();
 		}
 
-		/// <summary>
-		/// Get the view.
-		/// </summary>
-		protected BranchesView View
-		{
-			get { return SectionContent as BranchesView; }
-		}
-
 		public ObservableCollection<MergeInfoViewModel> Branches
 		{
 			get
@@ -80,12 +73,27 @@ namespace AutoMerge
 		public MergeOption MergeOption
 		{
 			get { return _mergeOption; }
-			set 
-			{	_mergeOption = value;
+			set
+			{
+				_mergeOption = value;
 				RaisePropertyChanged("MergeOption");
 			}
 		}
 		private MergeOption _mergeOption;
+
+		public string ErrorMessage
+		{
+			get
+			{
+				return _errorMessage;
+			}
+			set
+			{
+				_errorMessage = value;
+				RaisePropertyChanged("ErrorMessage");
+			}
+		}
+		private string _errorMessage;
 
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
@@ -104,48 +112,42 @@ namespace AutoMerge
 		}
 
 		/// <summary>
-		/// Refresh override.
-		/// </summary>
-		public async override void Refresh()
-		{
-			base.Refresh();
-			await RefreshAsync();
-		}
-
-		/// <summary>
 		/// Refresh the changeset data asynchronously.
 		/// </summary>
 		protected override async Task RefreshAsync()
 		{
 			var changeset = _changeset;
-			try
-			{
-				// Set our busy flag and clear the previous data
-				IsBusy = true;
-				if (changeset == null || !changeset.CanMerge)
-				{
-					Branches = new ObservableCollection<MergeInfoViewModel>();
-					return;
-				}
 
-				var branches = await Task.Run(() => GetBranches(changeset.ChangesetId));
-
-				// Selected changeset in sequence
-				if (changeset.ChangesetId == _changeset.ChangesetId)
-				{
-					Branches = branches;
-					MergeCommand.RaiseCanExecuteChanged();
-				}
-
-			}
-			catch (Exception ex)
+			ErrorMessage = CalculateError(_changeset);
+			if (changeset == null || !string.IsNullOrEmpty(ErrorMessage))
 			{
-				ShowNotification(ex.Message, NotificationType.Error);
+				Branches = new ObservableCollection<MergeInfoViewModel>();
+				return;
 			}
-			finally
+
+			var context = VersionControlNavigationHelper.GetContext(ServiceProvider);
+			var branches = await Task.Run(() => GetBranches(context, changeset.ChangesetId));
+
+			// Selected changeset in sequence
+			if (changeset.ChangesetId == _changeset.ChangesetId)
 			{
-				IsBusy = false;
+				Branches = branches;
+				MergeCommand.RaiseCanExecuteChanged();
 			}
+		}
+
+		private string CalculateError(ChangesetViewModel changeset)
+		{
+			if (changeset == null)
+				return "Changeset not selected";
+
+			if (changeset.Branches.IsNullOrEmpty())
+				return "Branches not found";
+
+			if (changeset.Branches.Count > 1)
+				return string.Format("Changeset has {0} branches. Merge not possible.", changeset.Branches.Count);
+
+			return null;
 		}
 
 		private void OnSelectedChangeset(ChangesetViewModel changeset)
@@ -154,9 +156,10 @@ namespace AutoMerge
 			Refresh();
 		}
 
-		private ObservableCollection<MergeInfoViewModel> GetBranches(int changesetId)
+		private ObservableCollection<MergeInfoViewModel> GetBranches(ITeamFoundationContext context, int changesetId)
 		{
-			var context = VersionControlNavigationHelper.GetContext(ServiceProvider);
+			if (context == null)
+				return new ObservableCollection<MergeInfoViewModel>();
 			var tfs = context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
 
@@ -464,7 +467,7 @@ namespace AutoMerge
 
 		public bool MergeCanEcexute()
 		{
-			return _branches.Any(b => b.Checked);
+			return _branches != null && _branches.Any(b => b.Checked);
 		}
 
 		private static bool HasConflicts(GetStatus mergeStatus)

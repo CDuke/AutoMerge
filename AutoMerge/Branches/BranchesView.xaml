@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:teamExplorer="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;assembly=Microsoft.TeamFoundation.Controls"
+             xmlns:converters="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.Converters;assembly=Microsoft.TeamFoundation.Controls"
              TextOptions.TextFormattingMode="Display"
              UseLayoutRounding="True"
              d:DesignHeight="300"
@@ -20,6 +21,8 @@
             <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
             <autoMerge:ValidationResultToTextConverter x:Key="ValidationResultToTextConverter" />
             <autoMerge:MergeOptionToCheckedConverter x:Key="MergeOptionToCheckedConverter" />
+            <converters:NullToVisibleConverter x:Key="NullToVisibleConverter" />
+            <converters:NonEmptyStringToVisibleConverter x:Key="NonEmptyStringToVisibleConverter" />
 
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoViewModel">
                 <StackPanel Orientation="Horizontal">
@@ -28,15 +31,6 @@
                            ToolTip="{Binding ValidationResult,
                                              Converter={StaticResource ValidationResultToTextConverter}}"
                            Visibility="{Binding ImageVisibility}">
-                        <!--  <Image.Style>  -->
-                        <!--  <Style TargetType="Image">  -->
-                        <!--  <Style.Triggers>  -->
-                        <!--  <Trigger Property="ToolTip" Value="{x:Null}">  -->
-                        <!--  <Setter Property="ToolTipService.IsEnabled" Value="False" />  -->
-                        <!--  </Trigger>  -->
-                        <!--  </Style.Triggers>  -->
-                        <!--  </Style>  -->
-                        <!--  </Image.Style>  -->
                     </Image>
                     <CheckBox Margin="0,0,5,0"
                               IsChecked="{Binding Checked,
@@ -46,12 +40,6 @@
                     <TextBlock Margin="0,0,0,0" Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}" />
                 </StackPanel>
             </DataTemplate>
-
-            <!--  <Style x:Key="BranchesListBoxItemStyle"  -->
-            <!--  BasedOn="{StaticResource VsListBoxItemStyle}"  -->
-            <!--  TargetType="ListBoxItem">  -->
-            <!--  <Setter Property="Template" Value="{StaticResource VsListBoxItemWithoutSelectTemplate}" />  -->
-            <!--  </Style>  -->
 
             <Style x:Key="BranchesListBoxStyle"
                    BasedOn="{StaticResource {x:Type ListBox}}"
@@ -76,10 +64,14 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel Margin="6,6,6,6">
+    <StackPanel Margin="6,6,6,6">
+        <StackPanel Margin="0,0,0,6"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource NonEmptyStringToVisibleConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}" TextAlignment="Center"/>
+        </StackPanel>
         <WrapPanel Margin="0,0,0,6"
-                   DockPanel.Dock="Top"
-                   Orientation="Horizontal">
+                   Orientation="Horizontal"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibleConverter}}">
             <Button Command="{Binding MergeCommand}" Content="Merge" />
             <teamExplorer:DropDownLink Margin="12,0,0,0"
                                        VerticalAlignment="Center"
@@ -126,5 +118,5 @@
         </WrapPanel>
         <ListBox ItemsSource="{Binding Path=Branches}"
                  Style="{StaticResource BranchesListBoxStyle}"/>
-    </DockPanel>
+    </StackPanel>
 </UserControl>
