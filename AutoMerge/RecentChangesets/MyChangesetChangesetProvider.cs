@@ -8,6 +8,7 @@ namespace AutoMerge
 {
 	public class MyChangesetChangesetProvider : IChangesetProvider
 	{
+		private const int MaxChangesets = 10;
 		private readonly IServiceProvider _serviceProvider;
 
 		public MyChangesetChangesetProvider(IServiceProvider serviceProvider)
@@ -30,7 +31,7 @@ namespace AutoMerge
 				if (vcs != null)
 				{
 					var changesetService = new ChangesetService(vcs, context.TeamProjectName);
-					var tfsChangesets = changesetService.GetUserChangesets(vcs.AuthorizedUser);
+					var tfsChangesets = changesetService.GetUserChangesets(vcs.AuthorizedUser, MaxChangesets);
 					foreach (var tfsChangeset in tfsChangesets)
 					{
 						var changeset = new ChangesetViewModel

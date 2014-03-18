@@ -8,7 +8,7 @@ namespace AutoMerge
 	{
 		private readonly VersionControlServer _versionControlServer;
 		private readonly string _teamProjectName;
-		private const int MaxChangesets = 10;
+		
 
 		public ChangesetService(VersionControlServer versionControlServer, string teamProjectName)
 		{
@@ -16,7 +16,7 @@ namespace AutoMerge
 			_teamProjectName = teamProjectName;
 		}
 
-		public ICollection<Changeset> GetUserChangesets(string userName)
+		public ICollection<Changeset> GetUserChangesets(string userName, int count)
 		{
 			var path = "$/" + _teamProjectName;
 			return _versionControlServer.QueryHistory(path,
@@ -26,7 +26,7 @@ namespace AutoMerge
 				userName,
 				null,
 				null,
-				MaxChangesets,
+				count,
 				false,
 				true)
 				.Cast<Changeset>()

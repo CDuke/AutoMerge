@@ -24,9 +24,15 @@
                     <StackPanel.ToolTip>
                         <ToolTip Content="{Binding Comment}" />
                     </StackPanel.ToolTip>
-                    <!--  <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}" Margin="0, 0, 20, 0" />  -->
-                    <TextBlock Margin="0, 0, 20, 0" Text="{Binding ChangesetId}" />
-                    <TextBlock Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
+                    <TextBlock Margin="0, 0, 0, 0" Text="{Binding ChangesetId}" />
+                    <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}"
+                               Margin="5, 0, 0, 0"
+                               Padding="2"
+                               Foreground="{DynamicResource BodyTextBrushKey}"
+                               Background="{DynamicResource EmbeddedDialogBackgroundBrushKey}"
+                               FontSize="8"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Margin="10, 0, 0, 0" Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                 </StackPanel>
             </DataTemplate>
             <Style x:Key="ChangesetListStyle"
