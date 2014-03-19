@@ -18,7 +18,6 @@
                 <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <autoMerge:BranchNameConverter x:Key="BranchNameConverter" />
             <autoMerge:ValidationResultToTextConverter x:Key="ValidationResultToTextConverter" />
             <autoMerge:MergeOptionToCheckedConverter x:Key="MergeOptionToCheckedConverter" />
             <converters:NullToVisibleConverter x:Key="NullToVisibleConverter" />
@@ -43,7 +42,9 @@
                                                   Mode=TwoWay}"
                               IsThreeState="False"
                               Visibility="{Binding GetCheckBoxVisibility}" />
-                    <TextBlock Margin="0,0,0,0" Text="{Binding TargetBranch, Converter={StaticResource BranchNameConverter}}" />
+                    <TextBlock Margin="0,0,0,0"
+                               Text="{Binding DisplayBranchName}"
+                               ToolTip="{Binding TargetBranch}"/>
                 </StackPanel>
             </DataTemplate>
 

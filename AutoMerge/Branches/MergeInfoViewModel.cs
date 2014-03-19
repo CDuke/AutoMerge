@@ -32,6 +32,14 @@ namespace AutoMerge
 
 		public string TargetBranch { get; set; }
 
+		public string DisplayBranchName
+		{
+			get
+			{
+				return BranchHelper.GetShortBranchName(TargetBranch);
+			}
+		}
+
 		public BranchValidationResult ValidationResult { get; set; }
 
 		public bool CanMerge
