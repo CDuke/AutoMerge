@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Events;
@@ -39,6 +40,8 @@ namespace AutoMerge
 				return BranchHelper.GetShortBranchName(TargetBranch);
 			}
 		}
+
+		public List<FileMergeInfo> FileMergeInfos { get; set; }
 
 		public BranchValidationResult ValidationResult { get; set; }
 

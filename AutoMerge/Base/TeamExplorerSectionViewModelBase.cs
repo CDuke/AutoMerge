@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using TfsTeamExplorerSectionViewModelBase = Microsoft.TeamFoundation.Controls.WPF.TeamExplorer.TeamExplorerSectionViewModelBase;
 
@@ -8,6 +9,8 @@ namespace AutoMerge.Base
 	public abstract class TeamExplorerSectionViewModelBase : TfsTeamExplorerSectionViewModelBase
 	{
 		private static readonly Task _emptyTask = Task.FromResult(0);
+
+		protected ITeamFoundationContext Context { get; private set; }
 
 		protected virtual Task RefreshAsync()
 		{
@@ -22,6 +25,7 @@ namespace AutoMerge.Base
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
 			base.Initialize(sender, e);
+			Context = VersionControlNavigationHelper.GetContext(ServiceProvider);
 			await InitializeAsync(sender, e);
 		}
 

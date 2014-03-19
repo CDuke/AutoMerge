@@ -67,58 +67,59 @@
                        Text="{Binding ErrorMessage}"
                        TextAlignment="Center" />
         </StackPanel>
-        <WrapPanel Margin="0,0,0,6"
-                   Orientation="Horizontal"
-                   Visibility="{Binding ErrorMessage,
-                                        Converter={StaticResource NullToVisibleConverter}}">
-            <Button Command="{Binding MergeCommand}" Content="Merge" />
-            <teamExplorer:DropDownLink Margin="12,0,0,0"
-                                       VerticalAlignment="Center"
-                                       ShowArrow="True"
-                                       Text="Merge Options">
-                <teamExplorer:DropDownLink.DropDownMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Manual resolve conflict" IsCheckable="True">
-                            <MenuItem.IsChecked>
-                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
-                                         Mode="TwoWay"
-                                         Path="MergeOption">
-                                    <Binding.ConverterParameter>
-                                        <autoMerge:MergeOption>ManualResolveConflict</autoMerge:MergeOption>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </MenuItem.IsChecked>
-                        </MenuItem>
-                        <MenuItem Header="Keep target (discard)" IsCheckable="True">
-                            <MenuItem.IsChecked>
-                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
-                                         Mode="TwoWay"
-                                         Path="MergeOption">
-                                    <Binding.ConverterParameter>
-                                        <autoMerge:MergeOption>KeepTarget</autoMerge:MergeOption>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </MenuItem.IsChecked>
-                        </MenuItem>
-                        <MenuItem Header="Overwrite target (force)" IsCheckable="True">
-                            <MenuItem.IsChecked>
-                                <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
-                                         Mode="TwoWay"
-                                         Path="MergeOption">
-                                    <Binding.ConverterParameter>
-                                        <autoMerge:MergeOption>OverwriteTarget</autoMerge:MergeOption>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </MenuItem.IsChecked>
-                        </MenuItem>
-                        <Separator />
-                        <MenuItem Header="Auto Check In"
-                                  IsCheckable="True"
-                                  IsChecked="{Binding CheckInAfterMerge}" />
-                    </ContextMenu>
-                </teamExplorer:DropDownLink.DropDownMenu>
-            </teamExplorer:DropDownLink>
-        </WrapPanel>
-        <ListBox ItemsSource="{Binding Path=Branches}" Style="{StaticResource BranchesListBoxStyle}" />
+        <StackPanel Visibility="{Binding ErrorMessage,
+                                            Converter={StaticResource NullToVisibleConverter}}">
+            <WrapPanel Margin="0,0,0,6"
+                       Orientation="Horizontal">
+                <Button Command="{Binding MergeCommand}" Content="Merge" />
+                <teamExplorer:DropDownLink Margin="12,0,0,0"
+                                           VerticalAlignment="Center"
+                                           ShowArrow="True"
+                                           Text="Merge Options">
+                    <teamExplorer:DropDownLink.DropDownMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Manual resolve conflict" IsCheckable="True">
+                                <MenuItem.IsChecked>
+                                    <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                             Mode="TwoWay"
+                                             Path="MergeOption">
+                                        <Binding.ConverterParameter>
+                                            <autoMerge:MergeOption>ManualResolveConflict</autoMerge:MergeOption>
+                                        </Binding.ConverterParameter>
+                                    </Binding>
+                                </MenuItem.IsChecked>
+                            </MenuItem>
+                            <MenuItem Header="Keep target (discard)" IsCheckable="True">
+                                <MenuItem.IsChecked>
+                                    <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                             Mode="TwoWay"
+                                             Path="MergeOption">
+                                        <Binding.ConverterParameter>
+                                            <autoMerge:MergeOption>KeepTarget</autoMerge:MergeOption>
+                                        </Binding.ConverterParameter>
+                                    </Binding>
+                                </MenuItem.IsChecked>
+                            </MenuItem>
+                            <MenuItem Header="Overwrite target (force)" IsCheckable="True">
+                                <MenuItem.IsChecked>
+                                    <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
+                                             Mode="TwoWay"
+                                             Path="MergeOption">
+                                        <Binding.ConverterParameter>
+                                            <autoMerge:MergeOption>OverwriteTarget</autoMerge:MergeOption>
+                                        </Binding.ConverterParameter>
+                                    </Binding>
+                                </MenuItem.IsChecked>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Auto Check In"
+                                      IsCheckable="True"
+                                      IsChecked="{Binding CheckInAfterMerge}" />
+                        </ContextMenu>
+                    </teamExplorer:DropDownLink.DropDownMenu>
+                </teamExplorer:DropDownLink>
+            </WrapPanel>
+            <ListBox ItemsSource="{Binding Path=Branches}" Style="{StaticResource BranchesListBoxStyle}" />
+        </StackPanel>
     </StackPanel>
 </UserControl>
