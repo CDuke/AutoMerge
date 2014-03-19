@@ -48,6 +48,7 @@ namespace AutoMerge
 			IsVisible = true;
 			IsExpanded = true;
 			IsBusy = false;
+			CheckInAfterMerge = true;
 
 			MergeCommand = new DelegateCommand(MergeExecute, MergeCanEcexute);
 
@@ -94,6 +95,21 @@ namespace AutoMerge
 			}
 		}
 		private string _errorMessage;
+
+		public bool CheckInAfterMerge
+		{
+			get
+			{
+				return _checkInAfterMerge;
+			}
+			set
+			{
+				_checkInAfterMerge = value;
+				RaisePropertyChanged("CheckInAfterMerge");
+			}
+		}
+
+		private bool _checkInAfterMerge;
 
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
@@ -361,6 +377,8 @@ namespace AutoMerge
 					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
 				}
 
+				if (!CheckInAfterMerge)
+					break;
 				// Another user can update workitem. Need re-read before update.
 				// TODO: maybe move to workspace.CheckIn operation
 				var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);

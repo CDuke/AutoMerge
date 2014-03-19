@@ -58,16 +58,6 @@
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
 
-            <Style x:Key="MenuItemStyle"
-                   BasedOn="{StaticResource {x:Type MenuItem}}"
-                   TargetType="{x:Type MenuItem}">
-                <Setter Property="IsCheckable" Value="True" />
-            </Style>
-            <Style x:Key="ContextMenuStyle"
-                   BasedOn="{StaticResource {x:Type ContextMenu}}"
-                   TargetType="{x:Type ContextMenu}">
-                <Setter Property="ItemContainerStyle" Value="{StaticResource MenuItemStyle}" />
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Margin="6,6,6,6">
@@ -86,8 +76,8 @@
                                        ShowArrow="True"
                                        Text="Merge Options">
                 <teamExplorer:DropDownLink.DropDownMenu>
-                    <ContextMenu Style="{StaticResource ContextMenuStyle}">
-                        <MenuItem Header="Manual resolve conflict">
+                    <ContextMenu>
+                        <MenuItem Header="Manual resolve conflict" IsCheckable="True">
                             <MenuItem.IsChecked>
                                 <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
                                          Mode="TwoWay"
@@ -98,7 +88,7 @@
                                 </Binding>
                             </MenuItem.IsChecked>
                         </MenuItem>
-                        <MenuItem Header="Keep target (discard)">
+                        <MenuItem Header="Keep target (discard)" IsCheckable="True">
                             <MenuItem.IsChecked>
                                 <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
                                          Mode="TwoWay"
@@ -109,7 +99,7 @@
                                 </Binding>
                             </MenuItem.IsChecked>
                         </MenuItem>
-                        <MenuItem Header="Overwrite target (force)">
+                        <MenuItem Header="Overwrite target (force)" IsCheckable="True">
                             <MenuItem.IsChecked>
                                 <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
                                          Mode="TwoWay"
@@ -120,6 +110,10 @@
                                 </Binding>
                             </MenuItem.IsChecked>
                         </MenuItem>
+                        <Separator />
+                        <MenuItem Header="Auto Check In"
+                                  IsCheckable="True"
+                                  IsChecked="{Binding CheckInAfterMerge}" />
                     </ContextMenu>
                 </teamExplorer:DropDownLink.DropDownMenu>
             </teamExplorer:DropDownLink>
