@@ -180,7 +180,6 @@
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
-    <Compile Include="RecentChangesets\BranchesListConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\IChangesetProvider.cs" />

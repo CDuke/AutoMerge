@@ -2,11 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
+             xmlns:converters="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.Converters;assembly=Microsoft.TeamFoundation.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              TextOptions.TextFormattingMode="Display"
              UseLayoutRounding="True"
+             d:DataContext="{d:DesignInstance autoMerge:RecentChangesetViewModel}"
              d:DesignHeight="300"
              d:DesignWidth="300"
              mc:Ignorable="d">
@@ -17,7 +19,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter" />
-            <autoMerge:BranchesListConverter x:Key="BranchesListConverter" />
+            <converters:NonEmptyStringToVisibleConverter x:Key="NonEmptyStringToVisibleConverter" />
 
             <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="autoMerge:ChangesetViewModel">
                 <StackPanel Orientation="Horizontal">
@@ -25,13 +27,15 @@
                         <ToolTip Content="{Binding Comment}" />
                     </StackPanel.ToolTip>
                     <TextBlock Margin="0, 0, 0, 0" Text="{Binding ChangesetId}" />
-                    <TextBlock Text="{Binding Branches, Converter={StaticResource BranchesListConverter}}"
-                               Margin="5, 0, 0, 0"
-                               Padding="2"
-                               Foreground="{DynamicResource BodyTextBrushKey}"
+                    <TextBlock Margin="5, 0, 0, 0"
+                               VerticalAlignment="Center"
                                Background="{DynamicResource EmbeddedDialogBackgroundBrushKey}"
                                FontSize="8"
-                               VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource BodyTextBrushKey}"
+                               Padding="2"
+                               Text="{Binding DisplayBranchName}"
+                               Visibility="{Binding DisplayBranchName,
+                                                    Converter={StaticResource NonEmptyStringToVisibleConverter}}" />
                     <TextBlock Margin="10, 0, 0, 0" Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
                 </StackPanel>
             </DataTemplate>
@@ -50,8 +54,7 @@
     <StackPanel Margin="6, 6, 6, 6">
         <ListBox ItemsSource="{Binding Changesets}"
                  SelectedItem="{Binding SelectedChangeset}"
-                 Style="{StaticResource ChangesetListStyle}"
-                 d:DataContext="{d:DesignInstance autoMerge:RecentChangesetViewModel }">
+                 Style="{StaticResource ChangesetListStyle}">
             <ListBox.InputBindings>
                 <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
             </ListBox.InputBindings>
