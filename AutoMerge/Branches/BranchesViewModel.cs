@@ -246,13 +246,14 @@ namespace AutoMerge
 				}
 			}
 
+			var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
 			foreach (var change in changeset.Changes)
 			{
 				var mergesRelationships = versionControl.QueryMergeRelationships(change.Item.ServerItem);
 				if (mergesRelationships == null)
 					continue;
 
-				foreach (var mergesRelationship in mergesRelationships)
+				foreach (var mergesRelationship in mergesRelationships.Where(r => !r.IsDeleted))
 				{
 					foreach (var mergeInfoViewModel in result)
 					{
@@ -262,12 +263,12 @@ namespace AutoMerge
 							{
 								SourceFile = change.Item.ServerItem,
 								TargetFile = mergesRelationship.Item,
-								ChangesetVersionSpec = new ChangesetVersionSpec(changesetId)
+								ChangesetVersionSpec = changesetVersionSpec
 							};
 							mergeInfoViewModel.FileMergeInfos.Add(fileMergeInfo);
 							if (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success)
 							{
-								mergeInfoViewModel.ValidationResult = ValidateItem(workspace, fileMergeInfo.TargetFile, changesetId);
+								mergeInfoViewModel.ValidationResult = ValidateItem(workspace, fileMergeInfo);
 								mergeInfoViewModel.Checked = mergeInfoViewModel.Checked
 									&& (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success);
 							}
@@ -281,29 +282,29 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static BranchValidationResult ValidateItem(Workspace workspace, string targetFile, int changesetId)
+		private static BranchValidationResult ValidateItem(Workspace workspace, FileMergeInfo fileMergeInfo)
 		{
 			var result = BranchValidationResult.Success;
 			if (result == BranchValidationResult.Success)
 			{
-				var isMapped = IsMapped(workspace, targetFile);
+				var isMapped = IsMapped(workspace, fileMergeInfo.TargetFile);
 				if (!isMapped)
 					result = BranchValidationResult.BranchNotMapped;
 			}
 
 			if (result == BranchValidationResult.Success)
 			{
-				var hasLocalChanges = HasLocalChanges(workspace, targetFile);
+				var hasLocalChanges = HasLocalChanges(workspace, fileMergeInfo.TargetFile);
 				if (hasLocalChanges)
 					result = BranchValidationResult.ItemHasLocalChanges;
 			}
 
-//			if (result == BranchValidationResult.Success)
-//			{
-//				var isMerge = IsMerged(workspace.VersionControlServer, sourceBranch, targetBranch, changes, changesetId);
-//				if (isMerge)
-//					result = BranchValidationResult.AlreadyMerged;
-//			}
+			if (result == BranchValidationResult.Success)
+			{
+				var isMerged = IsMerged(workspace, fileMergeInfo);
+				if (isMerged)
+					result = BranchValidationResult.AlreadyMerged;
+			}
 
 			return result;
 		}
@@ -333,6 +334,14 @@ namespace AutoMerge
 			}
 
 			return result;
+		}
+
+		private static bool IsMerged(Workspace workspace, FileMergeInfo fileMergeInfo)
+		{
+			return IsMerged(workspace.VersionControlServer,
+				fileMergeInfo.SourceFile,
+				fileMergeInfo.TargetFile,
+				fileMergeInfo.ChangesetVersionSpec.ChangesetId);
 		}
 
 		private static bool IsMerged(VersionControlServer versionControlServer, string sourceBranch, string targetBranch, IEnumerable<Change> changes, int changesetId)
