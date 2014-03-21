@@ -164,10 +164,13 @@
       <DependentUpon>BranchesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Branches\BranchValidationResult.cs" />
+    <Compile Include="Branches\CheckInResult.cs" />
     <Compile Include="Branches\FileMergeInfo.cs" />
     <Compile Include="Branches\MergeInfoViewModel.cs" />
     <Compile Include="Branches\MergeOption.cs" />
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
+    <Compile Include="Branches\MergeResult.cs" />
+    <Compile Include="Branches\MergeResultModel.cs" />
     <Compile Include="Events\BranchSelectedChangedEvent.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\MergeCompleteEvent.cs" />

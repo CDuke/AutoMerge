@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Events;
 using Microsoft.TeamFoundation.Client;
+using Microsoft.TeamFoundation.Common.Internal;
 using Microsoft.TeamFoundation.Controls;
+using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 
@@ -17,24 +20,6 @@ namespace AutoMerge
 {
 	public class BranchesViewModel : TeamExplorerSectionViewModelBase
 	{
-		private enum MergeResult
-		{
-			Success,
-			NothingMerge,
-			CheckInFail,
-			CheckInEvaluateFail,
-			UnresolvedConflicts,
-			PartialSuccess
-		}
-
-		private enum CheckInResult
-		{
-			Success,
-			NothingMerge,
-			CheckInFail,
-			CheckInEvaluateFail
-		}
-
 		private readonly IEventAggregator _eventAggregator;
 		private ChangesetService _changesetService;
 
@@ -232,12 +217,12 @@ namespace AutoMerge
 					.Reverse();
 				foreach (var childBranch in childBranches)
 				{
-					var targetBranch = sourceBranchIdentifier.Item;
-					var sourceBranch = childBranch.Item;
+					var targetBranch = childBranch.Item;
+					var sourceBranch = sourceBranchIdentifier.Item;
 					var mergeInfo = new MergeInfoViewModel(_eventAggregator)
 					{
-						SourceBranch = sourceBranchIdentifier.Item,
-						TargetBranch = childBranch.Item,
+						SourceBranch = sourceBranch,
+						TargetBranch = targetBranch,
 						FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
 						ValidationResult = BranchValidationResult.Success,
 						Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
@@ -351,7 +336,15 @@ namespace AutoMerge
 		private static bool HasLocalChanges(Workspace workspace, string path)
 		{
 			//return workspace.GetPendingChangesEnumerable(path).Any();
-			return workspace.GetPendingChangesEnumerable().Any(p => p.SourceServerItem == path);
+			return workspace.GetPendingChangesEnumerable().Any(p => ExtractServerPath(p) == path);
+		}
+
+		private static string ExtractServerPath(PendingChange pendingChange)
+		{
+			if (pendingChange.SourceServerItem != null)
+				return pendingChange.SourceServerItem;
+
+			return pendingChange.ServerItem;
 		}
 
 		private static bool HasLocalChanges(Workspace workspace, ItemSpec[] itemSpecs)
@@ -369,28 +362,40 @@ namespace AutoMerge
 
 				var result = await Task.Run(() =>MergeExecuteInternal());
 
-				switch (result)
+				var sendEvent = true;
+				foreach (var resultModel in result)
 				{
-					case MergeResult.CheckInEvaluateFail:
-						ShowNotification("Check In evaluate failed", NotificationType.Error);
-						break;
-					case MergeResult.CheckInFail:
-						ShowNotification("Check In failed", NotificationType.Error);
-						break;
-					case MergeResult.NothingMerge:
-						ShowNotification("Nothing merged", NotificationType.Warning);
-						break;
-					case MergeResult.PartialSuccess:
-						ShowNotification("Partial success", NotificationType.Error);
-						break;
-					case MergeResult.UnresolvedConflicts:
-						ShowNotification("Unresolved conflicts", NotificationType.Error);
-						break;
-					case MergeResult.Success:
-						ShowNotification("Merge is successful", NotificationType.Information);
-						break;
+					switch (resultModel.MergeResult)
+					{
+						case MergeResult.CheckInEvaluateFail:
+							ShowNotification("Check In evaluate failed", NotificationType.Error);
+							break;
+						case MergeResult.CheckInFail:
+							ShowNotification("Check In failed", NotificationType.Error);
+							break;
+						case MergeResult.NothingMerge:
+							ShowNotification("Nothing merged", NotificationType.Warning);
+							break;
+						case MergeResult.UnresolvedConflicts:
+							ShowNotification("Unresolved conflicts", NotificationType.Error);
+							break;
+						case MergeResult.CanNotGetLatest:
+							ShowNotification("Gan not get lates", NotificationType.Error);
+							break;
+						case MergeResult.Success:
+							ShowNotification("Merge is successful");
+							break;
+						case MergeResult.NotCheckIn:
+							sendEvent = false;
+							// It's can be only one
+							OpenPendingChanges(resultModel);
+							break;
+					}
 				}
-				_eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
+
+
+				if (sendEvent)
+					_eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
 			}
 			catch (Exception ex)
 			{
@@ -402,9 +407,25 @@ namespace AutoMerge
 			}
 		}
 
-		private MergeResult MergeExecuteInternal()
+		private void OpenPendingChanges(MergeResultModel resultModel)
 		{
-			var result = MergeResult.NothingMerge;
+			var teamExplorer = ServiceProvider.GetService<ITeamExplorer>();
+			var pendingChangesPage = (TeamExplorerPageBase)teamExplorer.NavigateToPage(new Guid(TeamExplorerPageIds.PendingChanges), null);
+			var model = (IPendingCheckin)pendingChangesPage.Model;
+			model.PendingChanges.Comment = resultModel.BranchInfo.Comment;
+			if (resultModel.WorkItemIds != null)
+			{
+				var modelType = model.GetType();
+				var method = modelType.GetMethod("AddWorkItemsByIdAsync",
+					BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+				var workItemsIdsArray = resultModel.WorkItemIds.ToArray();
+				method.Invoke(model, new object[] {workItemsIdsArray, 1 /* Add */});
+			}
+		}
+
+		private List<MergeResultModel> MergeExecuteInternal()
+		{
+			var result = new List<MergeResultModel>();
 			var context = Context;
 			var tfs = context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
@@ -415,30 +436,38 @@ namespace AutoMerge
 			var changeset = changesetService.GetChangeset(_changeset.ChangesetId);
 			var mergeOption = _mergeOption;
 			var workItemStore = tfs.GetService<WorkItemStore>();
+			var workItemIds = changeset.AssociatedWorkItems != null
+				? changeset.AssociatedWorkItems.Select(w => w.Id).ToList()
+				: new List<int>();
 
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
-				List<PendingChange> targetPendingChanges;
-				if (!MergeToBranch(mergeInfo, mergeOption, workspace, out targetPendingChanges))
-				{
-					return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.UnresolvedConflicts;
-				}
+				var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, true, workspace);
+				mergeResultModel.WorkItemIds = workItemIds;
+				result.Add(mergeResultModel);
 
 				if (!CheckInAfterMerge)
-					break;
-				// Another user can update workitem. Need re-read before update.
-				// TODO: maybe move to workspace.CheckIn operation
-				var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);
-				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.PolicyOverride);
-				switch (checkInResult)
 				{
-					case CheckInResult.CheckInEvaluateFail:
-						return MergeResult.CheckInEvaluateFail;
-					case CheckInResult.CheckInFail:
-						return result == MergeResult.Success ? MergeResult.PartialSuccess : MergeResult.CheckInFail;
-					case CheckInResult.Success:
-						result = MergeResult.Success;
-						break;
+					mergeResultModel.MergeResult = MergeResult.NotCheckIn;
+					break;
+				}
+
+				if (mergeResultModel.MergeResult != MergeResult.Success)
+				{
+					break;
+				}
+
+				var checkInResult = CheckIn(mergeResultModel.PendingChanges, mergeInfo, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
+				mergeResultModel.ChangesetId = checkInResult.ChangesetId;
+				mergeResultModel.MergeResult = checkInResult.CheckinResult;
+
+				if (mergeResultModel.MergeResult == MergeResult.Success)
+				{
+					mergeResultModel.CheckedIn = true;
+				}
+				else
+				{
+					break;
 				}
 			}
 
@@ -446,10 +475,17 @@ namespace AutoMerge
 		}
 
 		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoViewModel mergeInfoView,
-			Workspace workspace, WorkItemCheckinInfo[] workItems, PolicyOverrideInfo policyOverride)
+			Workspace workspace, IReadOnlyCollection<int> workItemIds, PolicyOverrideInfo policyOverride, WorkItemStore workItemStore)
 		{
+			var result = new CheckInResult();
 			if (targetPendingChanges.Count == 0)
-				return CheckInResult.NothingMerge;
+			{
+				result.CheckinResult = MergeResult.NothingMerge;
+				return result;
+			}
+
+			// Another user can update workitem. Need re-read before update.
+			var workItems = GetWorkItemCheckinInfo(workItemIds, workItemStore);
 
 			var comment = mergeInfoView.Comment;
 			var evaluateCheckIn = workspace.EvaluateCheckin2(CheckinEvaluationOptions.All,
@@ -460,18 +496,32 @@ namespace AutoMerge
 
 			var skipPolicyValidate = !policyOverride.PolicyFailures.IsNullOrEmpty();
 			if (!CanCheckIn(evaluateCheckIn, skipPolicyValidate))
-				return CheckInResult.CheckInEvaluateFail;
+			{
+				result.CheckinResult = MergeResult.CheckInEvaluateFail;
+			}
 
 			var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), null, comment,
 				null, workItems, policyOverride);
-			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
+			if (changesetId > 0)
+			{
+				result.ChangesetId = changesetId;
+				result.CheckinResult = MergeResult.Success;
+			}
+			else
+			{
+				result.CheckinResult = MergeResult.CheckInFail;
+			}
+			return result;
 		}
 
-		private static bool MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption, Workspace workspace, out List<PendingChange> targetPendingChanges)
+		private static MergeResultModel MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption, bool resolveConflict, Workspace workspace)
 		{
+			var result = new MergeResultModel
+			{
+				BranchInfo = mergeInfoeViewModel,
+			};
 			var conflicts = new List<string>();
 			var allTargetsFiles = new HashSet<string>();
-			targetPendingChanges = null;
 			var itemSpecs = new List<ItemSpec>(mergeInfoeViewModel.FileMergeInfos.Count);
 			foreach (var fileMergeInfo in mergeInfoeViewModel.FileMergeInfos)
 			{
@@ -487,7 +537,11 @@ namespace AutoMerge
 					// HACK.
 					getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
 					if (!getLatestResult.NoActionNeeded)
-						return false;
+					{
+						result.MergeResult = MergeResult.CanNotGetLatest;
+						result.Message = "Can not get latest";
+						return result;
+					}
 				}
 
 				var mergeOptions = ToTfsMergeOptions(mergeOption);
@@ -499,21 +553,24 @@ namespace AutoMerge
 				}
 			}
 
-			if (conflicts.Count > 0)
+			if (conflicts.Count > 0 && resolveConflict)
 			{
 				var resolved = ResolveConflict(workspace, conflicts.ToArray());
 				if (!resolved)
 				{
-					return false;
+					result.MergeResult = MergeResult.UnresolvedConflicts;
+					result.Message = "Unresolved conflicts";
+					return result;
 				}
 			}
 
 			var allPendingChanges = workspace.GetPendingChangesEnumerable(itemSpecs.ToArray());
-			targetPendingChanges = allPendingChanges.ToList();
+			var targetPendingChanges = allPendingChanges.ToList();
 //				.Where(pendingChange => allTargetsFiles.Contains(pendingChange.ServerItem))
 //				.ToList();
-
-			return true;
+			result.MergeResult = MergeResult.Success;
+			result.PendingChanges = targetPendingChanges;
+			return result;
 		}
 
 		private static MergeOptions ToTfsMergeOptions(MergeOption mergeOption)
@@ -602,15 +659,13 @@ namespace AutoMerge
 			return shortName;
 		}
 
-		private static WorkItemCheckinInfo[] GetWorkItemCheckinInfo(Changeset changeset, WorkItemStore workItemStore)
+		private static WorkItemCheckinInfo[] GetWorkItemCheckinInfo(IReadOnlyCollection<int> workItemIds, WorkItemStore workItemStore)
 		{
-			if (changeset.WorkItems == null)
-				return null;
 
-			var result = new List<WorkItemCheckinInfo>(changeset.WorkItems.Length);
-			foreach (var associatedWorkItem in changeset.AssociatedWorkItems)
+			var result = new List<WorkItemCheckinInfo>(workItemIds.Count);
+			foreach (var workItemId in workItemIds)
 			{
-				var workItem = workItemStore.GetWorkItem(associatedWorkItem.Id);
+				var workItem = workItemStore.GetWorkItem(workItemId);
 				var workItemCheckinInfo = new WorkItemCheckinInfo(workItem, WorkItemCheckinAction.Associate);
 				result.Add(workItemCheckinInfo);
 			}
