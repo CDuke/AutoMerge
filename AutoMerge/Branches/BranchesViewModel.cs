@@ -202,15 +202,15 @@ namespace AutoMerge
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
 			{
-				var parentBranch = sourceBranchInfo.Properties.ParentBranch.Item;
+				var targetBranch = sourceBranchInfo.Properties.ParentBranch.Item;
+				var sourceBranch = sourceBranchIdentifier.Item;
 				var mergeInfo = new MergeInfoViewModel(_eventAggregator)
 				{
-					SourceBranch = sourceBranchIdentifier.Item,
-					TargetBranch = parentBranch,
+					SourceBranch = sourceBranch,
+					TargetBranch = targetBranch,
 					FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
-					ValidationResult = BranchValidationResult.Success
-//					ValidationResult =
-//						ValidateBranch(workspace, sourceBranchIdentifier.Item, parentBranch, changeset.Changes, changeset.ChangesetId),
+					ValidationResult = BranchValidationResult.Success,
+					Comment =  EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
 				};
 
 				mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
@@ -232,15 +232,16 @@ namespace AutoMerge
 					.Reverse();
 				foreach (var childBranch in childBranches)
 				{
+					var targetBranch = sourceBranchIdentifier.Item;
+					var sourceBranch = childBranch.Item;
 					var mergeInfo = new MergeInfoViewModel(_eventAggregator)
 					{
 						SourceBranch = sourceBranchIdentifier.Item,
 						TargetBranch = childBranch.Item,
 						FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
-						ValidationResult = BranchValidationResult.Success
+						ValidationResult = BranchValidationResult.Success,
+						Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
 					};
-
-					//mergeInfo.ValidationResult = ValidateBranch(workspace, sourceBranchIdentifier.Item, childBranch.Item, changeset.Changes, changeset.ChangesetId);
 
 					result.Add(mergeInfo);
 				}
@@ -269,6 +270,7 @@ namespace AutoMerge
 							if (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success)
 							{
 								mergeInfoViewModel.ValidationResult = ValidateItem(workspace, fileMergeInfo);
+								mergeInfoViewModel.ValidationMessage = ToMessage(mergeInfoViewModel.ValidationResult);
 								mergeInfoViewModel.Checked = mergeInfoViewModel.Checked
 									&& (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success);
 							}
@@ -280,6 +282,23 @@ namespace AutoMerge
 			
 
 			return result;
+		}
+
+		private static string ToMessage(BranchValidationResult validationResult)
+		{
+			switch (validationResult)
+			{
+				case BranchValidationResult.Success:
+					return null;
+				case BranchValidationResult.AlreadyMerged:
+					return "Changeset already merged";
+				case BranchValidationResult.BranchNotMapped:
+					return "Branch not mapped";
+				case BranchValidationResult.ItemHasLocalChanges:
+					return "Some files have local changes. Commit or undo it";
+				default:
+					return "Unknown error";
+			}
 		}
 
 		private static BranchValidationResult ValidateItem(Workspace workspace, FileMergeInfo fileMergeInfo)
@@ -309,32 +328,6 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static BranchValidationResult ValidateBranch(Workspace workspace, string sourceBranch, string targetBranch, Change[] changes, int changesetId)
-		{
-			var result = BranchValidationResult.Success;
-			if (result == BranchValidationResult.Success)
-			{
-				var isMapped = IsMapped(workspace, sourceBranch, targetBranch, changes);
-				if (!isMapped)
-					result = BranchValidationResult.BranchNotMapped;
-			}
-
-			if (result == BranchValidationResult.Success)
-			{
-				var hasLocalChanges = HasLocalChanges(workspace, sourceBranch, targetBranch, changes);
-				if (hasLocalChanges)
-					result = BranchValidationResult.ItemHasLocalChanges;
-			}
-
-			if (result == BranchValidationResult.Success)
-			{
-				var isMerge = IsMerged(workspace.VersionControlServer, sourceBranch, targetBranch, changes, changesetId);
-				if (isMerge)
-					result = BranchValidationResult.AlreadyMerged;
-			}
-
-			return result;
-		}
 
 		private static bool IsMerged(Workspace workspace, FileMergeInfo fileMergeInfo)
 		{
@@ -344,49 +337,15 @@ namespace AutoMerge
 				fileMergeInfo.ChangesetVersionSpec.ChangesetId);
 		}
 
-		private static bool IsMerged(VersionControlServer versionControlServer, string sourceBranch, string targetBranch, IEnumerable<Change> changes, int changesetId)
-		{
-			foreach (var change in changes)
-			{
-				var source = change.Item.ServerItem;
-				var target = source.Replace(sourceBranch, targetBranch);
-
-				if (!IsMerged(versionControlServer, source, target, changesetId))
-					return false;
-			}
-
-			return true;
-		}
-
 		private static bool IsMerged(VersionControlServer versionControlServer, string source, string target, int changesetId)
 		{
 			var mergeCandidates = versionControlServer.GetMergeCandidates(new ItemSpec(source, RecursionType.None), target);
 			return mergeCandidates.All(m => m.Changeset.ChangesetId != changesetId);
 		}
 
-		private static bool IsMapped(Workspace workspace, string sourceBranch, string targetBranch, IEnumerable<Change> changes)
-		{
-			var targetItems = changes
-				.Select(c => c.Item.ServerItem)
-				.Select(path => path.Replace(sourceBranch, targetBranch));
-
-			return targetItems.All(targetItem => IsMapped(workspace, targetItem));
-		}
-
 		private static bool IsMapped(Workspace workspace, string targetItem)
 		{
 			return workspace.IsServerPathMapped(targetItem);
-		}
-
-		private static bool HasLocalChanges(Workspace workspace, string sourceBranch, string targetBranch, IEnumerable<Change> changes)
-		{
-			var itemSpecs = changes
-				.Select(c => c.Item.ServerItem)
-				.Select(path => path.Replace(sourceBranch, targetBranch))
-				.Select(path => new ItemSpec(path, RecursionType.None))
-				.ToArray();
-
-			return HasLocalChanges(workspace, itemSpecs);
 		}
 
 		private static bool HasLocalChanges(Workspace workspace, string path)
@@ -470,7 +429,7 @@ namespace AutoMerge
 				// Another user can update workitem. Need re-read before update.
 				// TODO: maybe move to workspace.CheckIn operation
 				var workItems = GetWorkItemCheckinInfo(changeset, workItemStore);
-				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.Comment, changeset.PolicyOverride);
+				var checkInResult = CheckIn(targetPendingChanges, mergeInfo, workspace, workItems, changeset.PolicyOverride);
 				switch (checkInResult)
 				{
 					case CheckInResult.CheckInEvaluateFail:
@@ -487,12 +446,12 @@ namespace AutoMerge
 		}
 
 		private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoViewModel mergeInfoView,
-			Workspace workspace, WorkItemCheckinInfo[] workItems, string sourceComment, PolicyOverrideInfo policyOverride)
+			Workspace workspace, WorkItemCheckinInfo[] workItems, PolicyOverrideInfo policyOverride)
 		{
 			if (targetPendingChanges.Count == 0)
 				return CheckInResult.NothingMerge;
 
-			var comment = EvaluateComment(sourceComment, mergeInfoView.SourceBranch, mergeInfoView.TargetBranch);
+			var comment = mergeInfoView.Comment;
 			var evaluateCheckIn = workspace.EvaluateCheckin2(CheckinEvaluationOptions.All,
 				targetPendingChanges,
 				comment,
@@ -508,7 +467,7 @@ namespace AutoMerge
 			return changesetId <= 0 ? CheckInResult.CheckInFail : CheckInResult.Success;
 		}
 
-		private bool MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption, Workspace workspace, out List<PendingChange> targetPendingChanges)
+		private static bool MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption, Workspace workspace, out List<PendingChange> targetPendingChanges)
 		{
 			var conflicts = new List<string>();
 			var allTargetsFiles = new HashSet<string>();
@@ -553,53 +512,6 @@ namespace AutoMerge
 			targetPendingChanges = allPendingChanges.ToList();
 //				.Where(pendingChange => allTargetsFiles.Contains(pendingChange.ServerItem))
 //				.ToList();
-
-			return true;
-		}
-
-		private static bool MergeToBranch(string sourceBranch, string targetBranch, IEnumerable<Change> sourceChanges, VersionSpec version, MergeOption mergeOption,
-			Workspace workspace, out List<PendingChange> targetPendingChanges)
-		{
-			var conflicts = new List<string>();
-			var allTargetsFiles = new HashSet<string>();
-			targetPendingChanges = null;
-			foreach (var change in sourceChanges)
-			{
-				var source = change.Item.ServerItem;
-				var target = source.Replace(sourceBranch, targetBranch);
-				allTargetsFiles.Add(target);
-
-				var getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
-				if (!getLatestResult.NoActionNeeded)
-				{
-					// HACK.
-					getLatestResult = workspace.Get(new[] { target }, VersionSpec.Latest, RecursionType.None, GetOptions.None);
-					if (!getLatestResult.NoActionNeeded)
-						return false;
-				}
-
-				var mergeOptions = ToTfsMergeOptions(mergeOption);
-				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
-
-				if (HasConflicts(status))
-				{
-					conflicts.Add(target);
-				}
-			}
-
-			if (conflicts.Count > 0)
-			{
-				var resolved = ResolveConflict(workspace, conflicts.ToArray());
-				if (!resolved)
-				{
-					return false;
-				}
-			}
-
-			var allPendingChanges = workspace.GetPendingChangesEnumerable();
-			targetPendingChanges = allPendingChanges
-				.Where(pendingChange => allTargetsFiles.Contains(pendingChange.ServerItem))
-				.ToList();
 
 			return true;
 		}

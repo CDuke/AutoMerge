@@ -18,10 +18,12 @@
                 <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <autoMerge:ValidationResultToTextConverter x:Key="ValidationResultToTextConverter" />
             <autoMerge:MergeOptionToCheckedConverter x:Key="MergeOptionToCheckedConverter" />
             <converters:NullToVisibleConverter x:Key="NullToVisibleConverter" />
             <converters:NonEmptyStringToVisibleConverter x:Key="NonEmptyStringToVisibleConverter" />
+            <converters:AllTrueToVisibleConverter x:Key="AllTrueToVisibleConverter" />
+            <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
+            <converters:IsNullConverter x:Key="IsNullConverter" />
 
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoViewModel">
                 <StackPanel Orientation="Horizontal">
@@ -29,22 +31,23 @@
                                Height="15"
                                Margin="0,0,6,0"
                                Fill="{DynamicResource WarningIconBrush}"
-                               ToolTip="{Binding ValidationResult,
-                                                 Converter={StaticResource ValidationResultToTextConverter}}"
-                               Visibility="{Binding ImageVisibility}" />
-                    <!--  <Image Margin="0,0,6,0"  -->
-                    <!--  Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/images/warning16.png"  -->
-                    <!--  ToolTip="{Binding ValidationResult,  -->
-                    <!--  Converter={StaticResource ValidationResultToTextConverter}}"  -->
-                    <!--  Visibility="{Binding ImageVisibility}" />  -->
+                               ToolTip="{Binding ValidationMessage}"
+                               Visibility="{Binding ValidationMessage,
+                                                    Converter={StaticResource NonEmptyStringToVisibleConverter}}" />
                     <CheckBox Margin="0,0,5,0"
                               IsChecked="{Binding Checked,
                                                   Mode=TwoWay}"
-                              IsThreeState="False"
-                              Visibility="{Binding GetCheckBoxVisibility}" />
+                              IsThreeState="False">
+                        <CheckBox.Visibility>
+                            <MultiBinding Converter="{StaticResource AllTrueToVisibleConverter}">
+                                <Binding Converter="{StaticResource BoolInvertConverter}" Path="IsSourceBranch" />
+                                <Binding Converter="{StaticResource IsNullConverter}" Path="ValidationMessage" />
+                            </MultiBinding>
+                        </CheckBox.Visibility>
+                    </CheckBox>
                     <TextBlock Margin="0,0,0,0"
                                Text="{Binding DisplayBranchName}"
-                               ToolTip="{Binding TargetBranch}"/>
+                               ToolTip="{Binding TargetBranch}" />
                 </StackPanel>
             </DataTemplate>
 
@@ -67,10 +70,8 @@
                        Text="{Binding ErrorMessage}"
                        TextAlignment="Center" />
         </StackPanel>
-        <StackPanel Visibility="{Binding ErrorMessage,
-                                            Converter={StaticResource NullToVisibleConverter}}">
-            <WrapPanel Margin="0,0,0,6"
-                       Orientation="Horizontal">
+        <StackPanel Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibleConverter}}">
+            <WrapPanel Margin="0,0,0,6" Orientation="Horizontal">
                 <Button Command="{Binding MergeCommand}" Content="Merge" />
                 <teamExplorer:DropDownLink Margin="12,0,0,0"
                                            VerticalAlignment="Center"

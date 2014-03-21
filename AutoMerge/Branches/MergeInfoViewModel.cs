@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Events;
 
@@ -33,6 +32,8 @@ namespace AutoMerge
 
 		public string TargetBranch { get; set; }
 
+		public string Comment { get; set; }
+
 		public string DisplayBranchName
 		{
 			get
@@ -45,48 +46,13 @@ namespace AutoMerge
 
 		public BranchValidationResult ValidationResult { get; set; }
 
-		public bool CanMerge
-		{
-			get
-			{
-				return !string.Equals(SourceBranch, TargetBranch, StringComparison.OrdinalIgnoreCase);
-			}
-		}
+		public string ValidationMessage { get; set; }
 
-		public bool IsCurrentBranch
+		public bool IsSourceBranch
 		{
 			get
 			{
 				return string.Equals(SourceBranch, TargetBranch, StringComparison.OrdinalIgnoreCase);
-			}
-		}
-
-		public Visibility GetCheckBoxVisibility
-		{
-			get
-			{
-				if (IsCurrentBranch)
-					return Visibility.Collapsed;
-
-				if (!IsCurrentBranch && ValidationResult == BranchValidationResult.Success)
-					return Visibility.Visible;
-
-				return Visibility.Collapsed;
-			}
-		}
-
-		public Visibility ImageVisibility
-		{
-			get
-			{
-				if (IsCurrentBranch)
-					return Visibility.Collapsed;
-
-				if (!IsCurrentBranch && ValidationResult != BranchValidationResult.Success)
-					return Visibility.Visible;
-
-				return Visibility.Collapsed;
-
 			}
 		}
 	}
