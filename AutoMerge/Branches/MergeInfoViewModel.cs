@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AutoMerge.Events;
 using Microsoft.Practices.Prism.Events;
+using Microsoft.TeamFoundation.VersionControl.Client;
 
 namespace AutoMerge
 {
@@ -28,9 +29,15 @@ namespace AutoMerge
 			}
 		}
 
+		public string SourcePath { get; set; }
+
+		public string TargetPath { get; set; }
+
 		public string SourceBranch { get; set; }
 
 		public string TargetBranch { get; set; }
+
+		public ChangesetVersionSpec ChangesetVersionSpec { get; set; }
 
 		public string Comment { get; set; }
 

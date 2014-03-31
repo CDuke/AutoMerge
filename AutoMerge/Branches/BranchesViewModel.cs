@@ -178,11 +178,16 @@ namespace AutoMerge
 
 			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
-			var changesetService = new ChangesetService(versionControl, context.TeamProjectName);
+			//var changesetService = new ChangesetService(versionControl, context.TeamProjectName);
+			var changesetService = _changesetService;
 			var sourceBranchIdentifier = changesetService.GetAssociatedBranches(changesetId)[0];
 			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
 
 			var changeset = changesetService.GetChangeset(changesetId);
+
+			var sourceTopFolder = CalculateTopFolder(changeset.Changes);
+			var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder);
+			var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
@@ -193,10 +198,16 @@ namespace AutoMerge
 				{
 					SourceBranch = sourceBranch,
 					TargetBranch = targetBranch,
+					SourcePath = sourceTopFolder,
+					TargetPath = GetTargetPath(mergesRelationships, targetBranch),
+					ChangesetVersionSpec = changesetVersionSpec,
 					FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
 					ValidationResult = BranchValidationResult.Success,
 					Comment =  EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
 				};
+
+				mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo);
+				mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
 
 				mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
 
@@ -223,50 +234,130 @@ namespace AutoMerge
 					{
 						SourceBranch = sourceBranch,
 						TargetBranch = targetBranch,
+						SourcePath = sourceTopFolder,
+						TargetPath = GetTargetPath(mergesRelationships, targetBranch),
+						ChangesetVersionSpec = changesetVersionSpec,
 						FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
 						ValidationResult = BranchValidationResult.Success,
 						Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
 					};
 
+					mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo);
+					mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
+
 					result.Add(mergeInfo);
 				}
 			}
 
-			var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
-			foreach (var change in changeset.Changes)
-			{
-				var mergesRelationships = versionControl.QueryMergeRelationships(change.Item.ServerItem);
-				if (mergesRelationships == null)
-					continue;
-
-				foreach (var mergesRelationship in mergesRelationships.Where(r => !r.IsDeleted))
-				{
-					foreach (var mergeInfoViewModel in result)
-					{
-						if (mergesRelationship.Item.StartsWith(mergeInfoViewModel.TargetBranch))
-						{
-							var fileMergeInfo = new FileMergeInfo
-							{
-								SourceFile = change.Item.ServerItem,
-								TargetFile = mergesRelationship.Item,
-								ChangesetVersionSpec = changesetVersionSpec
-							};
-							mergeInfoViewModel.FileMergeInfos.Add(fileMergeInfo);
-							if (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success)
-							{
-								mergeInfoViewModel.ValidationResult = ValidateItem(workspace, fileMergeInfo);
-								mergeInfoViewModel.ValidationMessage = ToMessage(mergeInfoViewModel.ValidationResult);
-								mergeInfoViewModel.Checked = mergeInfoViewModel.Checked
-									&& (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success);
-							}
-							break;
-						}
-					}
-				}
-			}
+//			foreach (var change in changeset.Changes)
+//			{
+//				var mergesRelationships = versionControl.QueryMergeRelationships(change.Item.ServerItem);
+//				if (mergesRelationships == null)
+//					continue;
+//
+//				foreach (var mergesRelationship in mergesRelationships.Where(r => !r.IsDeleted))
+//				{
+//					foreach (var mergeInfoViewModel in result)
+//					{
+//						if (mergesRelationship.Item.StartsWith(mergeInfoViewModel.TargetBranch))
+//						{
+//							var fileMergeInfo = new FileMergeInfo
+//							{
+//								SourceFile = change.Item.ServerItem,
+//								TargetFile = mergesRelationship.Item,
+//								ChangesetVersionSpec = changesetVersionSpec
+//							};
+//							mergeInfoViewModel.FileMergeInfos.Add(fileMergeInfo);
+//							if (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success)
+//							{
+//								mergeInfoViewModel.ValidationResult = ValidateItem(workspace, fileMergeInfo);
+//								mergeInfoViewModel.ValidationMessage = ToMessage(mergeInfoViewModel.ValidationResult);
+//								mergeInfoViewModel.Checked = mergeInfoViewModel.Checked
+//									&& (mergeInfoViewModel.ValidationResult == BranchValidationResult.Success);
+//							}
+//							break;
+//						}
+//					}
+//				}
+//			}
 			
 
 			return result;
+		}
+
+		private static string GetTargetPath(ICollection<ItemIdentifier> mergesRelationships, string targetBranch)
+		{
+			if (mergesRelationships == null || mergesRelationships.Count == 0)
+				return null;
+
+			return mergesRelationships.Select(m => m.Item).FirstOrDefault(p => p.Contains(targetBranch));
+		}
+
+		private static string CalculateTopFolder(ICollection<Change> changes)
+		{
+			if (changes == null || changes.Count == 0)
+				throw new ArgumentNullException("changes");
+
+			string topFolder = null;
+
+			foreach (var change in changes)
+			{
+				if (topFolder != null)
+				{
+					if (change.Item.ServerItem.Contains(topFolder) && change.Item.ServerItem != topFolder)
+						continue;
+				}
+
+				var changeFolder = ExtractFolder(change.ChangeType, change.Item);
+
+				if ((topFolder == null) || (topFolder != null && topFolder.Contains(changeFolder)))
+				{
+					topFolder = changeFolder;
+					continue;
+				}
+
+				topFolder = FindShareFolder(topFolder, changeFolder);
+			}
+
+			return topFolder;
+		}
+
+		private static string FindShareFolder(string topFolder, string changeFolder)
+		{
+			var folder = topFolder;
+			while (folder != "$")
+			{
+				folder = ExtractFolder(folder);
+				if (folder != null && changeFolder.Contains(folder))
+					break;
+			}
+
+			return folder == "$" ? folder + "/" : folder;
+		}
+
+		private static string ExtractFolder(ChangeType changeType, Item item)
+		{
+			if (changeType == ChangeType.Add && item.ItemType == ItemType.Folder)
+				return ExtractFolder(item.ServerItem);
+
+			return item.ItemType == ItemType.Folder
+				? item.ServerItem
+				: ExtractFolder(item.ServerItem);
+		}
+
+		private static string ExtractFolder(string serverItem)
+		{
+			if (string.IsNullOrWhiteSpace(serverItem))
+				throw new ArgumentNullException("serverItem");
+
+			if (serverItem.EndsWith("/"))
+				serverItem = serverItem.Substring(0, serverItem.Length - 1);
+
+			var lastPosDelimiter = serverItem.LastIndexOf('/');
+			if (lastPosDelimiter < 0)
+				throw new InvalidOperationException(string.Format("Folder delimiter for {0} not found", serverItem));
+
+			return serverItem.Substring(0, lastPosDelimiter + 1);
 		}
 
 		private static string ToMessage(BranchValidationResult validationResult)
@@ -284,6 +375,34 @@ namespace AutoMerge
 				default:
 					return "Unknown error";
 			}
+		}
+
+		private static BranchValidationResult ValidateItem(Workspace workspace, MergeInfoViewModel mergeInfoViewModel)
+		{
+			var result = BranchValidationResult.Success;
+			if (result == BranchValidationResult.Success)
+			{
+				var isMapped = IsMapped(workspace, mergeInfoViewModel.TargetPath);
+				if (!isMapped)
+					result = BranchValidationResult.BranchNotMapped;
+			}
+
+//			if (result == BranchValidationResult.Success)
+//			{
+//				var hasLocalChanges = HasLocalChanges(workspace, fileMergeInfo.TargetFile);
+//				if (hasLocalChanges)
+//					result = BranchValidationResult.ItemHasLocalChanges;
+//			}
+
+			if (result == BranchValidationResult.Success)
+			{
+				var isMerged = IsMerged(workspace.VersionControlServer,
+					mergeInfoViewModel.SourcePath, mergeInfoViewModel.TargetPath, mergeInfoViewModel.ChangesetVersionSpec.ChangesetId);
+				if (isMerged)
+					result = BranchValidationResult.AlreadyMerged;
+			}
+
+			return result;
 		}
 
 		private static BranchValidationResult ValidateItem(Workspace workspace, FileMergeInfo fileMergeInfo)
@@ -324,7 +443,7 @@ namespace AutoMerge
 
 		private static bool IsMerged(VersionControlServer versionControlServer, string source, string target, int changesetId)
 		{
-			var mergeCandidates = versionControlServer.GetMergeCandidates(new ItemSpec(source, RecursionType.None), target);
+			var mergeCandidates = versionControlServer.GetMergeCandidates(new ItemSpec(source, RecursionType.Full), target);
 			return mergeCandidates.All(m => m.Changeset.ChangesetId != changesetId);
 		}
 
@@ -520,42 +639,31 @@ namespace AutoMerge
 			{
 				BranchInfo = mergeInfoeViewModel,
 			};
-			var conflicts = new List<string>();
-			var allTargetsFiles = new HashSet<string>();
-			var itemSpecs = new List<ItemSpec>(mergeInfoeViewModel.FileMergeInfos.Count);
-			foreach (var fileMergeInfo in mergeInfoeViewModel.FileMergeInfos)
-			{
-				var source = fileMergeInfo.SourceFile;
-				var target = fileMergeInfo.TargetFile;
-				var version = fileMergeInfo.ChangesetVersionSpec;
-				itemSpecs.Add(new ItemSpec(target, RecursionType.None));
-				allTargetsFiles.Add(fileMergeInfo.TargetFile);
 
-				var getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
+			var mergeOptions = ToTfsMergeOptions(mergeOption);
+
+			var source = mergeInfoeViewModel.SourcePath;
+			var target = mergeInfoeViewModel.TargetPath;
+			var version = mergeInfoeViewModel.ChangesetVersionSpec;
+
+			var getLatestResult = workspace.Get(new[] { target }, VersionSpec.Latest, RecursionType.Full, GetOptions.None);
+			if (!getLatestResult.NoActionNeeded)
+			{
+				// HACK.
+				getLatestResult = workspace.Get(new[] { target }, VersionSpec.Latest, RecursionType.Full, GetOptions.None);
 				if (!getLatestResult.NoActionNeeded)
 				{
-					// HACK.
-					getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
-					if (!getLatestResult.NoActionNeeded)
-					{
-						result.MergeResult = MergeResult.CanNotGetLatest;
-						result.Message = "Can not get latest";
-						return result;
-					}
-				}
-
-				var mergeOptions = ToTfsMergeOptions(mergeOption);
-				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
-
-				if (HasConflicts(status))
-				{
-					conflicts.Add(target);
+					result.MergeResult = MergeResult.CanNotGetLatest;
+					result.Message = "Can not get latest";
+					return result;
 				}
 			}
 
-			if (conflicts.Count > 0 && resolveConflict)
+			var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
+
+			if (HasConflicts(status) && resolveConflict)
 			{
-				var resolved = ResolveConflict(workspace, conflicts.ToArray());
+				var resolved = ResolveConflictFolder(workspace, target);
 				if (!resolved)
 				{
 					result.MergeResult = MergeResult.UnresolvedConflicts;
@@ -564,8 +672,53 @@ namespace AutoMerge
 				}
 			}
 
-			var allPendingChanges = workspace.GetPendingChangesEnumerable(itemSpecs.ToArray());
-			var targetPendingChanges = allPendingChanges.ToList();
+//			var allTargetsFiles = new HashSet<string>();
+//			var itemSpecs = new List<ItemSpec>(mergeInfoeViewModel.FileMergeInfos.Count);
+//			var conflicts = new List<string>();
+//			foreach (var fileMergeInfo in mergeInfoeViewModel.FileMergeInfos)
+//			{
+//				var source = fileMergeInfo.SourceFile;
+//				var target = fileMergeInfo.TargetFile;
+//				var version = fileMergeInfo.ChangesetVersionSpec;
+//				itemSpecs.Add(new ItemSpec(target, RecursionType.None));
+//				allTargetsFiles.Add(fileMergeInfo.TargetFile);
+//
+//				var getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
+//				if (!getLatestResult.NoActionNeeded)
+//				{
+//					// HACK.
+//					getLatestResult = workspace.Get(new[] {target}, VersionSpec.Latest, RecursionType.None, GetOptions.None);
+//					if (!getLatestResult.NoActionNeeded)
+//					{
+//						result.MergeResult = MergeResult.CanNotGetLatest;
+//						result.Message = "Can not get latest";
+//						return result;
+//					}
+//				}
+//
+//				var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.None, mergeOptions);
+//
+//				if (HasConflicts(status))
+//				{
+//					conflicts.Add(target);
+//				}
+//			}
+//
+//			if (conflicts.Count > 0 && resolveConflict)
+//			{
+//				var resolved = ResolveConflict(workspace, conflicts.ToArray());
+//				if (!resolved)
+//				{
+//					result.MergeResult = MergeResult.UnresolvedConflicts;
+//					result.Message = "Unresolved conflicts";
+//					return result;
+//				}
+//			}
+
+			var allPendingChanges = workspace.GetPendingChangesEnumerable(target, RecursionType.Full);
+			var targetPendingChanges = allPendingChanges
+				.Where(p => p.ServerItem.Contains(target))
+				.ToList();
 //				.Where(pendingChange => allTargetsFiles.Contains(pendingChange.ServerItem))
 //				.ToList();
 			result.MergeResult = MergeResult.Success;
@@ -596,6 +749,34 @@ namespace AutoMerge
 		private static bool HasConflicts(GetStatus mergeStatus)
 		{
 			return !mergeStatus.NoActionNeeded && mergeStatus.NumConflicts > 0;
+		}
+
+		private static bool ResolveConflictFolder(Workspace workspace, string targetPath)
+		{
+			var conflicts = workspace.QueryConflicts(new [] {targetPath}, true);
+			if (conflicts.IsNullOrEmpty())
+				return true;
+
+			workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
+
+			conflicts = workspace.QueryConflicts(new[] { targetPath }, false);
+			if (conflicts.IsNullOrEmpty())
+				return true;
+
+			foreach (var conflict in conflicts)
+			{
+				if (workspace.MergeContent(conflict, true))
+				{
+					conflict.Resolution = Resolution.AcceptMerge;
+					workspace.ResolveConflict(conflict);
+				}
+				if (!conflict.IsResolved)
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		private static bool ResolveConflict(Workspace workspace, string[] targetPath)
