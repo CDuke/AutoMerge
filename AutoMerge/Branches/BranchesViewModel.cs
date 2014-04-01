@@ -532,6 +532,7 @@ namespace AutoMerge
 			var pendingChangesPage = (TeamExplorerPageBase)teamExplorer.NavigateToPage(new Guid(TeamExplorerPageIds.PendingChanges), null);
 			var model = (IPendingCheckin)pendingChangesPage.Model;
 			model.PendingChanges.Comment = resultModel.BranchInfo.Comment;
+			model.PendingChanges.CheckedPendingChanges = resultModel.PendingChanges.ToArray();
 			if (resultModel.WorkItemIds != null)
 			{
 				var modelType = model.GetType();
@@ -717,10 +718,9 @@ namespace AutoMerge
 
 			var allPendingChanges = workspace.GetPendingChangesEnumerable(target, RecursionType.Full);
 			var targetPendingChanges = allPendingChanges
-				.Where(p => p.ServerItem.Contains(target))
+				.Where(p => p.IsMerge && p.ServerItem.Contains(target))
 				.ToList();
-//				.Where(pendingChange => allTargetsFiles.Contains(pendingChange.ServerItem))
-//				.ToList();
+
 			result.MergeResult = MergeResult.Success;
 			result.PendingChanges = targetPendingChanges;
 			return result;
