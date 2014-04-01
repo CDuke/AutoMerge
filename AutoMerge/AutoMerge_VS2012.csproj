@@ -159,15 +159,15 @@
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Branches\BranchNameConverter.cs" />
-    <Compile Include="Branches\BranchTransitionNameConverter.cs" />
+    <Compile Include="Branches\BranchesViewModel.cs" />
     <Compile Include="Branches\BranchValidationResult.cs" />
+    <Compile Include="Branches\CheckInResult.cs" />
+    <Compile Include="Branches\FileMergeInfo.cs" />
     <Compile Include="Branches\MergeInfoViewModel.cs" />
     <Compile Include="Branches\MergeOption.cs" />
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
-    <Compile Include="Branches\ValidationResultToEnableConverter.cs" />
-    <Compile Include="Branches\ValidationResultToTextConverter.cs" />
-    <Compile Include="Branches\ValidationResultToVisibilityConverter.cs" />
+    <Compile Include="Branches\MergeResult.cs" />
+    <Compile Include="Branches\MergeResultModel.cs" />
     <Compile Include="Events\BranchSelectedChangedEvent.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\MergeCompleteEvent.cs" />
@@ -176,12 +176,11 @@
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
-    <Compile Include="RecentChangesets\BranchesListConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\IChangesetProvider.cs" />
     <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetSection.cs" />
+    <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
     </Compile>
