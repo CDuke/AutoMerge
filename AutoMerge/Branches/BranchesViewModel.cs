@@ -398,6 +398,8 @@ namespace AutoMerge
 					return "Branch not mapped";
 				case BranchValidationResult.ItemHasLocalChanges:
 					return "Some files have local changes. Commit or undo it";
+				case BranchValidationResult.NoAccess:
+					return "You have not rights for edit";
 				default:
 					return "Unknown error";
 			}
@@ -416,10 +418,19 @@ namespace AutoMerge
 
 			if (result == BranchValidationResult.Success)
 			{
+				var userHasAccess = UserHasAccess(workspace.VersionControlServer, mergeInfoViewModel.TargetPath);
+				if (!userHasAccess)
+					result = BranchValidationResult.NoAccess;
+			}
+
+			if (result == BranchValidationResult.Success)
+			{
 				var isMapped = IsMapped(workspace, mergeInfoViewModel.TargetPath);
 				if (!isMapped)
 					result = BranchValidationResult.BranchNotMapped;
 			}
+
+
 
 //			if (result == BranchValidationResult.Success)
 //			{
@@ -429,6 +440,19 @@ namespace AutoMerge
 //			}
 
 			return result;
+		}
+
+		private static bool UserHasAccess(VersionControlServer versionControlServer, string targetPath)
+		{
+			var permissions = versionControlServer.GetEffectivePermissions(versionControlServer.AuthorizedUser, targetPath);
+
+			if (permissions == null || permissions.Length < 4)
+				return false;
+
+			return permissions.Contains("Read")
+				&& permissions.Contains("PendChange")
+				&& permissions.Contains("Checkin")
+				&& permissions.Contains("Merge");
 		}
 
 		private static bool IsMerged(string sourcePath, string targetPath, IEnumerable<ExtendedMerge> trackMerges)

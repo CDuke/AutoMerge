@@ -10,6 +10,8 @@ namespace AutoMerge
 
 		ItemHasLocalChanges,
 
-		AlreadyMerged
+		AlreadyMerged,
+
+		NoAccess
 	}
 }
