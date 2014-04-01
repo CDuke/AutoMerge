@@ -186,7 +186,12 @@ namespace AutoMerge
 			var changeset = changesetService.GetChangeset(changesetId);
 
 			var sourceTopFolder = CalculateTopFolder(changeset.Changes);
-			var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder);
+			var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder)
+				.Where(r => !r.IsDeleted)
+				.ToList();
+			string[] partialTargetItems;
+			var trackMerges = versionControl.TrackMerges(new[] {changesetId}, new ItemIdentifier(sourceTopFolder),
+				mergesRelationships.ToArray(), null, out partialTargetItems);
 			var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
 
 			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
@@ -206,7 +211,7 @@ namespace AutoMerge
 					Comment =  EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
 				};
 
-				mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo);
+				mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
 				mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
 
 				mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
@@ -242,7 +247,7 @@ namespace AutoMerge
 						Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
 					};
 
-					mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo);
+					mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
 					mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
 
 					result.Add(mergeInfo);
@@ -377,7 +382,7 @@ namespace AutoMerge
 			}
 		}
 
-		private static BranchValidationResult ValidateItem(Workspace workspace, MergeInfoViewModel mergeInfoViewModel)
+		private static BranchValidationResult ValidateItem(Workspace workspace, MergeInfoViewModel mergeInfoViewModel, ExtendedMerge[] trackMerges)
 		{
 			var result = BranchValidationResult.Success;
 			if (result == BranchValidationResult.Success)
@@ -396,13 +401,20 @@ namespace AutoMerge
 
 			if (result == BranchValidationResult.Success)
 			{
-				var isMerged = IsMerged(workspace.VersionControlServer,
-					mergeInfoViewModel.SourcePath, mergeInfoViewModel.TargetPath, mergeInfoViewModel.ChangesetVersionSpec.ChangesetId);
+				var isMerged = IsMerged(mergeInfoViewModel.TargetPath, trackMerges);
 				if (isMerged)
 					result = BranchValidationResult.AlreadyMerged;
 			}
 
 			return result;
+		}
+
+		private static bool IsMerged(string targetPath, IEnumerable<ExtendedMerge> trackMerges)
+		{
+			if (trackMerges == null)
+				return false;
+
+			return trackMerges.Any(m => m.TargetItem.Item == targetPath);
 		}
 
 		private static BranchValidationResult ValidateItem(Workspace workspace, FileMergeInfo fileMergeInfo)
