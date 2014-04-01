@@ -180,8 +180,8 @@ namespace AutoMerge
 
 			//var changesetService = new ChangesetService(versionControl, context.TeamProjectName);
 			var changesetService = _changesetService;
-			var sourceBranchIdentifier = changesetService.GetAssociatedBranches(changesetId)[0];
-			var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
+			
+			
 
 			var changeset = changesetService.GetChangeset(changesetId);
 
@@ -189,72 +189,88 @@ namespace AutoMerge
 			var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder)
 				.Where(r => !r.IsDeleted)
 				.ToList();
-			string[] partialTargetItems;
-			var trackMerges = versionControl.TrackMerges(new[] {changesetId}, new ItemIdentifier(sourceTopFolder),
-				mergesRelationships.ToArray(), null, out partialTargetItems);
-			var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
 
-			if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
-				&& !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
+			if (mergesRelationships.Count > 0)
 			{
-				var targetBranch = sourceBranchInfo.Properties.ParentBranch.Item;
-				var sourceBranch = sourceBranchIdentifier.Item;
-				var mergeInfo = new MergeInfoViewModel(_eventAggregator)
+				var trackMerges = versionControl.TrackMerges(new[] {changesetId},
+					new ItemIdentifier(sourceTopFolder),
+					mergesRelationships.ToArray(),
+					null);
+
+				var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
+				var sourceBranchIdentifier = changesetService.GetAssociatedBranches(changesetId)[0];
+				var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
+				if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
+				    && !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
 				{
-					SourceBranch = sourceBranch,
-					TargetBranch = targetBranch,
-					SourcePath = sourceTopFolder,
-					TargetPath = GetTargetPath(mergesRelationships, targetBranch),
-					ChangesetVersionSpec = changesetVersionSpec,
-					FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
-					ValidationResult = BranchValidationResult.Success,
-					Comment =  EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
-				};
-
-				mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
-				mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
-
-				mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
-
-				result.Add(mergeInfo);
-			}
-
-			var currentBranchInfo = new MergeInfoViewModel(_eventAggregator)
-			{
-				SourceBranch = sourceBranchIdentifier.Item,
-				TargetBranch = sourceBranchIdentifier.Item,
-				ValidationResult = BranchValidationResult.Success
-			};
-			result.Add(currentBranchInfo);
-
-			if (sourceBranchInfo.ChildBranches != null)
-			{
-				var childBranches = sourceBranchInfo.ChildBranches.Where(b => !b.IsDeleted)
-					.Reverse();
-				foreach (var childBranch in childBranches)
-				{
-					var targetBranch = childBranch.Item;
+					var targetBranch = sourceBranchInfo.Properties.ParentBranch.Item;
 					var sourceBranch = sourceBranchIdentifier.Item;
-					var mergeInfo = new MergeInfoViewModel(_eventAggregator)
+					var targetPath = GetTargetPath(mergesRelationships, targetBranch);
+					if (targetPath != null)
 					{
-						SourceBranch = sourceBranch,
-						TargetBranch = targetBranch,
-						SourcePath = sourceTopFolder,
-						TargetPath = GetTargetPath(mergesRelationships, targetBranch),
-						ChangesetVersionSpec = changesetVersionSpec,
-						FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
-						ValidationResult = BranchValidationResult.Success,
-						Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
-					};
+						var mergeInfo = new MergeInfoViewModel(_eventAggregator)
+						{
+							SourceBranch = sourceBranch,
+							TargetBranch = targetBranch,
+							SourcePath = sourceTopFolder,
+							TargetPath = targetPath,
+							ChangesetVersionSpec = changesetVersionSpec,
+							FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
+							ValidationResult = BranchValidationResult.Success,
+							Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
+						};
 
-					mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
-					mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
+						mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
+						mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
 
-					result.Add(mergeInfo);
+						mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
+
+						result.Add(mergeInfo);
+					}
+				}
+
+				var currentBranchInfo = new MergeInfoViewModel(_eventAggregator)
+				{
+					SourceBranch = sourceBranchIdentifier.Item,
+					TargetBranch = sourceBranchIdentifier.Item,
+					SourcePath = sourceTopFolder,
+					TargetPath = sourceTopFolder,
+					ValidationResult = BranchValidationResult.Success
+				};
+				result.Add(currentBranchInfo);
+
+				if (sourceBranchInfo.ChildBranches != null)
+				{
+					var childBranches = sourceBranchInfo.ChildBranches.Where(b => !b.IsDeleted)
+						.Reverse();
+					foreach (var childBranch in childBranches)
+					{
+						var targetBranch = childBranch.Item;
+						var sourceBranch = sourceBranchIdentifier.Item;
+						var targetPath = GetTargetPath(mergesRelationships, targetBranch);
+						if (targetPath != null)
+						{
+							var mergeInfo = new MergeInfoViewModel(_eventAggregator)
+							{
+								SourceBranch = sourceBranch,
+								TargetBranch = targetBranch,
+								SourcePath = sourceTopFolder,
+								TargetPath = targetPath,
+								ChangesetVersionSpec = changesetVersionSpec,
+								FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
+								ValidationResult = BranchValidationResult.Success,
+								Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
+							};
+
+							mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
+							mergeInfo.ValidationMessage = ToMessage(mergeInfo.ValidationResult);
+
+							result.Add(mergeInfo);
+						}
+					}
 				}
 			}
-
-//			foreach (var change in changeset.Changes)
+			//			foreach (var change in changeset.Changes)
 //			{
 //				var mergesRelationships = versionControl.QueryMergeRelationships(change.Item.ServerItem);
 //				if (mergesRelationships == null)
@@ -324,6 +340,11 @@ namespace AutoMerge
 				topFolder = FindShareFolder(topFolder, changeFolder);
 			}
 
+			if (topFolder != null && topFolder.EndsWith("/"))
+			{
+				topFolder = topFolder.Substring(0, topFolder.Length - 1);
+			}
+
 			return topFolder;
 		}
 
@@ -382,9 +403,17 @@ namespace AutoMerge
 			}
 		}
 
-		private static BranchValidationResult ValidateItem(Workspace workspace, MergeInfoViewModel mergeInfoViewModel, ExtendedMerge[] trackMerges)
+		private static BranchValidationResult ValidateItem(Workspace workspace, MergeInfoViewModel mergeInfoViewModel, IEnumerable<ExtendedMerge> trackMerges)
 		{
 			var result = BranchValidationResult.Success;
+
+			if (result == BranchValidationResult.Success)
+			{
+				var isMerged = IsMerged(mergeInfoViewModel.SourcePath, mergeInfoViewModel.TargetPath, trackMerges);
+				if (isMerged)
+					result = BranchValidationResult.AlreadyMerged;
+			}
+
 			if (result == BranchValidationResult.Success)
 			{
 				var isMapped = IsMapped(workspace, mergeInfoViewModel.TargetPath);
@@ -399,22 +428,16 @@ namespace AutoMerge
 //					result = BranchValidationResult.ItemHasLocalChanges;
 //			}
 
-			if (result == BranchValidationResult.Success)
-			{
-				var isMerged = IsMerged(mergeInfoViewModel.TargetPath, trackMerges);
-				if (isMerged)
-					result = BranchValidationResult.AlreadyMerged;
-			}
-
 			return result;
 		}
 
-		private static bool IsMerged(string targetPath, IEnumerable<ExtendedMerge> trackMerges)
+		private static bool IsMerged(string sourcePath, string targetPath, IEnumerable<ExtendedMerge> trackMerges)
 		{
 			if (trackMerges == null)
 				return false;
 
-			return trackMerges.Any(m => m.TargetItem.Item == targetPath);
+			return trackMerges.Any(m => (m.TargetItem.Item == sourcePath && m.SourceItem.Item.ServerItem == targetPath)
+				|| (m.TargetItem.Item == targetPath && m.SourceItem.Item.ServerItem == sourcePath));
 		}
 
 		private static BranchValidationResult ValidateItem(Workspace workspace, FileMergeInfo fileMergeInfo)

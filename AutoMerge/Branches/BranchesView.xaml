@@ -47,7 +47,7 @@
                     </CheckBox>
                     <TextBlock Margin="0,0,0,0"
                                Text="{Binding DisplayBranchName}"
-                               ToolTip="{Binding TargetBranch}" />
+                               ToolTip="{Binding TargetPath}" />
                 </StackPanel>
             </DataTemplate>
 
