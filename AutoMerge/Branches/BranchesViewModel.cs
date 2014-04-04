@@ -853,7 +853,7 @@ namespace AutoMerge
 
 			workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
 
-			conflicts = workspace.QueryConflicts(new[] { targetPath }, false);
+			conflicts = workspace.QueryConflicts(new[] { targetPath }, true);
 			if (conflicts.IsNullOrEmpty())
 				return true;
 
