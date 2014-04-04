@@ -24,9 +24,20 @@ namespace AutoMerge.Base
 
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
-			base.Initialize(sender, e);
-			Context = VersionControlNavigationHelper.GetContext(ServiceProvider);
-			await InitializeAsync(sender, e);
+			ShowBusy();
+
+			try
+			{
+				base.Initialize(sender, e);
+				Context = VersionControlNavigationHelper.GetContext(ServiceProvider);
+				await InitializeAsync(sender, e);
+			}
+			catch (Exception ex)
+			{
+				ShowError(ex.Message);
+			}
+
+			HideBusy();
 		}
 
 		public async override void Refresh()

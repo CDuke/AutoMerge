@@ -759,7 +759,7 @@ namespace AutoMerge
 			var getLatestFiles = new List<string>();
 			foreach (var mergeRelationship in mergeRelationships)
 			{
-				if (mergeRelationship.Item.Contains(mergeInfoeViewModel.TargetPath))
+				if (mergeRelationship.Item.StartsWith(mergeInfoeViewModel.TargetPath))
 					getLatestFiles.Add(mergeRelationship.Item);
 			}
 
