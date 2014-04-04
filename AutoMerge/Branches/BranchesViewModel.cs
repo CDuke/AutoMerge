@@ -538,45 +538,68 @@ namespace AutoMerge
 			{
 				IsBusy = true;
 
-				var result = await Task.Run(() =>MergeExecuteInternal());
+				var checkInAfterMerge = CheckInAfterMerge;
+				var result = await Task.Run(() => MergeExecuteInternal(checkInAfterMerge));
 
-				var sendEvent = true;
+				ClearNotifications();
+				var notCheckedIn = checkInAfterMerge
+					? (ICollection<MergeResultModel>) new MergeResultModel[0]
+					: new List<MergeResultModel>(result.Count);
 				foreach (var resultModel in result)
 				{
+					var notificationType = NotificationType.Information;
+					var message = string.Empty;
+					var mergePath = string.Format("{0} -> {1}",
+						resultModel.BranchInfo.SourceBranch,
+						resultModel.BranchInfo.TargetBranch);
 					switch (resultModel.MergeResult)
 					{
 						case MergeResult.CheckInEvaluateFail:
-							ShowNotification("Check In evaluate failed", NotificationType.Error);
+							notificationType = NotificationType.Error;
+							message = "Check In evaluate failed";
 							break;
 						case MergeResult.CheckInFail:
-							ShowNotification("Check In failed", NotificationType.Error);
+							notificationType = NotificationType.Error;
+							message = "Check In failed";
 							break;
 						case MergeResult.NothingMerge:
-							ShowNotification("Nothing merged", NotificationType.Warning);
+							notificationType = NotificationType.Warning;
+							message = "Nothing merged";
 							break;
 						case MergeResult.UnresolvedConflicts:
-							ShowNotification("Unresolved conflicts", NotificationType.Error);
+							notificationType = NotificationType.Error;
+							message = "Unresolved conflicts";
 							break;
 						case MergeResult.CanNotGetLatest:
-							ShowNotification("Gan not get lates", NotificationType.Error);
+							notificationType = NotificationType.Error;
+							message = "Can not get lates";
 							break;
 						case MergeResult.Success:
-							ShowNotification("Merge is successful");
+							notificationType = NotificationType.Information;
+							message = "Merge is successful";
 							break;
 						case MergeResult.NotCheckIn:
-							sendEvent = false;
-							// It's can be only one
-							OpenPendingChanges(resultModel);
+							notCheckedIn.Add(resultModel);
 							break;
 					}
+					message = mergePath + ": " + message;
+					if (!string.IsNullOrEmpty(message))
+						ShowNotification(message, notificationType);
 				}
 
 
-				if (sendEvent)
+				if (notCheckedIn.Count == 0 && checkInAfterMerge)
 					_eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
+				if (notCheckedIn.Count > 0)
+				{
+					var message = "Files merge but not chekced in";
+					ShowNotification(message);
+					OpenPendingChanges(notCheckedIn);
+				}
 			}
 			catch (Exception ex)
 			{
+				ClearNotifications();
 				ShowNotification(ex.Message, NotificationType.Error);
 			}
 			finally
@@ -585,24 +608,41 @@ namespace AutoMerge
 			}
 		}
 
-		private void OpenPendingChanges(MergeResultModel resultModel)
+		private void OpenPendingChanges(ICollection<MergeResultModel> resultModels)
 		{
 			var teamExplorer = ServiceProvider.GetService<ITeamExplorer>();
 			var pendingChangesPage = (TeamExplorerPageBase)teamExplorer.NavigateToPage(new Guid(TeamExplorerPageIds.PendingChanges), null);
 			var model = (IPendingCheckin)pendingChangesPage.Model;
-			model.PendingChanges.Comment = resultModel.BranchInfo.Comment;
-			model.PendingChanges.CheckedPendingChanges = resultModel.PendingChanges.ToArray();
-			if (resultModel.WorkItemIds != null)
+
+			var comment = string.Empty;
+			var pendingChanges = new List<PendingChange>(20);
+			// all results must have identical workItems
+			var workItemIds = resultModels.First().WorkItemIds;
+
+			foreach (var resultModel in resultModels)
+			{
+				if (string.IsNullOrEmpty(comment))
+					comment = resultModel.BranchInfo.Comment;
+				else
+					comment = comment + ";" + resultModel.BranchInfo.Comment;
+				
+				if (resultModel.PendingChanges != null && resultModel.PendingChanges.Count > 0)
+					pendingChanges.AddRange(resultModel.PendingChanges);
+			}
+
+			model.PendingChanges.Comment = comment;
+			model.PendingChanges.CheckedPendingChanges = pendingChanges.ToArray();
+			if (workItemIds != null && workItemIds.Count > 0)
 			{
 				var modelType = model.GetType();
 				var method = modelType.GetMethod("AddWorkItemsByIdAsync",
 					BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-				var workItemsIdsArray = resultModel.WorkItemIds.ToArray();
+				var workItemsIdsArray = workItemIds.ToArray();
 				method.Invoke(model, new object[] {workItemsIdsArray, 1 /* Add */});
 			}
 		}
 
-		private List<MergeResultModel> MergeExecuteInternal()
+		private List<MergeResultModel> MergeExecuteInternal(bool checkInAfterMerge)
 		{
 			var result = new List<MergeResultModel>();
 			var context = Context;
@@ -625,15 +665,14 @@ namespace AutoMerge
 				mergeResultModel.WorkItemIds = workItemIds;
 				result.Add(mergeResultModel);
 
-				if (!CheckInAfterMerge)
+				if (!checkInAfterMerge)
 				{
 					mergeResultModel.MergeResult = MergeResult.NotCheckIn;
-					break;
 				}
 
 				if (mergeResultModel.MergeResult != MergeResult.Success)
 				{
-					break;
+					continue;
 				}
 
 				var checkInResult = CheckIn(mergeResultModel.PendingChanges, mergeInfo, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
@@ -643,10 +682,6 @@ namespace AutoMerge
 				if (mergeResultModel.MergeResult == MergeResult.Success)
 				{
 					mergeResultModel.CheckedIn = true;
-				}
-				else
-				{
-					break;
 				}
 			}
 
