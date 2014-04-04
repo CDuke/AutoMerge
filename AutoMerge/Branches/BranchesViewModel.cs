@@ -659,9 +659,23 @@ namespace AutoMerge
 				? changeset.AssociatedWorkItems.Select(w => w.Id).ToList()
 				: new List<int>();
 
+			var mergeRelationships = new List<ItemIdentifier>();
+
+			foreach (var change in changeset.Changes)
+			{
+				if (!change.ChangeType.HasFlag(ChangeType.Add) && change.Item.ItemType == ItemType.File)
+				{
+					var changeRelationShips = versionControl.QueryMergeRelationships(change.Item.ServerItem);
+					if (changeRelationShips != null)
+					{
+						mergeRelationships.AddRange(changeRelationShips.Where(r => !r.IsDeleted));
+					}
+				}
+			}
+
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
-				var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, true, workspace);
+				var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, true, workspace);
 				mergeResultModel.WorkItemIds = workItemIds;
 				result.Add(mergeResultModel);
 
@@ -728,7 +742,8 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static MergeResultModel MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption, bool resolveConflict, Workspace workspace)
+		private static MergeResultModel MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption,
+			List<ItemIdentifier> mergeRelationships, bool resolveConflict, Workspace workspace)
 		{
 			var result = new MergeResultModel
 			{
@@ -741,11 +756,20 @@ namespace AutoMerge
 			var target = mergeInfoeViewModel.TargetPath;
 			var version = mergeInfoeViewModel.ChangesetVersionSpec;
 
-			var getLatestResult = workspace.Get(new[] { target }, VersionSpec.Latest, RecursionType.Full, GetOptions.None);
+			var getLatestFiles = new List<string>();
+			foreach (var mergeRelationship in mergeRelationships)
+			{
+				if (mergeRelationship.Item.Contains(mergeInfoeViewModel.TargetPath))
+					getLatestFiles.Add(mergeRelationship.Item);
+			}
+
+			var getLatestFilesArray = getLatestFiles.ToArray();
+			const RecursionType recursionType = RecursionType.None;
+			var getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
 			if (!getLatestResult.NoActionNeeded)
 			{
 				// HACK.
-				getLatestResult = workspace.Get(new[] { target }, VersionSpec.Latest, RecursionType.Full, GetOptions.None);
+				getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
 				if (!getLatestResult.NoActionNeeded)
 				{
 					result.MergeResult = MergeResult.CanNotGetLatest;
@@ -911,12 +935,20 @@ namespace AutoMerge
 			if (sourceComment.StartsWith("MERGE "))
 			{
 				var originalCommentStartPos = sourceComment.IndexOf('(');
-				var mergeComment = sourceComment.Substring(0, originalCommentStartPos);
-				var originaComment =
-					originalCommentStartPos + 1 < sourceComment.Length
-					? sourceComment.Substring(originalCommentStartPos + 1, sourceComment.Length - originalCommentStartPos - 2)
-					: string.Empty;
-				comment = string.Format("{0} -> {1} ({2})", mergeComment, targetShortBranchName, originaComment);
+				if (originalCommentStartPos > 0)
+				{
+					var mergeComment = sourceComment.Substring(0, originalCommentStartPos);
+					var originaComment =
+						originalCommentStartPos + 1 < sourceComment.Length
+							? sourceComment.Substring(originalCommentStartPos + 1, sourceComment.Length - originalCommentStartPos - 2)
+							: string.Empty;
+					comment = string.Format("{0} -> {1} ({2})", mergeComment, targetShortBranchName, originaComment);
+				}
+				else
+				{
+					var sourceShortBranchName = GetShortBranchName(sourceBranch);
+					comment = string.Format("MERGE {0} -> {1} ({2})", sourceShortBranchName, targetShortBranchName, sourceComment);
+				}
 			}
 			else
 			{
