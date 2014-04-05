@@ -18,5 +18,7 @@ namespace AutoMerge
 		public List<int> WorkItemIds { get; set; }
 
 		public int? ChangesetId { get; set; }
+
+		public bool HasConflicts { get; set; }
 	}
 }

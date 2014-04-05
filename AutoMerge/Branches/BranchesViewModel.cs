@@ -22,6 +22,7 @@ namespace AutoMerge
 	{
 		private readonly IEventAggregator _eventAggregator;
 		private ChangesetService _changesetService;
+		private Workspace _workspace;
 
 		private ChangesetViewModel _changeset;
 
@@ -104,6 +105,7 @@ namespace AutoMerge
 			var tfs = Context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
 			_changesetService = new ChangesetService(versionControl, Context.TeamProjectName);
+			_workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
 
 			await RefreshAsync();
 
@@ -176,7 +178,7 @@ namespace AutoMerge
 			if (sourceBranches.Length == 0)
 				return result;
 
-			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
+			var workspace = _workspace;
 
 			//var changesetService = new ChangesetService(versionControl, context.TeamProjectName);
 			var changesetService = _changesetService;
@@ -583,7 +585,7 @@ namespace AutoMerge
 							break;
 					}
 					message = mergePath + ": " + message;
-					if (!string.IsNullOrEmpty(message))
+					if (!string.IsNullOrEmpty(message) && resultModel.MergeResult != MergeResult.NotCheckIn)
 						ShowNotification(message, notificationType);
 				}
 
@@ -610,15 +612,12 @@ namespace AutoMerge
 
 		private void OpenPendingChanges(ICollection<MergeResultModel> resultModels)
 		{
-			var teamExplorer = ServiceProvider.GetService<ITeamExplorer>();
-			var pendingChangesPage = (TeamExplorerPageBase)teamExplorer.NavigateToPage(new Guid(TeamExplorerPageIds.PendingChanges), null);
-			var model = (IPendingCheckin)pendingChangesPage.Model;
-
 			var comment = string.Empty;
 			var pendingChanges = new List<PendingChange>(20);
 			// all results must have identical workItems
 			var workItemIds = resultModels.First().WorkItemIds;
 
+			var conflictsPath = new List<string>();
 			foreach (var resultModel in resultModels)
 			{
 				if (string.IsNullOrEmpty(comment))
@@ -628,8 +627,21 @@ namespace AutoMerge
 				
 				if (resultModel.PendingChanges != null && resultModel.PendingChanges.Count > 0)
 					pendingChanges.AddRange(resultModel.PendingChanges);
+
+				if (resultModel.HasConflicts)
+					conflictsPath.Add(resultModel.BranchInfo.TargetPath);
 			}
 
+			if (conflictsPath.Count > 0)
+				InvokeResolveConflictsPage(_workspace, conflictsPath.ToArray());
+			OpenPendingChanges(pendingChanges, workItemIds, comment);
+		}
+
+		private void OpenPendingChanges(List<PendingChange> pendingChanges, List<int> workItemIds, string comment)
+		{
+			var teamExplorer = ServiceProvider.GetService<ITeamExplorer>();
+			var pendingChangesPage = (TeamExplorerPageBase)teamExplorer.NavigateToPage(new Guid(TeamExplorerPageIds.PendingChanges), null);
+			var model = (IPendingCheckin)pendingChangesPage.Model;
 			model.PendingChanges.Comment = comment;
 			model.PendingChanges.CheckedPendingChanges = pendingChanges.ToArray();
 			if (workItemIds != null && workItemIds.Count > 0)
@@ -638,7 +650,7 @@ namespace AutoMerge
 				var method = modelType.GetMethod("AddWorkItemsByIdAsync",
 					BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 				var workItemsIdsArray = workItemIds.ToArray();
-				method.Invoke(model, new object[] {workItemsIdsArray, 1 /* Add */});
+				method.Invoke(model, new object[] { workItemsIdsArray, 1 /* Add */});
 			}
 		}
 
@@ -648,8 +660,8 @@ namespace AutoMerge
 			var context = Context;
 			var tfs = context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
-			
-			var workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
+
+			var workspace = _workspace;
 
 			var changesetService = _changesetService;
 			var changeset = changesetService.GetChangeset(_changeset.ChangesetId);
@@ -675,7 +687,8 @@ namespace AutoMerge
 
 			foreach (var mergeInfo in _branches.Where(b => b.Checked))
 			{
-				var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, true, workspace);
+				var resolveConficts = checkInAfterMerge;
+				var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, resolveConficts, workspace);
 				mergeResultModel.WorkItemIds = workItemIds;
 				result.Add(mergeResultModel);
 
@@ -743,7 +756,7 @@ namespace AutoMerge
 		}
 
 		private static MergeResultModel MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption,
-			List<ItemIdentifier> mergeRelationships, bool resolveConflict, Workspace workspace)
+			IEnumerable<ItemIdentifier> mergeRelationships, bool resolveConflict, Workspace workspace)
 		{
 			var result = new MergeResultModel
 			{
@@ -780,18 +793,29 @@ namespace AutoMerge
 
 			var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
 
-			if (HasConflicts(status) && resolveConflict)
+			if (HasConflicts(status))
 			{
-				var resolved = ResolveConflictFolder(workspace, target);
-				if (!resolved)
+				var conflicts = AutoResolveConflicts(workspace, target);
+				if (!conflicts.IsNullOrEmpty())
 				{
-					result.MergeResult = MergeResult.UnresolvedConflicts;
-					result.Message = "Unresolved conflicts";
-					return result;
+					if (resolveConflict)
+					{
+						var resolved = ManualResolveConflicts(workspace, conflicts);
+						if (!resolved)
+						{
+							result.MergeResult = MergeResult.UnresolvedConflicts;
+							result.Message = "Unresolved conflicts";
+							return result;
+						}
+					}
+					else
+					{
+						result.HasConflicts = true;
+					}
 				}
 			}
 
-//			var allTargetsFiles = new HashSet<string>();
+			//			var allTargetsFiles = new HashSet<string>();
 //			var itemSpecs = new List<ItemSpec>(mergeInfoeViewModel.FileMergeInfos.Count);
 //			var conflicts = new List<string>();
 //			foreach (var fileMergeInfo in mergeInfoeViewModel.FileMergeInfos)
@@ -869,15 +893,14 @@ namespace AutoMerge
 			return !mergeStatus.NoActionNeeded && mergeStatus.NumConflicts > 0;
 		}
 
-		private static bool ResolveConflictFolder(Workspace workspace, string targetPath)
+//		private static bool ResolveConflictFolder(Workspace workspace, string targetPath)
+//		{
+//			AutoResolveConflicts(workspace, targetPath);
+//			return ManualResolveConflicts(workspace, targetPath);
+//		}
+
+		private static bool ManualResolveConflicts(Workspace workspace, Conflict[] conflicts)
 		{
-			var conflicts = workspace.QueryConflicts(new [] {targetPath}, true);
-			if (conflicts.IsNullOrEmpty())
-				return true;
-
-			workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
-
-			conflicts = workspace.QueryConflicts(new[] { targetPath }, true);
 			if (conflicts.IsNullOrEmpty())
 				return true;
 
@@ -895,6 +918,17 @@ namespace AutoMerge
 			}
 
 			return true;
+		}
+
+		private static Conflict[] AutoResolveConflicts(Workspace workspace, string targetPath)
+		{
+			var conflicts = workspace.QueryConflicts(new[] {targetPath}, true);
+			if (conflicts.IsNullOrEmpty())
+				return null;
+
+			workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
+
+			return workspace.QueryConflicts(new[] { targetPath }, true);
 		}
 
 		private static bool ResolveConflict(Workspace workspace, string[] targetPath)
@@ -990,5 +1024,26 @@ namespace AutoMerge
 				result &= checkinEvaluationResult.PolicyFailures.IsNullOrEmpty();
 			return result;
 		}
+
+		private static void InvokeResolveConflictsPage(Workspace workspace, string[] targetPath)
+		{
+			var versionControlAssembly = Assembly.Load("Microsoft.VisualStudio.TeamFoundation.VersionControl");
+			if (versionControlAssembly == null)
+				return;
+
+			var rcMgr = versionControlAssembly.GetType("Microsoft.VisualStudio.TeamFoundation.VersionControl.ResolveConflictsManager");
+			if (rcMgr == null)
+				return;
+
+			const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
+			var mi = rcMgr.GetMethod("Initialize", flags);
+			var instantiatedType = Activator.CreateInstance(rcMgr, flags, null, null, null);
+			mi.Invoke(instantiatedType, null);
+
+			var resolveConflictsMethod = rcMgr.GetMethod("ResolveConflicts", BindingFlags.NonPublic | BindingFlags.Instance);
+			resolveConflictsMethod.Invoke(instantiatedType,
+				new object[] { workspace, targetPath, true, false });
+		}
+
 	}
 }
