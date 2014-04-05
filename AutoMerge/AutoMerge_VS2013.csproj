@@ -158,6 +158,7 @@
     <Compile Include="Base\TeamExplorerSectionBase.cs" />
     <Compile Include="Base\TeamExplorerSectionViewModelBase.cs" />
     <Compile Include="Behaviours\GridViewColumnResize.cs" />
+    <Compile Include="Behaviours\ScrollDeligateBehavior.cs" />
     <Compile Include="Branches\BranchesSection.cs" />
     <Compile Include="Branches\BranchesViewModel.cs" />
     <Compile Include="Branches\BranchesView.xaml.cs">
