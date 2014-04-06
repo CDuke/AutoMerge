@@ -118,7 +118,7 @@ namespace AutoMerge
 				return;
 			}
 
-			var branches = await Task.Run(() => GetBranches(Context, changeset.ChangesetId));
+			var branches = await Task.Run(() => GetBranches(Context, changeset));
 
 			// Selected changeset in sequence
 			if (changeset.ChangesetId == _changeset.ChangesetId)
@@ -149,18 +149,14 @@ namespace AutoMerge
 			Refresh();
 		}
 
-		private ObservableCollection<MergeInfoViewModel> GetBranches(ITeamFoundationContext context, int changesetId)
+		private ObservableCollection<MergeInfoViewModel> GetBranches(ITeamFoundationContext context, ChangesetViewModel changesetViewModel)
 		{
 			if (context == null)
 				return new ObservableCollection<MergeInfoViewModel>();
 			var tfs = context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
 
-			var sourceBranches = versionControl.QueryBranchObjectOwnership(new[] { changesetId });
-
 			var result = new ObservableCollection<MergeInfoViewModel>();
-			if (sourceBranches.Length == 0)
-				return result;
 
 			var workspace = _workspace;
 
@@ -169,7 +165,7 @@ namespace AutoMerge
 			
 			
 
-			var changeset = changesetService.GetChangeset(changesetId);
+			var changeset = changesetService.GetChangeset(changesetViewModel.ChangesetId);
 
 			var sourceTopFolder = CalculateTopFolder(changeset.Changes);
 			var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder)
@@ -178,13 +174,13 @@ namespace AutoMerge
 
 			if (mergesRelationships.Count > 0)
 			{
-				var trackMerges = versionControl.TrackMerges(new[] {changesetId},
+				var trackMerges = versionControl.TrackMerges(new[] {changesetViewModel.ChangesetId},
 					new ItemIdentifier(sourceTopFolder),
 					mergesRelationships.ToArray(),
 					null);
 
-				var changesetVersionSpec = new ChangesetVersionSpec(changesetId);
-				var sourceBranchIdentifier = changesetService.GetAssociatedBranches(changesetId)[0];
+				var changesetVersionSpec = new ChangesetVersionSpec(changesetViewModel.ChangesetId);
+				var sourceBranchIdentifier = changesetViewModel.Branches.Select(b => new ItemIdentifier(b)).First();
 				var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
 				if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				    && !sourceBranchInfo.Properties.ParentBranch.IsDeleted)

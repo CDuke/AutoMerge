@@ -2,6 +2,7 @@
 using AutoMerge.VersionControl;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Common.Internal;
+using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -93,6 +94,18 @@ namespace AutoMerge
 			}
 
 			return null;
+		}
+
+		public static string GetAuthorizedUser(IServiceProvider serviceProvider)
+		{
+			var context = GetContext(serviceProvider);
+			if (context != null && IsConnectedToTfsCollectionAndProject(context))
+			{
+				var vcs = context.TeamProjectCollection.GetService<VersionControlServer>();
+				return vcs.AuthorizedUser;
+			}
+
+			return string.Empty;
 		}
 	}
 }

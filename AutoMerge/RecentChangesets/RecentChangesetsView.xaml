@@ -7,6 +7,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:teamExplorer="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;assembly=Microsoft.TeamFoundation.Controls"
+             xmlns:wpf="clr-namespace:Microsoft.TeamFoundation.Controls.WPF;assembly=Microsoft.TeamFoundation.Controls"
              TextOptions.TextFormattingMode="Display"
              UseLayoutRounding="True"
              d:DataContext="{d:DesignInstance autoMerge:RecentChangesetViewModel}"
@@ -21,6 +23,7 @@
 
             <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter" />
             <converters:NonEmptyStringToVisibleConverter x:Key="NonEmptyStringToVisibleConverter" />
+            <converters:TrueToVisibleConverter x:Key="TrueToVisibleConverter" />
 
             <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="autoMerge:ChangesetViewModel">
                 <StackPanel Orientation="Horizontal">
@@ -48,13 +51,61 @@
                 <Setter Property="SelectionMode" Value="Single" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                 <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="IsSynchronizedWithCurrentItem" Value="True" />
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <StackPanel Margin="6, 6, 6, 6">
-        <ListBox ItemsSource="{Binding Changesets}"
-                 SelectedItem="{Binding SelectedChangeset}"
-                 Style="{StaticResource ChangesetListStyle}">
+    <StackPanel Margin="6,6,6,6">
+        <WrapPanel Margin="0,0,0,6">
+            <teamExplorer:DropDownLink x:Name="addChangesetByIdLink"
+                                       VerticalAlignment="Center"
+                                       DropDownMenuCommand="{Binding ToggleAddByIdCommand}"
+                                       Localization.Attributes="Text (Modifiable Readable Text)"
+                                       Text="Add By Id"
+                                       ToolTip="Add existing changeset by id" />
+        </WrapPanel>
+        <Border Margin="0,0,0,6"
+                Background="{StaticResource EmbeddedDialogBackgroundBrushKey}"
+                BorderThickness="0"
+                Visibility="{Binding ShowAddByIdChangeset,
+                                     Converter={StaticResource TrueToVisibleConverter}}">
+            <StackPanel Margin="6,6,6,6">
+                <wpf:LabeledTextBox x:Name="changesetIdTextBox"
+                                    Margin="0"
+                                    AcceptsReturn="False"
+                                    HintText="Enter the ID of changeset"
+                                    Localization.Attributes="HintText (Modifiable Readable Text)"
+                                    Text="{Binding Path=ChangesetIdsText,
+                                                   UpdateSourceTrigger=PropertyChanged,
+                                                   Mode=TwoWay}">
+                    <wpf:LabeledTextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding AddChangesetByIdCommand}" />
+                    </wpf:LabeledTextBox.InputBindings>
+                </wpf:LabeledTextBox>
+                <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
+                    <Button MinWidth="75"
+                            MinHeight="23"
+                            Margin="0"
+                            VerticalAlignment="Center"
+                            Command="{Binding AddChangesetByIdCommand}"
+                            Content="Add"
+                            Localization.Attributes="Content (Modifiable Readable Text)"
+                            Padding="6,2,6,2" />
+                    <teamExplorer:TextLink Margin="6,0,0,0"
+                                           VerticalAlignment="Center"
+                                           Command="{Binding CancelAddChangesetByIdCommand}"
+                                           Localization.Attributes="Text (Modifiable Readable Text)"
+                                           Text="Cancel"
+                                           x:Uid="cancelLink" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <ListBox x:Name="changesetList"
+                 ItemsSource="{Binding Changesets}"
+                 SelectedItem="{Binding SelectedChangeset,
+                                        Mode=TwoWay}"
+                 Style="{StaticResource ChangesetListStyle}"
+                 Margin="0">
             <ListBox.InputBindings>
                 <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
             </ListBox.InputBindings>

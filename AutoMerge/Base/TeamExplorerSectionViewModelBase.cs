@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
+using Microsoft.TeamFoundation.Controls.MVVM;
 using TfsTeamExplorerSectionViewModelBase = Microsoft.TeamFoundation.Controls.WPF.TeamExplorer.TeamExplorerSectionViewModelBase;
 
 namespace AutoMerge.Base
@@ -64,6 +65,14 @@ namespace AutoMerge.Base
 		public new void HideBusy()
 		{
 			IsBusy = false;
+		}
+
+		protected void SetMvvmFocus(string id, params object[] args)
+		{
+			var focusService = TryResolveService<IFocusService>();
+			if (focusService == null)
+				return;
+			focusService.SetFocus(id, args);
 		}
 	}
 }

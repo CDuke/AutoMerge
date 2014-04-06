@@ -1,49 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.TeamFoundation.VersionControl.Client;
 
 namespace AutoMerge
 {
-	public class MyChangesetChangesetProvider : IChangesetProvider
+	public class MyChangesetChangesetProvider : ChangesetProviderBase
 	{
-		private const int MaxChangesets = 10;
-		private readonly IServiceProvider _serviceProvider;
+		private const int MaxChangesets = 20;
+		private readonly string _userLogin;
 
 		public MyChangesetChangesetProvider(IServiceProvider serviceProvider)
+			: base(serviceProvider)
 		{
-			_serviceProvider = serviceProvider;
+			_userLogin = VersionControlNavigationHelper.GetAuthorizedUser(serviceProvider);
 		}
 
-		public Task<List<ChangesetViewModel>> GetChangesets()
-		{
-			return Task.Run(() => GetChangesetsInternal());
-		}
-
-		private List<ChangesetViewModel> GetChangesetsInternal()
+		protected override List<ChangesetViewModel> GetChangesetsInternal()
 		{
 			var changesets = new List<ChangesetViewModel>();
-			var context = VersionControlNavigationHelper.GetContext(_serviceProvider);
-			if (context != null && VersionControlNavigationHelper.IsConnectedToTfsCollectionAndProject(context))
+
+			if (!string.IsNullOrEmpty(_userLogin))
 			{
-				var vcs = context.TeamProjectCollection.GetService<VersionControlServer>();
-				if (vcs != null)
+				var changesetService = GetChangesetService();
+
+				if (changesetService != null)
 				{
-					var changesetService = new ChangesetService(vcs, context.TeamProjectName);
-					var tfsChangesets = changesetService.GetUserChangesets(vcs.AuthorizedUser, MaxChangesets);
-					foreach (var tfsChangeset in tfsChangesets)
-					{
-						var changeset = new ChangesetViewModel
-						{
-							ChangesetId = tfsChangeset.ChangesetId,
-							Comment = tfsChangeset.Comment,
-							Branches = changesetService.GetAssociatedBranches(tfsChangeset.ChangesetId)
-								.Select(i => i.Item)
-								.ToList()
-						};
-						changesets.Add(changeset);
-					}
+					var tfsChangesets = changesetService.GetUserChangesets(_userLogin, MaxChangesets);
+					changesets = tfsChangesets
+						.Select(tfsChangeset => ToChangesetViewModel(tfsChangeset, changesetService))
+						.ToList();
 				}
 			}
 

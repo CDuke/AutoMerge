@@ -154,7 +154,6 @@
     <Compile Include="Base\TeamExplorerBaseNavigationItem.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerBasePage.cs" />
-    <Compile Include="Base\TeamExplorerBaseSection.cs" />
     <Compile Include="Base\TeamExplorerSectionBase.cs" />
     <Compile Include="Base\TeamExplorerSectionViewModelBase.cs" />
     <Compile Include="Behaviours\GridViewColumnResize.cs" />
@@ -183,10 +182,13 @@
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
+    <Compile Include="RecentChangesets\ChangesetByIdChangesetProvider.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
+    <Compile Include="RecentChangesets\ChangesetProviderBase.cs" />
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\IChangesetProvider.cs" />
     <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
+    <Compile Include="RecentChangesets\RecentChangesetFocusableControlNames.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
