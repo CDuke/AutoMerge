@@ -1,0 +1,139 @@
+﻿<Button x:Class="AutoMerge.Controls.SplitButton"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.Converters;assembly=Microsoft.TeamFoundation.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Name="thisSplitButton"
+        mc:Ignorable="d">
+    <Button.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:TrueToVisibleConverter x:Key="TrueToVisibleConverter" x:Uid="converter:TrueToVisibleConverter" />
+            <Geometry x:Key="DownArrowGeometry">M 0 0 L 3.5 4 L 7 0 Z</Geometry>
+            <Style x:Key="SplitButtonFocusVisualStyle">
+                <Setter Property="Control.Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Rectangle Margin="2,2,19,2"
+                                       SnapsToDevicePixels="true"
+                                       Stroke="{StaticResource ItemTextBrushKey}"
+                                       StrokeDashArray="1 2"
+                                       StrokeThickness="1" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="SplitButtonDropDownButtonStyle" TargetType="{x:Type Button}">
+                <Setter Property="OverridesDefaultStyle" Value="true" />
+                <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisualStyle}" />
+                <Setter Property="ClickMode" Value="Press" />
+                <Setter Property="Background" Value="{StaticResource ButtonBackgroundBrushKey}" />
+                <Setter Property="Foreground" Value="{StaticResource ButtonForegroundBrushKey}" />
+                <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushKey}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border Width="17"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1,0,0,0"
+                                    Padding="3,1,3,1"
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                                <Path x:Name="Arrow"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Data="{StaticResource DownArrowGeometry}"
+                                      Fill="{TemplateBinding Foreground}" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="true">
+                        <Setter Property="Background" Value="{StaticResource ButtonHoverBackgroundBrushKey}" />
+                        <Setter Property="Foreground" Value="{StaticResource ButtonHoverForegroundBrushKey}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource ButtonHoverBorderBrushKey}" />
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="false">
+                        <Setter Property="Background" Value="{StaticResource ButtonDisabledBackgroundBrushKey}" />
+                        <Setter Property="Foreground" Value="{StaticResource ButtonDisabledForegroundBrushKey}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource ButtonDisabledBorderBrushKey}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </Button.Resources>
+    <Button.Style>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="OverridesDefaultStyle" Value="true" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource SplitButtonFocusVisualStyle}" />
+            <Setter Property="Background" Value="{StaticResource ButtonBackgroundBrushKey}" />
+            <Setter Property="Foreground" Value="{StaticResource ButtonForegroundBrushKey}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushKey}" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MinHeight" Value="23" />
+            <Setter Property="MinWidth" Value="75" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                            <Grid x:Name="ContentContainer"
+                                  Background="{TemplateBinding Background}"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0"
+                                                  Margin="6,0,6,0"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  RecognizesAccessKey="true" />
+                                <Button x:Name="SplitButtonDropDownButton"
+                                        Grid.Column="1"
+                                        Margin="0"
+                                        HorizontalAlignment="Right"
+                                        Click="SplitButtonDropDownButton_Click"
+                                        Focusable="true"
+                                        IsTabStop="false"
+                                        KeyDown="SplitButtonDropDownButton_KeyDown"
+                                        Style="{StaticResource SplitButtonDropDownButtonStyle}"
+                                        Visibility="{Binding ElementName=thisSplitButton,
+                                                             Path=ShowArrow,
+                                                             Converter={StaticResource TrueToVisibleConverter}}" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" />
+                                    <Condition Binding="{Binding ElementName=SplitButtonDropDownButton, Path=IsMouseOver}" Value="false" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="{StaticResource ButtonHoverBackgroundBrushKey}" />
+                                <Setter Property="Foreground" Value="{StaticResource ButtonHoverForegroundBrushKey}" />
+                                <Setter Property="BorderBrush" Value="{StaticResource ButtonHoverBorderBrushKey}" />
+                            </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsPressed}" Value="True" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="{StaticResource ButtonPressedBackgroundBrushKey}" />
+                                <Setter Property="Foreground" Value="{StaticResource ButtonPressedForegroundBrushKey}" />
+                                <Setter Property="BorderBrush" Value="{StaticResource ButtonPressedBorderBrushKey}" />
+                            </MultiDataTrigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" Value="{StaticResource ButtonDisabledBackgroundBrushKey}" />
+                                <Setter Property="Foreground" Value="{StaticResource ButtonDisabledForegroundBrushKey}" />
+                                <Setter Property="BorderBrush" Value="{StaticResource ButtonDisabledBorderBrushKey}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Button.Style>
+</Button>

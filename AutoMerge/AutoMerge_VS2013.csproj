@@ -172,6 +172,9 @@
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
     <Compile Include="Branches\MergeResult.cs" />
     <Compile Include="Branches\MergeResultModel.cs" />
+    <Compile Include="Controls\SplitButton.xaml.cs">
+      <DependentUpon>SplitButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Events\BranchSelectedChangedEvent.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\MergeCompleteEvent.cs" />
@@ -234,6 +237,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Branches\BranchesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SplitButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
