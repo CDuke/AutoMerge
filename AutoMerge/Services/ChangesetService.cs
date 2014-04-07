@@ -40,6 +40,11 @@ namespace AutoMerge
 			return changeset;
 		}
 
+		public Change[] GetChanges(int changesetId)
+		{
+			return _versionControlServer.GetChangesForChangeset(changesetId, false, int.MaxValue, null, null, null, false);
+		}
+
 		public List<ItemIdentifier> GetAssociatedBranches(int changesetId)
 		{
 			var branches = _versionControlServer.QueryBranchObjectOwnership(new[] { changesetId });

@@ -165,9 +165,10 @@ namespace AutoMerge
 			
 			
 
-			var changeset = changesetService.GetChangeset(changesetViewModel.ChangesetId);
+			//var changeset = changesetService.GetChangeset(changesetViewModel.ChangesetId);
+			var changes = changesetService.GetChanges(changesetViewModel.ChangesetId);
 
-			var sourceTopFolder = CalculateTopFolder(changeset.Changes);
+			var sourceTopFolder = CalculateTopFolder(changes);
 			var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder)
 				.Where(r => !r.IsDeleted)
 				.ToList();
@@ -197,9 +198,9 @@ namespace AutoMerge
 							SourcePath = sourceTopFolder,
 							TargetPath = targetPath,
 							ChangesetVersionSpec = changesetVersionSpec,
-							FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
+							FileMergeInfos = new List<FileMergeInfo>(changes.Count()),
 							ValidationResult = BranchValidationResult.Success,
-							Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
+							Comment = EvaluateComment(changesetViewModel.Comment, sourceBranch, targetBranch)
 						};
 
 						mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
@@ -239,9 +240,9 @@ namespace AutoMerge
 								SourcePath = sourceTopFolder,
 								TargetPath = targetPath,
 								ChangesetVersionSpec = changesetVersionSpec,
-								FileMergeInfos = new List<FileMergeInfo>(changeset.Changes.Count()),
+								FileMergeInfos = new List<FileMergeInfo>(changes.Count()),
 								ValidationResult = BranchValidationResult.Success,
-								Comment = EvaluateComment(changeset.Comment, sourceBranch, targetBranch)
+								Comment = EvaluateComment(changesetViewModel.Comment, sourceBranch, targetBranch)
 							};
 
 							mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);

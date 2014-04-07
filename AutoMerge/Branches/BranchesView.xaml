@@ -75,7 +75,8 @@
             <WrapPanel Margin="0,0,0,6" Orientation="Horizontal">
                 <controls:SplitButton Command="{Binding MergeAndCheckInCommand}"
                                       Content="Merge"
-                                      ShowArrow="True">
+                                      ShowArrow="True"
+                                      ToolTip="Merge &amp; Check In">
                     <controls:SplitButton.DropDownMenu>
                         <ContextMenu>
                             <MenuItem Command="{Binding MergeAndCheckInCommand}" Header="Merge &amp; Check In" />
