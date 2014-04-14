@@ -271,7 +271,6 @@ namespace AutoMerge
 				throw new ArgumentNullException("changes");
 
 			string topFolder = null;
-
 			foreach (var change in changes)
 			{
 				if (topFolder != null)

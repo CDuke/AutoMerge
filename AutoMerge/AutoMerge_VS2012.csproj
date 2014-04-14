@@ -151,10 +151,10 @@
     <Compile Include="Base\TeamExplorerBaseNavigationItem.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerBasePage.cs" />
-    <Compile Include="Base\TeamExplorerBaseSection.cs" />
     <Compile Include="Base\TeamExplorerSectionBase.cs" />
     <Compile Include="Base\TeamExplorerSectionViewModelBase.cs" />
     <Compile Include="Behaviours\GridViewColumnResize.cs" />
+    <Compile Include="Behaviours\ScrollDeligateBehavior.cs" />
     <Compile Include="Branches\BranchesSection.cs" />
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
@@ -168,6 +168,9 @@
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
     <Compile Include="Branches\MergeResult.cs" />
     <Compile Include="Branches\MergeResultModel.cs" />
+    <Compile Include="Controls\SplitButton.xaml.cs">
+      <DependentUpon>SplitButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Events\BranchSelectedChangedEvent.cs" />
     <Compile Include="Events\EventAggregatorFactory.cs" />
     <Compile Include="Events\MergeCompleteEvent.cs" />
@@ -176,10 +179,13 @@
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
+    <Compile Include="RecentChangesets\ChangesetByIdChangesetProvider.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
+    <Compile Include="RecentChangesets\ChangesetProviderBase.cs" />
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\IChangesetProvider.cs" />
     <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
+    <Compile Include="RecentChangesets\RecentChangesetFocusableControlNames.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
@@ -232,6 +238,10 @@
     <Page Include="Branches\BranchesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SplitButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="RecentChangesets\RecentChangesetsView.xaml">
       <SubType>Designer</SubType>
