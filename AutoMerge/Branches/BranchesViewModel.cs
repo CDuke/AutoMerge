@@ -314,7 +314,7 @@ namespace AutoMerge
 
 		private static string ExtractFolder(ChangeType changeType, Item item)
 		{
-			if (changeType == ChangeType.Add && item.ItemType == ItemType.Folder)
+			if (changeType.HasFlag(ChangeType.Add) && item.ItemType == ItemType.Folder)
 				return ExtractFolder(item.ServerItem);
 
 			return item.ItemType == ItemType.Folder
