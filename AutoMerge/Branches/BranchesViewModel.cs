@@ -160,12 +160,8 @@ namespace AutoMerge
 
 			var workspace = _workspace;
 
-			//var changesetService = new ChangesetService(versionControl, context.TeamProjectName);
 			var changesetService = _changesetService;
-			
-			
 
-			//var changeset = changesetService.GetChangeset(changesetViewModel.ChangesetId);
 			var changes = changesetService.GetChanges(changesetViewModel.ChangesetId);
 
 			var sourceTopFolder = CalculateTopFolder(changes);
@@ -179,6 +175,14 @@ namespace AutoMerge
 					new ItemIdentifier(sourceTopFolder),
 					mergesRelationships.ToArray(),
 					null);
+
+				var trackMergeInfo = GetTrackMergeInfo(versionControl,
+					trackMerges, sourceTopFolder);
+				trackMergeInfo.SourceBranches.Reverse();
+				if (trackMergeInfo.SourceBranches.IsNullOrEmpty())
+				{
+					trackMergeInfo.SourceComment = changesetViewModel.Comment;
+				}
 
 				var changesetVersionSpec = new ChangesetVersionSpec(changesetViewModel.ChangesetId);
 				var sourceBranchIdentifier = changesetViewModel.Branches.Select(b => new ItemIdentifier(b)).First();
@@ -200,7 +204,7 @@ namespace AutoMerge
 							ChangesetVersionSpec = changesetVersionSpec,
 							FileMergeInfos = new List<FileMergeInfo>(changes.Count()),
 							ValidationResult = BranchValidationResult.Success,
-							Comment = EvaluateComment(changesetViewModel.Comment, sourceBranch, targetBranch)
+							Comment = EvaluateComment(trackMergeInfo, sourceBranch, targetBranch)
 						};
 
 						mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
@@ -242,7 +246,7 @@ namespace AutoMerge
 								ChangesetVersionSpec = changesetVersionSpec,
 								FileMergeInfos = new List<FileMergeInfo>(changes.Count()),
 								ValidationResult = BranchValidationResult.Success,
-								Comment = EvaluateComment(changesetViewModel.Comment, sourceBranch, targetBranch)
+								Comment = EvaluateComment(trackMergeInfo, sourceBranch, targetBranch)
 							};
 
 							mergeInfo.ValidationResult = ValidateItem(workspace, mergeInfo, trackMerges);
@@ -251,6 +255,75 @@ namespace AutoMerge
 							result.Add(mergeInfo);
 						}
 					}
+				}
+			}
+
+			return result;
+		}
+
+		private static string EvaluateComment(TrackMergeInfo trackMergeInfo, string sourceBranch, string targetBranch)
+		{
+			var mergePath = trackMergeInfo.SourceBranches.Concat(new[] {sourceBranch, targetBranch})
+				.Select(GetShortBranchName);
+			var mergePathString = string.Join(" -> ", mergePath);
+			return string.Format("MERGE {0} ({1})", mergePathString, trackMergeInfo.SourceComment);
+		}
+
+		private TrackMergeInfo GetTrackMergeInfo(VersionControlServer versionControl,
+			IEnumerable<ExtendedMerge> allTrackMerges,
+			string targetPath)
+		{
+			var result = new TrackMergeInfo
+			{
+				SourceBranches = new List<string>()
+			};
+			var trackMerges = allTrackMerges.Where(m => m.TargetItem.Item == targetPath).ToArray();
+			if (!trackMerges.IsNullOrEmpty())
+			{
+				var changesetIds = trackMerges.Select(t => t.SourceChangeset.ChangesetId).ToArray();
+				var mergeSourceBranches = _changesetService.GetAssociatedBranches(changesetIds)
+					.Select(b => b.Item)
+					.Distinct()
+					.ToArray();
+
+				if (mergeSourceBranches.Length == 1)
+				{
+					result.SourceBranches.Add(mergeSourceBranches[0]);
+
+					var sourceItem = trackMerges.First().SourceItem.Item.ServerItem;
+					var comment = trackMerges.First().SourceChangeset.Comment;
+					if (trackMerges.Length > 1)
+					{
+						sourceItem = trackMerges.Skip(1)
+							.Aggregate(sourceItem, (current, trackMerge) => FindShareFolder(current, trackMerge.SourceItem.Item.ServerItem));
+						comment = "source changeset has several comments";
+					}
+
+					var sourceMergesRelationships = versionControl.QueryMergeRelationships(sourceItem)
+					.Where(r => !r.IsDeleted)
+					.ToList();
+
+					var sourceTrackMerges = versionControl.TrackMerges(changesetIds,
+						new ItemIdentifier(sourceItem),
+						sourceMergesRelationships.ToArray(),
+						null);
+
+					var sourceTrackMergeInfo = GetTrackMergeInfo(versionControl, sourceTrackMerges, sourceItem);
+
+					if (!sourceTrackMergeInfo.SourceBranches.IsNullOrEmpty())
+					{
+						result.SourceBranches.AddRange(sourceTrackMergeInfo.SourceBranches);
+						result.SourceComment = sourceTrackMergeInfo.SourceComment;
+					}
+					else
+					{
+						result.SourceComment = comment;
+					}
+				}
+				else
+				{
+					result.SourceBranches.Add("multi");
+					result.SourceComment = "source changeset has several comments";
 				}
 			}
 

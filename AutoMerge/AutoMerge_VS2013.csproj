@@ -171,6 +171,7 @@
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
     <Compile Include="Branches\MergeResult.cs" />
     <Compile Include="Branches\MergeResultModel.cs" />
+    <Compile Include="Branches\TrackMergeInfo.cs" />
     <Compile Include="Controls\SplitButton.xaml.cs">
       <DependentUpon>SplitButton.xaml</DependentUpon>
     </Compile>

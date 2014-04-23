@@ -45,9 +45,9 @@ namespace AutoMerge
 			return _versionControlServer.GetChangesForChangeset(changesetId, false, int.MaxValue, null, null, null, false);
 		}
 
-		public List<ItemIdentifier> GetAssociatedBranches(int changesetId)
+		public List<ItemIdentifier> GetAssociatedBranches(params int[] changesetId)
 		{
-			var branches = _versionControlServer.QueryBranchObjectOwnership(new[] { changesetId });
+			var branches = _versionControlServer.QueryBranchObjectOwnership(changesetId);
 
 			return branches.Select(b => b.RootItem).ToList();
 		}
