@@ -768,17 +768,20 @@ namespace AutoMerge
 			}
 
 			var getLatestFilesArray = getLatestFiles.ToArray();
-			const RecursionType recursionType = RecursionType.None;
-			var getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
-			if (!getLatestResult.NoActionNeeded)
+			if (getLatestFilesArray.Length > 0)
 			{
-				// HACK.
-				getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
+				const RecursionType recursionType = RecursionType.None;
+				var getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
 				if (!getLatestResult.NoActionNeeded)
 				{
-					result.MergeResult = MergeResult.CanNotGetLatest;
-					result.Message = "Can not get latest";
-					return result;
+					// HACK.
+					getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
+					if (!getLatestResult.NoActionNeeded)
+					{
+						result.MergeResult = MergeResult.CanNotGetLatest;
+						result.Message = "Can not get latest";
+						return result;
+					}
 				}
 			}
 
