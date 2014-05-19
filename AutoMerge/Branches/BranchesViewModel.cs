@@ -420,7 +420,7 @@ namespace AutoMerge
 				case BranchValidationResult.BranchNotMapped:
 					return "Branch not mapped";
 				case BranchValidationResult.ItemHasLocalChanges:
-					return "Some files have local changes. Commit or undo it";
+					return "Folder has local changes. Check-in or undo it";
 				case BranchValidationResult.NoAccess:
 					return "You have not rights for edit";
 				default:
@@ -453,7 +453,18 @@ namespace AutoMerge
 					result = BranchValidationResult.BranchNotMapped;
 			}
 
+			if (result == BranchValidationResult.Success)
+			{
+				var hasLocalChanges = HasLocalChanges(workspace, mergeInfoViewModel.TargetPath);
+				if (hasLocalChanges)
+					result = BranchValidationResult.ItemHasLocalChanges;
+			}
 			return result;
+		}
+
+		private static bool HasLocalChanges(Workspace workspace, string targetPath)
+		{
+			return workspace.GetPendingChangesEnumerable(targetPath, RecursionType.Full).Any();
 		}
 
 		private static bool UserHasAccess(VersionControlServer versionControlServer, string targetPath)
@@ -874,40 +885,6 @@ namespace AutoMerge
 			workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
 
 			return workspace.QueryConflicts(new[] { targetPath }, true);
-		}
-
-		private static string EvaluateComment(string sourceComment, string sourceBranch, string targetBranch)
-		{
-			if (string.IsNullOrWhiteSpace(sourceComment))
-				return null;
-
-			var targetShortBranchName = GetShortBranchName(targetBranch);
-			string comment;
-			if (sourceComment.StartsWith("MERGE "))
-			{
-				var originalCommentStartPos = sourceComment.IndexOf('(');
-				if (originalCommentStartPos > 0)
-				{
-					var mergeComment = sourceComment.Substring(0, originalCommentStartPos);
-					var originaComment =
-						originalCommentStartPos + 1 < sourceComment.Length
-							? sourceComment.Substring(originalCommentStartPos + 1, sourceComment.Length - originalCommentStartPos - 2)
-							: string.Empty;
-					comment = string.Format("{0} -> {1} ({2})", mergeComment, targetShortBranchName, originaComment);
-				}
-				else
-				{
-					var sourceShortBranchName = GetShortBranchName(sourceBranch);
-					comment = string.Format("MERGE {0} -> {1} ({2})", sourceShortBranchName, targetShortBranchName, sourceComment);
-				}
-			}
-			else
-			{
-				var sourceShortBranchName = GetShortBranchName(sourceBranch);
-				comment = string.Format("MERGE {0} -> {1} ({2})", sourceShortBranchName, targetShortBranchName, sourceComment);
-			}
-
-			return comment;
 		}
 
 		private static string GetShortBranchName(string fullBranchName)
