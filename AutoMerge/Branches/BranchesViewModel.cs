@@ -197,7 +197,7 @@ namespace AutoMerge
 				if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
 				    && !sourceBranchInfo.Properties.ParentBranch.IsDeleted)
 				{
-					var targetBranch = sourceBranchInfo.Properties.ParentBranch.Item;
+					var targetBranch = sourceBranchInfo.Properties.ParentBranch;
 					var targetPath = GetTargetPath(mergesRelationships, targetBranch);
 					if (targetPath != null)
 					{
@@ -217,11 +217,29 @@ namespace AutoMerge
 						.Reverse();
 					foreach (var childBranch in childBranches)
 					{
-						var targetBranch = childBranch.Item;
+						var targetBranch = childBranch;
 						var targetPath = GetTargetPath(mergesRelationships, targetBranch);
 						if (targetPath != null)
 						{
 							var mergeInfo = branchFactory.CreateTargetBranchInfo(targetBranch, targetPath);
+							result.Add(mergeInfo);
+						}
+					}
+				}
+
+				// Feature branch
+				if (mergesRelationships.Count > 0)
+				{
+					var changetIds =
+						mergesRelationships.Select(r => r.Version).Cast<ChangesetVersionSpec>().Select(c => c.ChangesetId).ToArray();
+					var branches = _changesetService.GetAssociatedBranches(changetIds);
+
+					foreach (var mergesRelationship in mergesRelationships)
+					{
+						var targetBranch = branches.FirstOrDefault(b => IsTargetPath(mergesRelationship, b));
+						if (targetBranch != null)
+						{
+							var mergeInfo = branchFactory.CreateTargetBranchInfo(targetBranch, mergesRelationship);
 							result.Add(mergeInfo);
 						}
 					}
@@ -292,12 +310,23 @@ namespace AutoMerge
 			return result;
 		}
 
-		private static string GetTargetPath(ICollection<ItemIdentifier> mergesRelationships, string targetBranch)
+		private static ItemIdentifier GetTargetPath(ICollection<ItemIdentifier> mergesRelationships, ItemIdentifier targetBranch)
 		{
 			if (mergesRelationships == null || mergesRelationships.Count == 0)
 				return null;
+			var targetItem = mergesRelationships.FirstOrDefault(m => IsTargetPath(m, targetBranch));
+			if (targetItem != null)
+			{
+				mergesRelationships.Remove(targetItem);
+				return targetItem;
+			}
 
-			return mergesRelationships.Select(m => m.Item).FirstOrDefault(p => p.Contains(targetBranch));
+			return null;
+		}
+
+		private static bool IsTargetPath(ItemIdentifier mergeRelations, ItemIdentifier branch)
+		{
+			return mergeRelations.Item.Contains(branch.Item);
 		}
 
 		private static string CalculateTopFolder(ICollection<Change> changes)

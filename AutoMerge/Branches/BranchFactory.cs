@@ -29,9 +29,9 @@ namespace AutoMerge
 			_eventAggregator = eventAggregator;
 		}
 
-		public MergeInfoViewModel CreateTargetBranchInfo(string targetBranch, string targetPath)
+		public MergeInfoViewModel CreateTargetBranchInfo(ItemIdentifier targetBranch, ItemIdentifier targetPath)
 		{
-			return CreateBranch(targetBranch, targetPath);
+			return CreateBranch(targetBranch.Item, targetPath.Item);
 		}
 
 		public MergeInfoViewModel CreateSourceBranch()
