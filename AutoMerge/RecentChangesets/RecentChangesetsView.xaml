@@ -49,6 +49,7 @@
                 <Setter Property="ItemTemplate" Value="{StaticResource ChangesetItemDataTemplate}" />
                 <Setter Property="ItemContainerStyle" Value="{StaticResource ListBoxItemStyle}" />
                 <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="IsSynchronizedWithCurrentItem" Value="True" />
@@ -101,11 +102,11 @@
             </StackPanel>
         </Border>
         <ListBox x:Name="changesetList"
+                 Margin="0"
                  ItemsSource="{Binding Changesets}"
                  SelectedItem="{Binding SelectedChangeset,
                                         Mode=TwoWay}"
-                 Style="{StaticResource ChangesetListStyle}"
-                 Margin="0">
+                 Style="{StaticResource ChangesetListStyle}">
             <ListBox.InputBindings>
                 <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
             </ListBox.InputBindings>
