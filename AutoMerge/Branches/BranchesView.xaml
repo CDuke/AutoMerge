@@ -26,6 +26,13 @@
             <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
             <converters:IsNullConverter x:Key="IsNullConverter" />
 
+            <Style x:Key="BranchCheckBoxStyle"
+                   BasedOn="{StaticResource {x:Type CheckBox}}"
+                   TargetType="CheckBox">
+                <Setter Property="OverridesDefaultStyle" Value="true" />
+                <Setter Property="Background" Value="Transparent" />
+            </Style>
+
             <DataTemplate x:Key="BranchItemTemplate" DataType="autoMerge:MergeInfoViewModel">
                 <StackPanel Orientation="Horizontal">
                     <Rectangle Width="13"
@@ -38,7 +45,8 @@
                     <CheckBox Margin="0,0,5,0"
                               IsChecked="{Binding Checked,
                                                   Mode=TwoWay}"
-                              IsThreeState="False">
+                              IsThreeState="False"
+                              Style="{StaticResource BranchCheckBoxStyle}">
                         <CheckBox.Visibility>
                             <MultiBinding Converter="{StaticResource AllTrueToVisibleConverter}">
                                 <Binding Converter="{StaticResource BoolInvertConverter}" Path="IsSourceBranch" />
@@ -62,7 +70,6 @@
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
-
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel Margin="6,6,6,6">
