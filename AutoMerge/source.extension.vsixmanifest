@@ -6,6 +6,7 @@
 		<Description>Easy way merge changeset</Description>
 		<License>LICENSE.txt</License>
 		<Icon>Resources/merge.png</Icon>
+		<PreviewImage>Resources/preview.png</PreviewImage>
 		<Tags>tfs, merge, changeset</Tags>
 	</Metadata>
 	<Installation InstalledByMsi="false">
