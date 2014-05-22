@@ -1,4 +1,4 @@
-#r @"packages/FAKE.2.16.1/tools/FakeLib.dll"
+#r @"tools/FAKE/tools/FakeLib.dll"
 open Fake
 open System.Xml
 
@@ -14,7 +14,7 @@ let vsixFile = buildDir + "/AutoMerge.vsix"
 
 
 // files
-let slnReferences = !! (if vsVersion = "2012" then "AutoMerge_VS2012.sln" else "AutoMerge_VS2013.sln")
+let slnReferences = !! ("./src/" + (if vsVersion = "2012" then "AutoMerge_VS2012.sln" else "AutoMerge_VS2013.sln"))
 
 let UpdateVsixManifest _=
     Unzip vsixContentDir vsixFile

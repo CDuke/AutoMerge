@@ -31,6 +31,7 @@ _ReSharper*/
 *.[Pp]ublish.xml
 .nuget/
 packages/
+tools/
 *~
 [Tt]humbs.db
 *.[Cc]ache
