@@ -2,8 +2,6 @@
 open Fake
 open System.Xml
 
-RestorePackages()
-
 // Properties
 let vsVersion = getBuildParamOrDefault "vsversion" "2012"
 let buildDirBase = "./bin/"
@@ -38,6 +36,10 @@ Target "Clean" (fun _ ->
     CleanDir buildDir
 )
 
+Target "RestorePackages" (fun _ ->
+    RestorePackages()
+)
+
 Target "UpdateVsixManifest"(fun _ ->
     UpdateVsixManifest 1
 )
@@ -55,6 +57,7 @@ Target "All" DoNothing
 
 // Dependencies
 "Clean"
+    ==> "RestorePackages"
     ==> "BuildApp"
     ==> "UpdateVsixManifest"
     ==> "Deploy"
