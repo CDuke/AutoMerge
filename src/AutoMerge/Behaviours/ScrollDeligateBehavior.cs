@@ -10,16 +10,16 @@ namespace AutoMerge.Behaviours
 		protected override void OnAttached()
 		{
 			base.OnAttached();
-			AssociatedObject.PreviewMouseWheel += AssociatedObject_PreviewMouseWheel;
+			AssociatedObject.PreviewMouseWheel += ScrollDeligatePreviewMouseWheel;
 		}
 
 		protected override void OnDetaching()
 		{
-			AssociatedObject.PreviewMouseWheel -= AssociatedObject_PreviewMouseWheel;
+			AssociatedObject.PreviewMouseWheel -= ScrollDeligatePreviewMouseWheel;
 			base.OnDetaching();
 		}
 
-		private void AssociatedObject_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+		private void ScrollDeligatePreviewMouseWheel(object sender, MouseWheelEventArgs e)
 		{
 			if (!e.Handled)
 			{

@@ -115,9 +115,13 @@
                     <i:InvokeCommandAction Command="{Binding ViewChangesetDetailsCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <i:Interaction.Behaviors>
-                <behaviours:ScrollDeligateBehavior />
-            </i:Interaction.Behaviors>
+            <!--
+                Comment adding behavior, because in some cases error
+                ' Cannot add instance of type 'ScrollDeligateBehavior' to a collection of type 'BehaviorCollection'. Only items of type 'T' are allowed.'
+            -->
+            <!--  <i:Interaction.Behaviors>  -->
+            <!--  <behaviours:ScrollDeligateBehavior />  -->
+            <!--  </i:Interaction.Behaviors>  -->
         </ListBox>
     </StackPanel>
 </UserControl>
