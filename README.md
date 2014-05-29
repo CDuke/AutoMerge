@@ -11,7 +11,7 @@ Usefull when need merge bugfix chageset to several branches.
 * Add comment
 * Easy way discard/force merge
 * Check-In after merge or only fill pending changes page
-# Double click open changeset details
+* Double click open changeset details
 
 ## Usage
 On team explorer page select Auto Merge. Extension show last changesets and list of branches. You select branches and press merge. That's all.
@@ -23,3 +23,6 @@ Team explorer home page
 Auto Merge page
 
 ![Auto Merge page](./automerge_main.png)
+
+## Issues
+[https://github.com/CDuke/AutoMerge/issues](https://github.com/CDuke/AutoMerge/issues)
