@@ -270,25 +270,25 @@ namespace AutoMerge
 				{
 					result.SourceBranches.Add(mergeSourceBranches[0]);
 
-					var sourceItem = trackMerges.First().SourceItem.Item.ServerItem;
+					var sourceFolder = trackMerges.First().SourceItem.Item.ServerItem;
 					var comment = trackMerges.First().SourceChangeset.Comment;
 					if (trackMerges.Length > 1)
 					{
-						sourceItem = trackMerges.Skip(1)
-							.Aggregate(sourceItem, (current, trackMerge) => FindShareFolder(current, trackMerge.SourceItem.Item.ServerItem));
+						foreach (var merge in trackMerges.Skip(1))
+							sourceFolder = FindShareFolder(sourceFolder, merge.SourceItem.Item.ServerItem);
 						comment = "source changeset has several comments";
 					}
 
-					var sourceMergesRelationships = versionControl.QueryMergeRelationships(sourceItem)
+					var sourceMergesRelationships = versionControl.QueryMergeRelationships(sourceFolder)
 					.Where(r => !r.IsDeleted)
-					.ToList();
+					.ToArray();
 
 					var sourceTrackMerges = versionControl.TrackMerges(changesetIds,
-						new ItemIdentifier(sourceItem),
-						sourceMergesRelationships.ToArray(),
+						new ItemIdentifier(sourceFolder),
+						sourceMergesRelationships,
 						null);
 
-					var sourceTrackMergeInfo = GetTrackMergeInfo(versionControl, sourceTrackMerges, sourceItem);
+					var sourceTrackMergeInfo = GetTrackMergeInfo(versionControl, sourceTrackMerges, sourceFolder);
 
 					if (!sourceTrackMergeInfo.SourceBranches.IsNullOrEmpty())
 					{
@@ -345,12 +345,6 @@ namespace AutoMerge
 
 				var changeFolder = ExtractFolder(change.ChangeType, change.Item);
 
-				if ((topFolder == null) || (topFolder != null && topFolder.Contains(changeFolder)))
-				{
-					topFolder = changeFolder;
-					continue;
-				}
-
 				topFolder = FindShareFolder(topFolder, changeFolder);
 			}
 
@@ -364,28 +358,33 @@ namespace AutoMerge
 
 		private static string FindShareFolder(string topFolder, string changeFolder)
 		{
-			var folder = topFolder;
-			while (folder != "$")
+			if ((topFolder == null) || topFolder.Contains(changeFolder))
 			{
-				folder = ExtractFolder(folder);
+				return changeFolder;
+			}
+			const string rootFolder = "$/";
+			var folder = topFolder;
+			while (folder != rootFolder)
+			{
+				folder = ExtractParentFolder(folder);
 				if (folder != null && changeFolder.Contains(folder))
 					break;
 			}
 
-			return folder == "$" ? folder + "/" : folder;
+			return folder == rootFolder ? folder + "/" : folder;
 		}
 
 		private static string ExtractFolder(ChangeType changeType, Item item)
 		{
 			if (changeType.HasFlag(ChangeType.Add) && item.ItemType == ItemType.Folder)
-				return ExtractFolder(item.ServerItem);
+				return ExtractParentFolder(item.ServerItem);
 
 			return item.ItemType == ItemType.Folder
 				? item.ServerItem
-				: ExtractFolder(item.ServerItem);
+				: ExtractParentFolder(item.ServerItem);
 		}
 
-		private static string ExtractFolder(string serverItem)
+		private static string ExtractParentFolder(string serverItem)
 		{
 			if (string.IsNullOrWhiteSpace(serverItem))
 				throw new ArgumentNullException("serverItem");
