@@ -167,6 +167,7 @@
     <Compile Include="Branches\BranchValidationResult.cs" />
     <Compile Include="Branches\BranchValidator.cs" />
     <Compile Include="Branches\CheckInResult.cs" />
+    <Compile Include="Branches\EscapeMnemonicConverter.cs" />
     <Compile Include="Branches\FileMergeInfo.cs" />
     <Compile Include="Branches\MergeInfoViewModel.cs" />
     <Compile Include="Branches\MergeOption.cs" />

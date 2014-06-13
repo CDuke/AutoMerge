@@ -35,6 +35,7 @@ namespace AutoMerge
 
 			MergeAndCheckInCommand = new DelegateCommand(MergeAndCheckInExecute, MergeCanEcexute);
 			MergeWithoutCheckInCommand = new DelegateCommand(MergeWithoutCheckInExecute, MergeCanEcexute);
+			SelectWorkspaceCommand = new DelegateCommand<Workspace>(SelectWorkspaceExecute);
 
 			_eventAggregator = EventAggregatorFactory.Get();
 		}
@@ -82,14 +83,70 @@ namespace AutoMerge
 		}
 		private string _errorMessage;
 
+		public Workspace Workspace
+		{
+			get
+			{
+				return _workspace;
+			}
+			set
+			{
+				_workspace = value;
+				RaisePropertyChanged("Workspace");
+			}
+		}
+
+		private ObservableCollection<Workspace> _workspaces;
+
+		public ObservableCollection<Workspace> Workspaces
+		{
+			get
+			{
+				return _workspaces;
+			}
+			set
+			{
+				_workspaces = value;
+				RaisePropertyChanged("Workspaces");
+			}
+		}
+
+		private bool _showWorkspaceChooser;
+		public bool ShowWorkspaceChooser
+		{
+			get
+			{
+				return _showWorkspaceChooser;
+			}
+			set
+			{
+				_showWorkspaceChooser = value;
+				RaisePropertyChanged("ShowWorkspaceChooser");
+			}
+		}
+
+		public DelegateCommand<Workspace> SelectWorkspaceCommand { get; set; }
+
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
 			base.Initialize(sender, e);
 
 			var tfs = Context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
+			SubscribeWorkspaceChanges(versionControl);
+			
 			_changesetService = new ChangesetService(versionControl, Context.TeamProjectName);
-			_workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
+
+			Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+			if (Workspaces.Count > 0)
+			{
+				Workspace = Workspaces[0];
+				ShowWorkspaceChooser = Workspaces.Count > 1;
+			}
+			else
+			{
+				Workspace = null;
+			}
 
 			await RefreshAsync();
 
@@ -111,9 +168,16 @@ namespace AutoMerge
 		{
 			var changeset = _changeset;
 
-			ErrorMessage = CalculateError(_changeset);
-			if (changeset == null || !string.IsNullOrEmpty(ErrorMessage))
+			string errorMessage = null;
+			if (Workspaces.Count == 0)
 			{
+				errorMessage = "Workspaces not found";
+			}
+
+			errorMessage = errorMessage ?? CalculateError(changeset);
+			if (changeset == null || !string.IsNullOrEmpty(errorMessage))
+			{
+				ErrorMessage = errorMessage;
 				Branches = new ObservableCollection<MergeInfoViewModel>();
 				return;
 			}
@@ -551,6 +615,14 @@ namespace AutoMerge
 			var model = (IPendingCheckin)pendingChangesPage.Model;
 			model.PendingChanges.Comment = comment;
 			model.PendingChanges.CheckedPendingChanges = pendingChanges.ToArray();
+
+			if (Workspaces.Count > 1)
+			{
+				var modelType = model.GetType();
+				var workspaceProperty = modelType.GetProperty("Workspace");
+				workspaceProperty.SetValue(model, Workspace);
+			}
+
 			if (workItemIds != null && workItemIds.Count > 0)
 			{
 				var modelType = model.GetType();
@@ -835,6 +907,37 @@ namespace AutoMerge
 			var resolveConflictsMethod = rcMgr.GetMethod("ResolveConflicts", BindingFlags.NonPublic | BindingFlags.Instance);
 			resolveConflictsMethod.Invoke(instantiatedType,
 				new object[] { workspace, targetPath, true, false });
+		}
+
+		private void SelectWorkspaceExecute(Workspace workspace)
+		{
+			Workspace = workspace;
+			Refresh();
+		}
+
+		private void SubscribeWorkspaceChanges(VersionControlServer versionControlServer)
+		{
+			versionControlServer.CreatedWorkspace += RefreshWorkspaces;
+			versionControlServer.UpdatedWorkspace += RefreshWorkspaces;
+			versionControlServer.DeletedWorkspace += RefreshWorkspaces;
+		}
+
+		private void RefreshWorkspaces(object sender, WorkspaceEventArgs e)
+		{
+			var tfs = Context.TeamProjectCollection;
+			var versionControl = tfs.GetService<VersionControlServer>();
+
+			Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+			if (Workspaces.Count > 0)
+			{
+				Workspace = Workspaces[0];
+				ShowWorkspaceChooser = Workspaces.Count > 1;
+			}
+			else
+			{
+				Workspace = null;
+			}
+			Refresh();
 		}
 	}
 }
