@@ -81,20 +81,22 @@
                        TextAlignment="Center" />
         </StackPanel>
         <StackPanel Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibleConverter}}">
-            <StackPanel Margin="0,0,0,6"
-                        Visibility="{Binding Path=ShowWorkspaceChooser, Converter={StaticResource TrueToVisibleConverter}}">
-                <teamExplorer:DropDownLink Foreground="{DynamicResource BodyTextBrushKey}"
-                                           Text="{Binding Workspace.Name}"
-                                           VerticalAlignment="Center"
-                                           ShowArrow="True">
+            <StackPanel Margin="0,0,0,6" Visibility="{Binding Path=ShowWorkspaceChooser, Converter={StaticResource TrueToVisibleConverter}}">
+                <teamExplorer:DropDownLink VerticalAlignment="Center"
+                                           Foreground="{DynamicResource BodyTextBrushKey}"
+                                           ShowArrow="True"
+                                           Text="{Binding Workspace.Name}">
                     <teamExplorer:DropDownLink.DropDownMenu>
                         <ContextMenu ItemsSource="{Binding Workspaces}" Placement="Bottom">
                             <ContextMenu.ItemTemplate>
                                 <DataTemplate>
-                                    <MenuItem Header="{Binding Name, Converter={StaticResource EscapeMnemonicConverter}}"
-                                              Command="{Binding DataContext.SelectWorkspaceCommand, RelativeSource={RelativeSource AncestorType=ContextMenu, Mode=FindAncestor}}"
-                                              CommandParameter="{Binding .}"/>
-                                </DataTemplate> 
+                                    <MenuItem Command="{Binding DataContext.SelectWorkspaceCommand,
+                                                                RelativeSource={RelativeSource AncestorType=ContextMenu,
+                                                                                               Mode=FindAncestor}}"
+                                              CommandParameter="{Binding .}"
+                                              Header="{Binding Name,
+                                                               Converter={StaticResource EscapeMnemonicConverter}}" />
+                                </DataTemplate>
                             </ContextMenu.ItemTemplate>
                         </ContextMenu>
                     </teamExplorer:DropDownLink.DropDownMenu>
@@ -102,13 +104,13 @@
             </StackPanel>
             <WrapPanel Margin="0,0,0,6" Orientation="Horizontal">
                 <controls:SplitButton Command="{Binding MergeAndCheckInCommand}"
-                                      Content="Merge"
+                                      Content="Merge &amp; Check In"
                                       ShowArrow="True"
                                       ToolTip="Merge &amp; Check In">
                     <controls:SplitButton.DropDownMenu>
                         <ContextMenu>
+                            <MenuItem Command="{Binding MergeWithoutCheckInCommand}" Header="Merge" />
                             <MenuItem Command="{Binding MergeAndCheckInCommand}" Header="Merge &amp; Check In" />
-                            <MenuItem Command="{Binding MergeWithoutCheckInCommand}" Header="Merge without Check In" />
                         </ContextMenu>
                     </controls:SplitButton.DropDownMenu>
                 </controls:SplitButton>
