@@ -25,6 +25,8 @@
             <converters:AllTrueToVisibleConverter x:Key="AllTrueToVisibleConverter" />
             <converters:BoolInvertConverter x:Key="BoolInvertConverter" />
             <converters:IsNullConverter x:Key="IsNullConverter" />
+            <converters:TrueToVisibleConverter x:Key="TrueToVisibleConverter" />
+            <autoMerge:EscapeMnemonicConverter x:Key="EscapeMnemonicConverter" />
 
             <Style x:Key="BranchCheckBoxStyle"
                    BasedOn="{StaticResource {x:Type CheckBox}}"
@@ -79,6 +81,25 @@
                        TextAlignment="Center" />
         </StackPanel>
         <StackPanel Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibleConverter}}">
+            <StackPanel Margin="0,0,0,6"
+                        Visibility="{Binding Path=ShowWorkspaceChooser, Converter={StaticResource TrueToVisibleConverter}}">
+                <teamExplorer:DropDownLink Foreground="{DynamicResource BodyTextBrushKey}"
+                                           Text="{Binding Workspace.Name}"
+                                           VerticalAlignment="Center"
+                                           ShowArrow="True">
+                    <teamExplorer:DropDownLink.DropDownMenu>
+                        <ContextMenu ItemsSource="{Binding Workspaces}" Placement="Bottom">
+                            <ContextMenu.ItemTemplate>
+                                <DataTemplate>
+                                    <MenuItem Header="{Binding Name, Converter={StaticResource EscapeMnemonicConverter}}"
+                                              Command="{Binding DataContext.SelectWorkspaceCommand, RelativeSource={RelativeSource AncestorType=ContextMenu, Mode=FindAncestor}}"
+                                              CommandParameter="{Binding .}"/>
+                                </DataTemplate> 
+                            </ContextMenu.ItemTemplate>
+                        </ContextMenu>
+                    </teamExplorer:DropDownLink.DropDownMenu>
+                </teamExplorer:DropDownLink>
+            </StackPanel>
             <WrapPanel Margin="0,0,0,6" Orientation="Horizontal">
                 <controls:SplitButton Command="{Binding MergeAndCheckInCommand}"
                                       Content="Merge"

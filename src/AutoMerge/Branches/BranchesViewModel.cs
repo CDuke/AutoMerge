@@ -36,6 +36,7 @@ namespace AutoMerge
 
 			MergeAndCheckInCommand = new DelegateCommand(MergeAndCheckInExecute, MergeCanEcexute);
 			MergeWithoutCheckInCommand = new DelegateCommand(MergeWithoutCheckInExecute, MergeCanEcexute);
+			SelectWorkspaceCommand = new DelegateCommand<Workspace>(SelectWorkspaceExecute);
 
 			_eventAggregator = EventAggregatorFactory.Get();
 			_merging = false;
@@ -84,14 +85,70 @@ namespace AutoMerge
 		}
 		private string _errorMessage;
 
+		public Workspace Workspace
+		{
+			get
+			{
+				return _workspace;
+			}
+			set
+			{
+				_workspace = value;
+				RaisePropertyChanged("Workspace");
+			}
+		}
+
+		private ObservableCollection<Workspace> _workspaces;
+
+		public ObservableCollection<Workspace> Workspaces
+		{
+			get
+			{
+				return _workspaces;
+			}
+			set
+			{
+				_workspaces = value;
+				RaisePropertyChanged("Workspaces");
+			}
+		}
+
+		private bool _showWorkspaceChooser;
+		public bool ShowWorkspaceChooser
+		{
+			get
+			{
+				return _showWorkspaceChooser;
+			}
+			set
+			{
+				_showWorkspaceChooser = value;
+				RaisePropertyChanged("ShowWorkspaceChooser");
+			}
+		}
+
+		public DelegateCommand<Workspace> SelectWorkspaceCommand { get; set; }
+
 		public async override void Initialize(object sender, SectionInitializeEventArgs e)
 		{
 			base.Initialize(sender, e);
 
 			var tfs = Context.TeamProjectCollection;
 			var versionControl = tfs.GetService<VersionControlServer>();
+			SubscribeWorkspaceChanges(versionControl);
+			
 			_changesetService = new ChangesetService(versionControl, Context.TeamProjectName);
-			_workspace = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName)[0];
+
+			Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+			if (Workspaces.Count > 0)
+			{
+				Workspace = Workspaces[0];
+				ShowWorkspaceChooser = Workspaces.Count > 1;
+			}
+			else
+			{
+				Workspace = null;
+			}
 
 			await RefreshAsync();
 
@@ -113,9 +170,16 @@ namespace AutoMerge
 		{
 			var changeset = _changeset;
 
-			ErrorMessage = CalculateError(_changeset);
-			if (changeset == null || !string.IsNullOrEmpty(ErrorMessage))
+			string errorMessage = null;
+			if (Workspaces.Count == 0)
 			{
+				errorMessage = "Workspaces not found";
+			}
+
+			errorMessage = errorMessage ?? CalculateError(changeset);
+			if (changeset == null || !string.IsNullOrEmpty(errorMessage))
+			{
+				ErrorMessage = errorMessage;
 				Branches = new ObservableCollection<MergeInfoViewModel>();
 				return;
 			}
@@ -272,25 +336,25 @@ namespace AutoMerge
 				{
 					result.SourceBranches.Add(mergeSourceBranches[0]);
 
-					var sourceItem = trackMerges.First().SourceItem.Item.ServerItem;
+					var sourceFolder = trackMerges.First().SourceItem.Item.ServerItem;
 					var comment = trackMerges.First().SourceChangeset.Comment;
 					if (trackMerges.Length > 1)
 					{
-						sourceItem = trackMerges.Skip(1)
-							.Aggregate(sourceItem, (current, trackMerge) => FindShareFolder(current, trackMerge.SourceItem.Item.ServerItem));
+						foreach (var merge in trackMerges.Skip(1))
+							sourceFolder = FindShareFolder(sourceFolder, merge.SourceItem.Item.ServerItem);
 						comment = "source changeset has several comments";
 					}
 
-					var sourceMergesRelationships = versionControl.QueryMergeRelationships(sourceItem)
+					var sourceMergesRelationships = versionControl.QueryMergeRelationships(sourceFolder)
 					.Where(r => !r.IsDeleted)
-					.ToList();
+					.ToArray();
 
 					var sourceTrackMerges = versionControl.TrackMerges(changesetIds,
-						new ItemIdentifier(sourceItem),
-						sourceMergesRelationships.ToArray(),
+						new ItemIdentifier(sourceFolder),
+						sourceMergesRelationships,
 						null);
 
-					var sourceTrackMergeInfo = GetTrackMergeInfo(versionControl, sourceTrackMerges, sourceItem);
+					var sourceTrackMergeInfo = GetTrackMergeInfo(versionControl, sourceTrackMerges, sourceFolder);
 
 					if (!sourceTrackMergeInfo.SourceBranches.IsNullOrEmpty())
 					{
@@ -347,12 +411,6 @@ namespace AutoMerge
 
 				var changeFolder = ExtractFolder(change.ChangeType, change.Item);
 
-				if ((topFolder == null) || (topFolder != null && topFolder.Contains(changeFolder)))
-				{
-					topFolder = changeFolder;
-					continue;
-				}
-
 				topFolder = FindShareFolder(topFolder, changeFolder);
 			}
 
@@ -366,28 +424,33 @@ namespace AutoMerge
 
 		private static string FindShareFolder(string topFolder, string changeFolder)
 		{
-			var folder = topFolder;
-			while (folder != "$")
+			if ((topFolder == null) || topFolder.Contains(changeFolder))
 			{
-				folder = ExtractFolder(folder);
+				return changeFolder;
+			}
+			const string rootFolder = "$/";
+			var folder = topFolder;
+			while (folder != rootFolder)
+			{
+				folder = ExtractParentFolder(folder);
 				if (folder != null && changeFolder.Contains(folder))
 					break;
 			}
 
-			return folder == "$" ? folder + "/" : folder;
+			return folder == rootFolder ? folder + "/" : folder;
 		}
 
 		private static string ExtractFolder(ChangeType changeType, Item item)
 		{
 			if (changeType.HasFlag(ChangeType.Add) && item.ItemType == ItemType.Folder)
-				return ExtractFolder(item.ServerItem);
+				return ExtractParentFolder(item.ServerItem);
 
 			return item.ItemType == ItemType.Folder
 				? item.ServerItem
-				: ExtractFolder(item.ServerItem);
+				: ExtractParentFolder(item.ServerItem);
 		}
 
-		private static string ExtractFolder(string serverItem)
+		private static string ExtractParentFolder(string serverItem)
 		{
 			if (string.IsNullOrWhiteSpace(serverItem))
 				throw new ArgumentNullException("serverItem");
@@ -563,6 +626,14 @@ namespace AutoMerge
 			var model = (IPendingCheckin)pendingChangesPage.Model;
 			model.PendingChanges.Comment = comment;
 			model.PendingChanges.CheckedPendingChanges = pendingChanges.ToArray();
+
+			if (Workspaces.Count > 1)
+			{
+				var modelType = model.GetType();
+				var workspaceProperty = modelType.GetProperty("Workspace");
+				workspaceProperty.SetValue(model, Workspace);
+			}
+
 			if (workItemIds != null && workItemIds.Count > 0)
 			{
 				var modelType = model.GetType();
@@ -847,6 +918,37 @@ namespace AutoMerge
 			var resolveConflictsMethod = rcMgr.GetMethod("ResolveConflicts", BindingFlags.NonPublic | BindingFlags.Instance);
 			resolveConflictsMethod.Invoke(instantiatedType,
 				new object[] { workspace, targetPath, true, false });
+		}
+
+		private void SelectWorkspaceExecute(Workspace workspace)
+		{
+			Workspace = workspace;
+			Refresh();
+		}
+
+		private void SubscribeWorkspaceChanges(VersionControlServer versionControlServer)
+		{
+			versionControlServer.CreatedWorkspace += RefreshWorkspaces;
+			versionControlServer.UpdatedWorkspace += RefreshWorkspaces;
+			versionControlServer.DeletedWorkspace += RefreshWorkspaces;
+		}
+
+		private void RefreshWorkspaces(object sender, WorkspaceEventArgs e)
+		{
+			var tfs = Context.TeamProjectCollection;
+			var versionControl = tfs.GetService<VersionControlServer>();
+
+			Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+			if (Workspaces.Count > 0)
+			{
+				Workspace = Workspaces[0];
+				ShowWorkspaceChooser = Workspaces.Count > 1;
+			}
+			else
+			{
+				Workspace = null;
+			}
+			Refresh();
 		}
 	}
 }
