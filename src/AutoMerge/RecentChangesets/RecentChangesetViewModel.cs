@@ -130,7 +130,8 @@ namespace AutoMerge
 			Changesets.Clear();
 
 			var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider);
-			var changesets = await changesetProvider.GetChangesets();
+			var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
+			var changesets = await changesetProvider.GetChangesets(userLogin);
 
 			Changesets = new ObservableCollection<ChangesetViewModel>(changesets);
 			UpdateTitle();
@@ -196,7 +197,7 @@ namespace AutoMerge
 				if (changesetIds.Count > 0)
 				{
 					var changesetProvider = new ChangesetByIdChangesetProvider(ServiceProvider, changesetIds);
-					var changesets = await changesetProvider.GetChangesets();
+					var changesets = await changesetProvider.GetChangesets(null);
 
 					if (changesets.Count > 0)
 					{

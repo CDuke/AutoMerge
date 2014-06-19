@@ -17,7 +17,7 @@ namespace AutoMerge
 			_changesetIds = changesetIds;
 		}
 
-		protected override List<ChangesetViewModel> GetChangesetsInternal()
+		protected override List<ChangesetViewModel> GetChangesetsInternal(string userLogin)
 		{
 			var changesets = new List<ChangesetViewModel>();
 			var changesetService = GetChangesetService();

@@ -5,6 +5,6 @@ namespace AutoMerge
 {
 	public interface IChangesetProvider
 	{
-		 Task<List<ChangesetViewModel>> GetChangesets();
+		 Task<List<ChangesetViewModel>> GetChangesets(string userLogin);
 	}
 }
