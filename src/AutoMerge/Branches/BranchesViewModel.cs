@@ -25,6 +25,7 @@ namespace AutoMerge
 		private Workspace _workspace;
 
 		private ChangesetViewModel _changeset;
+		private bool _merging;
 
 		public BranchesViewModel()
 		{
@@ -37,6 +38,7 @@ namespace AutoMerge
 			MergeWithoutCheckInCommand = new DelegateCommand(MergeWithoutCheckInExecute, MergeCanEcexute);
 
 			_eventAggregator = EventAggregatorFactory.Get();
+			_merging = false;
 		}
 
 		public ObservableCollection<MergeInfoViewModel> Branches
@@ -405,6 +407,8 @@ namespace AutoMerge
 			try
 			{
 				IsBusy = true;
+				_merging = true;
+				MergeAndCheckInCommand.RaiseCanExecuteChanged();
 
 				var result = await Task.Run(() => MergeExecuteInternal(true, true));
 
@@ -458,6 +462,8 @@ namespace AutoMerge
 			finally
 			{
 				IsBusy = false;
+				_merging = false;
+				MergeAndCheckInCommand.RaiseCanExecuteChanged();
 			}
 		}
 
@@ -466,6 +472,9 @@ namespace AutoMerge
 			try
 			{
 				IsBusy = true;
+				_merging = true;
+				// TODO: because button binding to the MergeAndCheckInCommand, raise event on it
+				MergeAndCheckInCommand.RaiseCanExecuteChanged();
 
 				var result = await Task.Run(() => MergeExecuteInternal(false, false));
 
@@ -515,6 +524,8 @@ namespace AutoMerge
 			finally
 			{
 				IsBusy = false;
+				_merging = false;
+				MergeAndCheckInCommand.RaiseCanExecuteChanged();
 			}
 		}
 
@@ -752,7 +763,7 @@ namespace AutoMerge
 
 		public bool MergeCanEcexute()
 		{
-			return _branches != null && _branches.Any(b => b.Checked);
+			return !_merging && _branches != null && _branches.Any(b => b.Checked);
 		}
 
 		private static bool HasConflicts(GetStatus mergeStatus)
