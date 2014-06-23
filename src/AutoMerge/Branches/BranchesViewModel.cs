@@ -180,7 +180,7 @@ namespace AutoMerge
             {
                 MergeMode.Merge, MergeMode.MergeAndCheckIn
             };
-            MergeMode = MergeMode.MergeAndCheckIn;
+            MergeMode = Settings.Instance.LastMergeOperation;
 
             await RefreshAsync();
 
@@ -502,6 +502,7 @@ namespace AutoMerge
             if (!mergeMode.HasValue)
                 return;
             MergeMode = mergeMode.Value;
+            Settings.Instance.LastMergeOperation = mergeMode.Value;
             switch (mergeMode)
             {
                 case MergeMode.Merge:

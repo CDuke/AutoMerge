@@ -1,6 +1,6 @@
-#### 0.0.2 (dev)
+#### 0.2.2 (2014-06-23)
 * (fix) Button "Merge" not disabled while merging
-* (enhancement) Rename Merge buttion -> "Merge & Check In"
+* (enhancement) Rename button "Merge" -> "Merge & Check In"
 * (enhancement) Save last merge operation and next time it will be default
 
 #### 0.2.1 (2014-06-13)

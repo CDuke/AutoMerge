@@ -180,6 +180,10 @@
     <Compile Include="Branches\MergeResult.cs" />
     <Compile Include="Branches\MergeResultModel.cs" />
     <Compile Include="Branches\TrackMergeInfo.cs" />
+    <Compile Include="Configuration\ISettingProvider.cs" />
+    <Compile Include="Configuration\JsonParser.cs" />
+    <Compile Include="Configuration\FileSettingProvider.cs" />
+    <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Controls\SplitButton.xaml.cs">
       <DependentUpon>SplitButton.xaml</DependentUpon>
     </Compile>
