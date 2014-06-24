@@ -9,6 +9,6 @@ IF NOT [%1%] == [] (
 	SET VSVERSION="%1"
 )
 
-"tools/FAKE/tools/Fake.exe" "build.fsx" "vsversion=%VSVERSION%"
+"tools/FAKE/tools/Fake.exe" "build/build.fsx" "vsversion=%VSVERSION%"
 pause
 exit /b %errorlevel%

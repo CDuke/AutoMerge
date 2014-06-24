@@ -18,11 +18,11 @@ On team explorer page select Auto Merge. Extension show last changesets and list
 
 Team explorer home page
 
-![Team explorer home page](./automerge_teamexplorer.png)
+![Team explorer home page](./screenshots/automerge_teamexplorer.png)
 
 Auto Merge page
 
-![Auto Merge page](./automerge_main.png)
+![Auto Merge page](./screenshots/automerge_main.png)
 
 ## Issues
 [https://github.com/CDuke/AutoMerge/issues](https://github.com/CDuke/AutoMerge/issues)
