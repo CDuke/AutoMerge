@@ -37,7 +37,9 @@ Target "Clean" (fun _ ->
 )
 
 Target "RestorePackages" (fun _ ->
-    RestorePackages()
+    !! "./**/packages.config"
+    |> Seq.iter (fun id -> (RestorePackage (fun p -> {p with OutputPath = "./lib"}) id))
+    //RestorePackages()
 )
 
 Target "UpdateVsixManifest"(fun _ ->
