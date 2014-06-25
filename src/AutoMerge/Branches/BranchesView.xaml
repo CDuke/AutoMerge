@@ -5,6 +5,7 @@
              xmlns:controls="clr-namespace:AutoMerge.Controls"
              xmlns:converters="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.Converters;assembly=Microsoft.TeamFoundation.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:teamExplorer="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;assembly=Microsoft.TeamFoundation.Controls"
              TextOptions.TextFormattingMode="Display"
@@ -167,7 +168,15 @@
           </teamExplorer:DropDownLink.DropDownMenu>
         </teamExplorer:DropDownLink>
       </WrapPanel>
-      <ListBox ItemsSource="{Binding Path=Branches}" Style="{StaticResource BranchesListBoxStyle}" />
+      <ListBox ItemsSource="{Binding Branches}"
+               SelectedItem="{Binding SelectedBranch}"
+               Style="{StaticResource BranchesListBoxStyle}">
+        <i:Interaction.Triggers>
+          <i:EventTrigger EventName="MouseDoubleClick">
+            <i:InvokeCommandAction Command="{Binding OpenSourceControlExplorerCommand}" />
+          </i:EventTrigger>
+        </i:Interaction.Triggers>
+      </ListBox>
     </StackPanel>
   </StackPanel>
 </UserControl>

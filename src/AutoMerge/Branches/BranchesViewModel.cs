@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMerge.Events;
+using EnvDTE80;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Events;
 using Microsoft.TeamFoundation.Client;
@@ -13,7 +14,7 @@ using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
-
+using Microsoft.VisualStudio.Shell.Interop;
 using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewModelBase;
 
 namespace AutoMerge
@@ -36,6 +37,7 @@ namespace AutoMerge
 
             MergeCommand = new DelegateCommand<MergeMode?>(MergeExecute, m => MergeCanEcexute());
             SelectWorkspaceCommand = new DelegateCommand<Workspace>(SelectWorkspaceExecute);
+            OpenSourceControlExplorerCommand = new DelegateCommand(OpenSourceControlExplorerExecute, OpenSourceControlExplorerCanExecute);
 
             _eventAggregator = EventAggregatorFactory.Get();
             _merging = false;
@@ -54,6 +56,21 @@ namespace AutoMerge
             }
         }
         private ObservableCollection<MergeInfoViewModel> _branches;
+
+        private MergeInfoViewModel _selectedBranch;
+
+        public MergeInfoViewModel SelectedBranch
+        {
+            get
+            {
+                return _selectedBranch;
+            }
+            set
+            {
+                _selectedBranch = value;
+                RaisePropertyChanged("SelectedBranch");
+            }
+        }
 
         public DelegateCommand<MergeMode?> MergeCommand { get; private set; }
 
@@ -154,6 +171,8 @@ namespace AutoMerge
         }
 
         public DelegateCommand<Workspace> SelectWorkspaceCommand { get; set; }
+
+        public DelegateCommand OpenSourceControlExplorerCommand { get; set; }
 
         public async override void Initialize(object sender, SectionInitializeEventArgs e)
         {
@@ -998,6 +1017,31 @@ namespace AutoMerge
                 Workspace = null;
             }
             Refresh();
+        }
+
+        private void OpenSourceControlExplorerExecute()
+        {
+            // Using HACK.
+            // Get any service which contain DTE object.
+
+            var s = ServiceProvider.GetService<SVsSourceControl>() as SourceControl2;
+            if (s != null)
+            {
+                dynamic ext = s.DTE.GetObject("Microsoft.VisualStudio.TeamFoundation.VersionControl.VersionControlExt");
+                if (ext != null)
+                {
+                    var explorer = ext.Explorer;
+                    if (explorer != null)
+                    {
+                        explorer.Navigate(SelectedBranch.TargetPath);
+                    }
+                }
+            }
+        }
+
+        private bool OpenSourceControlExplorerCanExecute()
+        {
+            return SelectedBranch != null && !string.IsNullOrEmpty(SelectedBranch.TargetPath);
         }
     }
 }
