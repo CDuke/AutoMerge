@@ -195,6 +195,7 @@
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
+    <Compile Include="Helpers\WorkspaceHelper.cs" />
     <Compile Include="RecentChangesets\ChangesetByIdChangesetProvider.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetProviderBase.cs" />

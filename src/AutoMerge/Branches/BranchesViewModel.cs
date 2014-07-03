@@ -187,7 +187,7 @@ namespace AutoMerge
             Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
             if (Workspaces.Count > 0)
             {
-                Workspace = Workspaces[0];
+                Workspace = WorkspaceHelper.GetWorkspace(versionControl, Workspaces);
                 ShowWorkspaceChooser = Workspaces.Count > 1;
             }
             else
@@ -226,7 +226,6 @@ namespace AutoMerge
             {
                 errorMessage = "Workspaces not found";
             }
-
             errorMessage = errorMessage ?? CalculateError(changeset);
             if (changeset == null || !string.IsNullOrEmpty(errorMessage))
             {
