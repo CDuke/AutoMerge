@@ -7,72 +7,88 @@ using TfsTeamExplorerSectionViewModelBase = Microsoft.TeamFoundation.Controls.WP
 
 namespace AutoMerge.Base
 {
-	public abstract class TeamExplorerSectionViewModelBase : TfsTeamExplorerSectionViewModelBase
-	{
-		private static readonly Task _emptyTask = Task.FromResult(0);
+    public abstract class TeamExplorerSectionViewModelBase : TfsTeamExplorerSectionViewModelBase
+    {
+        private readonly ILogger _logger;
+        private static readonly Task _emptyTask = Task.FromResult(0);
 
-		protected ITeamFoundationContext Context { get; private set; }
+        protected ITeamFoundationContext Context { get; private set; }
 
-		protected virtual Task RefreshAsync()
-		{
-			return _emptyTask;
-		}
+        protected TeamExplorerSectionViewModelBase(ILogger logger)
+        {
+            _logger = logger;
+        }
 
-		protected virtual Task InitializeAsync(object sender, SectionInitializeEventArgs e)
-		{
-			return _emptyTask;
-		}
+        protected virtual Task RefreshAsync()
+        {
+            return _emptyTask;
+        }
 
-		public async override void Initialize(object sender, SectionInitializeEventArgs e)
-		{
-			ShowBusy();
+        protected virtual Task InitializeAsync(object sender, SectionInitializeEventArgs e)
+        {
+            return _emptyTask;
+        }
 
-			try
-			{
-				base.Initialize(sender, e);
-				Context = VersionControlNavigationHelper.GetContext(ServiceProvider);
-				await InitializeAsync(sender, e);
-			}
-			catch (Exception ex)
-			{
-				ShowError(ex.Message);
-			}
+        public async override void Initialize(object sender, SectionInitializeEventArgs e)
+        {
+            ShowBusy();
 
-			HideBusy();
-		}
+            try
+            {
+                base.Initialize(sender, e);
+                Context = VersionControlNavigationHelper.GetContext(ServiceProvider);
+                await InitializeAsync(sender, e);
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
 
-		public async override void Refresh()
-		{
-			ShowBusy();
+            HideBusy();
+        }
 
-			try
-			{
-				await RefreshAsync();
-			}
-			catch (Exception ex)
-			{
-				ShowError(ex.Message);
-			}
+        public async override void Refresh()
+        {
+            ShowBusy();
 
-			HideBusy();
-		}
+            try
+            {
+                await RefreshAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
+            }
 
-		public new void ShowBusy()
-		{
-			IsBusy = true;
-		}
+            HideBusy();
+        }
 
-		public new void HideBusy()
-		{
-			IsBusy = false;
-		}
+        public new void ShowBusy()
+        {
+            IsBusy = true;
+        }
 
-		protected void SetMvvmFocus(string id, params object[] args)
-		{
-			var focusService = TryResolveService<IFocusService>();
-			if (focusService == null)
-				return;
-			focusService.SetFocus(id, args);
-		}
-	}
+        public new void HideBusy()
+        {
+            IsBusy = false;
+        }
+
+        protected void SetMvvmFocus(string id, params object[] args)
+        {
+            var focusService = TryResolveService<IFocusService>();
+            if (focusService == null)
+                return;
+            focusService.SetFocus(id, args);
+        }
+
+        protected void Log(string message)
+        {
+            _logger.Log(message);
+        }
+
+        protected void Log(string message, Exception exception)
+        {
+            _logger.Log(message, exception);
+        }
+    }
 }
