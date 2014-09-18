@@ -44,8 +44,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_title = value;
-				RaisePropertyChanged(() => Title);
+			    SetProperty(ref _title, value);
 			}
 		}
 		private string _title;
@@ -61,8 +60,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_pageContent = value;
-				RaisePropertyChanged(() => PageContent);
+                SetProperty(ref _pageContent, value);
 			}
 		}
 		private object _pageContent;
@@ -78,8 +76,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_isBusy = value;
-				RaisePropertyChanged(() => IsBusy);
+                SetProperty(ref _isBusy, value);
 			}
 		}
 		private bool _isBusy;

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AutoMerge.Events;
-using Microsoft.Practices.Prism;
-using Microsoft.Practices.Prism.Commands;
-using Microsoft.Practices.Prism.Events;
+using AutoMerge.Prism.Command;
+using AutoMerge.Prism.Events;
 using Microsoft.TeamFoundation;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
@@ -60,7 +59,7 @@ namespace AutoMerge
             {
                 return _changesets;
             }
-            protected set
+            private set
             {
                 _changesets = value;
                 RaisePropertyChanged("Changesets");
@@ -205,7 +204,7 @@ namespace AutoMerge
 
                     if (changesets.Count > 0)
                     {
-                        Changesets.AddRange(changesets);
+                        Changesets.Add(changesets[0]);
                         SelectedChangeset = changesets[0];
                         SetMvvmFocus(RecentChangesetFocusableControlNames.ChangesetList);
                         UpdateTitle();
@@ -237,7 +236,7 @@ namespace AutoMerge
         private static List<int> GeChangesetIdsToAdd(string text)
         {
             var list = new List<int>();
-            var idsStrArray = string.IsNullOrEmpty(text) ? new string[0] : text.Split(new char[2] { ',', ';' });
+            var idsStrArray = string.IsNullOrEmpty(text) ? new string[0] : text.Split(new[] { ',', ';' });
             if (idsStrArray.Length > 0)
             {
                 foreach (var idStr in idsStrArray)

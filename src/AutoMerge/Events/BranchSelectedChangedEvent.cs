@@ -1,8 +1,8 @@
-﻿using Microsoft.Practices.Prism.Events;
+﻿using AutoMerge.Prism.Events;
 
 namespace AutoMerge.Events
 {
-	public class BranchSelectedChangedEvent : CompositePresentationEvent<MergeInfoViewModel>
+	public class BranchSelectedChangedEvent : PubSubEvent<MergeInfoViewModel>
 	{
 		 
 	}

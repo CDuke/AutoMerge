@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMerge.Events;
-using Microsoft.Practices.Prism.Events;
+using AutoMerge.Prism.Events;
 using Microsoft.TeamFoundation.VersionControl.Client;
 
 namespace AutoMerge

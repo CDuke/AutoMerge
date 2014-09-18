@@ -29,8 +29,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_text = value;
-				RaisePropertyChanged(() => Text);
+			    SetProperty(ref _text, value);
 			}
 		}
 		private string _text;
@@ -46,8 +45,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_isEnabled = value;
-				RaisePropertyChanged(() => IsEnabled);
+                SetProperty(ref _isEnabled, value);
 			}
 		}
 		private bool _isEnabled = true;
@@ -63,14 +61,13 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_isVisible = value;
-				RaisePropertyChanged(() => IsVisible);
+                SetProperty(ref _isVisible, value);
 			}
 		}
 		private bool _isVisible = true;
 
 		/// <summary>
-		/// Invalidate the link state. 
+		/// Invalidate the link state.
 		/// </summary>
 		public virtual void Invalidate()
 		{

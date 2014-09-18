@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Microsoft.Practices.Prism.ViewModel;
+using AutoMerge.Prism;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 
@@ -9,7 +9,7 @@ namespace AutoMerge.Base
 	/// <summary> 
 	/// Team Explorer plugin common base class. 
 	/// </summary> 
-	public abstract class TeamExplorerBase : NotificationObject, IDisposable
+	public abstract class TeamExplorerBase : BindableBase, IDisposable
 	{
 		private bool _disposed;
 		

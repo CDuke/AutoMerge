@@ -1,8 +1,8 @@
-﻿using Microsoft.Practices.Prism.Events;
+﻿using AutoMerge.Prism.Events;
 
 namespace AutoMerge.Events
 {
-	public class MergeCompleteEvent : CompositePresentationEvent<bool>
+	public class MergeCompleteEvent : PubSubEvent<bool>
 	{
 		 
 	}

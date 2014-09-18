@@ -1,8 +1,8 @@
-﻿using Microsoft.Practices.Prism.Events;
+﻿using AutoMerge.Prism.Events;
 
 namespace AutoMerge.Events
 {
-	public class SelectChangesetEvent : CompositePresentationEvent<ChangesetViewModel>
+	public class SelectChangesetEvent : PubSubEvent<ChangesetViewModel>
 	{
 		 
 	}

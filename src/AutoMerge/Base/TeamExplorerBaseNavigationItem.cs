@@ -29,8 +29,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_text = value;
-				RaisePropertyChanged(() => Text);
+			    SetProperty(ref _text, value);
 			}
 		}
 		private string _text;
@@ -46,8 +45,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_image = value;
-				RaisePropertyChanged(() => Image);
+			    SetProperty(ref _image, value);
 			}
 		}
 		private System.Drawing.Image _image;
@@ -63,8 +61,7 @@ namespace AutoMerge.Base
 			}
 			set
 			{
-				_isVisible = value;
-				RaisePropertyChanged(() => IsVisible);
+                SetProperty(ref _isVisible, value);
 			}
 		}
 		private bool _isVisible = true;
