@@ -14,7 +14,7 @@ using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewM
 
 namespace AutoMerge
 {
-    public class RecentChangesetViewModel : TeamExplorerSectionViewModelBase
+    public sealed class RecentChangesetViewModel : TeamExplorerSectionViewModelBase
     {
         private readonly string _baseTitle;
         private readonly IEventAggregator _eventAggregator;
@@ -256,6 +256,12 @@ namespace AutoMerge
             ToggleAddByIdCommand.RaiseCanExecuteChanged();
             CancelAddChangesetByIdCommand.RaiseCanExecuteChanged();
             AddChangesetByIdCommand.RaiseCanExecuteChanged();
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            _eventAggregator.GetEvent<MergeCompleteEvent>().Unsubscribe(OnMergeComplete);
         }
     }
 }

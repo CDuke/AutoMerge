@@ -19,7 +19,7 @@ using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewM
 
 namespace AutoMerge
 {
-    public class BranchesViewModel : TeamExplorerSectionViewModelBase
+    public sealed class BranchesViewModel : TeamExplorerSectionViewModelBase
     {
         private readonly IEventAggregator _eventAggregator;
         private ChangesetService _changesetService;
@@ -1050,6 +1050,16 @@ namespace AutoMerge
         private bool OpenSourceControlExplorerCanExecute()
         {
             return SelectedBranch != null && !string.IsNullOrEmpty(SelectedBranch.TargetPath);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            if (_eventAggregator != null)
+            {
+                _eventAggregator.GetEvent<SelectChangesetEvent>().Unsubscribe(OnSelectedChangeset);
+                _eventAggregator.GetEvent<BranchSelectedChangedEvent>().Unsubscribe(OnBranchSelectedChanged);
+            }
         }
     }
 }
