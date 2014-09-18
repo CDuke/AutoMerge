@@ -140,7 +140,10 @@ namespace AutoMerge
             UpdateTitle();
 
             if (Changesets.Count > 0)
-                SelectedChangeset = Changesets[0];
+            {
+                if (SelectedChangeset == null || SelectedChangeset.ChangesetId != Changesets[0].ChangesetId)
+                    SelectedChangeset = Changesets[0];
+            }
         }
 
         private void UpdateTitle()
