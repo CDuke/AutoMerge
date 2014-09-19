@@ -15,7 +15,7 @@ namespace AutoMerge
 
 		protected override ITeamExplorerSection CreateViewModel(SectionInitializeEventArgs e)
 		{
-			var viewModel = base.CreateViewModel(e) ?? new RecentChangesetViewModel(new VsLogger(ServiceProvider));
+			var viewModel = base.CreateViewModel(e) ?? new RecentChangesetsViewModel(new VsLogger(ServiceProvider));
 
 			return viewModel;
 		}

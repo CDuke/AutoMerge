@@ -13,12 +13,12 @@ using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewM
 
 namespace AutoMerge
 {
-    public sealed class RecentChangesetViewModel : TeamExplorerSectionViewModelBase
+    public sealed class RecentChangesetsViewModel : TeamExplorerSectionViewModelBase
     {
         private readonly string _baseTitle;
         private readonly IEventAggregator _eventAggregator;
 
-        public RecentChangesetViewModel(ILogger logger)
+        public RecentChangesetsViewModel(ILogger logger)
             : base(logger)
         {
             Title = Resources.RecentChangesetSectionName;

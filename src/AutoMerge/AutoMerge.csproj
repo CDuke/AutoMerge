@@ -231,7 +231,7 @@
     <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RecentChangesets\RecentChangesetViewModel.cs" />
+    <Compile Include="RecentChangesets\RecentChangesetsViewModel.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

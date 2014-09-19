@@ -10,7 +10,7 @@
              xmlns:wpf="clr-namespace:Microsoft.TeamFoundation.Controls.WPF;assembly=Microsoft.TeamFoundation.Controls"
              TextOptions.TextFormattingMode="Display"
              UseLayoutRounding="True"
-             d:DataContext="{d:DesignInstance autoMerge:RecentChangesetViewModel}"
+             d:DataContext="{d:DesignInstance autoMerge:RecentChangesetsViewModel}"
              d:DesignHeight="300"
              d:DesignWidth="300"
              mc:Ignorable="d">
