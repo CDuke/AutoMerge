@@ -60,7 +60,7 @@ namespace AutoMerge.Base
             catch (Exception ex)
             {
                 ShowError(ex.Message);
-                _logger.LogError(ex.Message, ex);
+                _logger.Error(ex.Message, ex);
             }
 
             HideBusy();

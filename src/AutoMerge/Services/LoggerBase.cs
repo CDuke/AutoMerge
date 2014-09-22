@@ -20,7 +20,7 @@ namespace AutoMerge
             Log(message + Environment.NewLine + ex);
         }
 
-        public void LogDebug(string message)
+        public void Debug(string message)
         {
             if (IsDebugEnabled())
             {
@@ -29,7 +29,7 @@ namespace AutoMerge
             }
         }
 
-        public void LogDebug(string message, params object[] args)
+        public void Debug(string message, params object[] args)
         {
             if (IsDebugEnabled())
             {
@@ -39,7 +39,7 @@ namespace AutoMerge
             }
         }
 
-        public void LogInfo(string message)
+        public void Info(string message)
         {
             if (IsInfoEnabled())
             {
@@ -48,7 +48,7 @@ namespace AutoMerge
             }
         }
 
-        public void LogInfo(string message, params object[] args)
+        public void Info(string message, params object[] args)
         {
             if (IsDebugEnabled())
             {
@@ -58,7 +58,7 @@ namespace AutoMerge
             }
         }
 
-        public void LogError(string message)
+        public void Error(string message)
         {
             if (IsErrorEnabled())
             {
@@ -67,7 +67,7 @@ namespace AutoMerge
             }
         }
 
-        public void LogError(string message, Exception ex)
+        public void Error(string message, Exception ex)
         {
             if (IsDebugEnabled())
             {

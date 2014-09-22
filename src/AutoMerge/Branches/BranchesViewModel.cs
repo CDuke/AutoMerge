@@ -177,7 +177,7 @@ namespace AutoMerge
 
         public async override void Initialize(object sender, SectionInitializeEventArgs e)
         {
-            Logger.LogDebug("Start initilize branches section");
+            Logger.Debug("Start initilize branches section");
             base.Initialize(sender, e);
 
             var tfs = Context.TeamProjectCollection;
@@ -220,7 +220,7 @@ namespace AutoMerge
                 RestoreContext(e);
             }
 
-            Logger.LogDebug("End initialize branches section");
+            Logger.Debug("End initialize branches section");
         }
 
         private void OnBranchSelectedChanged(MergeInfoViewModel obj)
@@ -233,7 +233,7 @@ namespace AutoMerge
         /// </summary>
         protected override async Task RefreshAsync()
         {
-            Logger.LogDebug("Start refresh branches section");
+            Logger.Debug("Start refresh branches section");
             var changeset = _changeset;
 
             string errorMessage = null;
@@ -249,9 +249,9 @@ namespace AutoMerge
             }
             else
             {
-                Logger.LogInfo("Getting branches...");
+                Logger.Info("Getting branches...");
                 var branches = await Task.Run(() => GetBranches(Context, changeset));
-                Logger.LogInfo("Getting branches end");
+                Logger.Info("Getting branches end");
 
                 // Selected changeset in sequence
                 if (changeset.ChangesetId == _changeset.ChangesetId)
@@ -261,7 +261,7 @@ namespace AutoMerge
                     MergeCommand.RaiseCanExecuteChanged();
                 }
             }
-            Logger.LogDebug("End refresh branches section");
+            Logger.Debug("End refresh branches section");
         }
 
         private static string CalculateError(ChangesetViewModel changeset)
@@ -536,7 +536,7 @@ namespace AutoMerge
 
         public void MergeExecute(MergeMode? mergeMode)
         {
-            Logger.LogInfo("Merging start...");
+            Logger.Info("Merging start...");
             if (!mergeMode.HasValue)
                 return;
             MergeMode = mergeMode.Value;
@@ -550,7 +550,7 @@ namespace AutoMerge
                     MergeAndCheckInExecute();
                     break;
             }
-            Logger.LogInfo("Merging end");
+            Logger.Info("Merging end");
         }
 
         public async void MergeAndCheckInExecute()
@@ -607,7 +607,7 @@ namespace AutoMerge
             }
             catch (Exception ex)
             {
-                Logger.LogError("Error while merging", ex);
+                Logger.Error("Error while merging", ex);
                 ClearNotifications();
                 ShowNotification(ex.Message, NotificationType.Error);
             }
@@ -670,7 +670,7 @@ namespace AutoMerge
             }
             catch (Exception ex)
             {
-                Logger.LogError("Error while merging", ex);
+                Logger.Error("Error while merging", ex);
                 ClearNotifications();
                 ShowNotification(ex.Message, NotificationType.Error);
             }

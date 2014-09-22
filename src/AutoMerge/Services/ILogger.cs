@@ -4,16 +4,16 @@ namespace AutoMerge
 {
 	public interface ILogger
 	{
-	    void LogDebug(string message);
+	    void Debug(string message);
 
-	    void LogDebug(string message, params object[] args);
+	    void Debug(string message, params object[] args);
 
-        void LogInfo(string message);
+        void Info(string message);
 
-        void LogInfo(string message, params object[] args);
+        void Info(string message, params object[] args);
 
-        void LogError(string message);
+        void Error(string message);
 
-        void LogError(string message, Exception ex);
+        void Error(string message, Exception ex);
     }
 }
