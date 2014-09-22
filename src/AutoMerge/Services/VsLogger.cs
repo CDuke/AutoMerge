@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace AutoMerge
 {
     [Export(typeof(ILogger))]
-    public class VsLogger : ILogger
+    public class VsLogger : LoggerBase
     {
         private readonly IVsOutputWindowPane _pane;
 
@@ -25,14 +25,9 @@ namespace AutoMerge
             ErrorHandler.ThrowOnFailure(window.GetPane(ref generalPaneGuid, out _pane));
         }
 
-        public void Log(string message)
+        protected override void WriteMessage(string message)
         {
-            ErrorHandler.ThrowOnFailure(_pane.OutputStringThreadSafe(DateTime.Now + ": " + message + Environment.NewLine));
-        }
-
-        public void Log(string message, Exception ex)
-        {
-            Log(message + Environment.NewLine + ex);
+            ErrorHandler.ThrowOnFailure(_pane.OutputStringThreadSafe(message));
         }
     }
 }

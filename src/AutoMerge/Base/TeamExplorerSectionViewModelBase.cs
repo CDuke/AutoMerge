@@ -19,6 +19,8 @@ namespace AutoMerge.Base
             _logger = logger;
         }
 
+        protected ILogger Logger { get { return _logger; } }
+
         protected virtual Task RefreshAsync()
         {
             return _emptyTask;
@@ -58,20 +60,11 @@ namespace AutoMerge.Base
             catch (Exception ex)
             {
                 ShowError(ex.Message);
+                _logger.LogError(ex.Message, ex);
             }
 
             HideBusy();
         }
-
-//        public new void ShowBusy()
-//        {
-//            IsBusy = true;
-//        }
-//
-//        public new void HideBusy()
-//        {
-//            IsBusy = false;
-//        }
 
         protected void SetMvvmFocus(string id, params object[] args)
         {
@@ -79,16 +72,6 @@ namespace AutoMerge.Base
             if (focusService == null)
                 return;
             focusService.SetFocus(id, args);
-        }
-
-        protected void Log(string message)
-        {
-            _logger.Log(message);
-        }
-
-        protected void Log(string message, Exception exception)
-        {
-            _logger.Log(message, exception);
         }
     }
 }

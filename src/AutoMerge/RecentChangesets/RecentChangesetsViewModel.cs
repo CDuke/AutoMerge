@@ -139,9 +139,9 @@ namespace AutoMerge
             var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider);
             var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
             
-            Log("Getting changesets starting...");
+            Logger.LogInfo("Getting changesets ...");
             var changesets = await changesetProvider.GetChangesets(userLogin);
-            Log("Getting changesets end");
+            Logger.LogInfo("Getting changesets end");
 
             Changesets = new ObservableCollection<ChangesetViewModel>(changesets);
             UpdateTitle();

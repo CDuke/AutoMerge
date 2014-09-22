@@ -177,7 +177,7 @@ namespace AutoMerge
 
         public async override void Initialize(object sender, SectionInitializeEventArgs e)
         {
-            Log(string.Format("Start initialize {0}", typeof(BranchesViewModel).Name));
+            Logger.LogDebug("Start initilize branches section");
             base.Initialize(sender, e);
 
             var tfs = Context.TeamProjectCollection;
@@ -220,7 +220,7 @@ namespace AutoMerge
                 RestoreContext(e);
             }
 
-            Log(string.Format("End initialize {0}", typeof(BranchesViewModel).Name));
+            Logger.LogDebug("End initialize branches section");
         }
 
         private void OnBranchSelectedChanged(MergeInfoViewModel obj)
@@ -233,7 +233,7 @@ namespace AutoMerge
         /// </summary>
         protected override async Task RefreshAsync()
         {
-            Log(string.Format("Start refresh {0}", typeof(BranchesViewModel).Name));
+            Logger.LogDebug("Start refresh branches section");
             var changeset = _changeset;
 
             string errorMessage = null;
@@ -246,19 +246,22 @@ namespace AutoMerge
             {
                 ErrorMessage = errorMessage;
                 Branches = new ObservableCollection<MergeInfoViewModel>();
-                return;
             }
-
-            var branches = await Task.Run(() => GetBranches(Context, changeset));
-
-            // Selected changeset in sequence
-            if (changeset.ChangesetId == _changeset.ChangesetId)
+            else
             {
-                Branches = branches;
-                ErrorMessage = branches.Count <= 1 ? "Target branches not found" : null;
-                MergeCommand.RaiseCanExecuteChanged();
+                Logger.LogInfo("Getting branches...");
+                var branches = await Task.Run(() => GetBranches(Context, changeset));
+                Logger.LogInfo("Getting branches end");
+
+                // Selected changeset in sequence
+                if (changeset.ChangesetId == _changeset.ChangesetId)
+                {
+                    Branches = branches;
+                    ErrorMessage = branches.Count <= 1 ? "Target branches not found" : null;
+                    MergeCommand.RaiseCanExecuteChanged();
+                }
             }
-            Log(string.Format("End refresh {0}", typeof(BranchesViewModel).Name));
+            Logger.LogDebug("End refresh branches section");
         }
 
         private static string CalculateError(ChangesetViewModel changeset)
@@ -533,7 +536,7 @@ namespace AutoMerge
 
         public void MergeExecute(MergeMode? mergeMode)
         {
-            Log("Merging start...");
+            Logger.LogInfo("Merging start...");
             if (!mergeMode.HasValue)
                 return;
             MergeMode = mergeMode.Value;
@@ -547,7 +550,7 @@ namespace AutoMerge
                     MergeAndCheckInExecute();
                     break;
             }
-            Log("Merging end");
+            Logger.LogInfo("Merging end");
         }
 
         public async void MergeAndCheckInExecute()
@@ -604,7 +607,7 @@ namespace AutoMerge
             }
             catch (Exception ex)
             {
-                Log("Error while merging", ex);
+                Logger.LogError("Error while merging", ex);
                 ClearNotifications();
                 ShowNotification(ex.Message, NotificationType.Error);
             }
@@ -667,7 +670,7 @@ namespace AutoMerge
             }
             catch (Exception ex)
             {
-                Log("Error while merging", ex);
+                Logger.LogError("Error while merging", ex);
                 ClearNotifications();
                 ShowNotification(ex.Message, NotificationType.Error);
             }
