@@ -1,5 +1,6 @@
-#### 0.3 (dev)
+#### 0.2.3 (dev)
 * (enhancement) Double click on branch open it in source control explorer (#7)
+* (fix) Multi load branches
 
 #### 0.2.2 (2014-06-23)
 * (fix) Button "Merge" not disabled while merging (#3)
