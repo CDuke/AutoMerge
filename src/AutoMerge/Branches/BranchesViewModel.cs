@@ -13,6 +13,7 @@ using Microsoft.TeamFoundation.Common.Internal;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
 using Microsoft.TeamFoundation.VersionControl.Client;
+using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell.Interop;
 using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewModelBase;
@@ -337,7 +338,7 @@ namespace AutoMerge
                     if (targetPath != null)
                     {
                         var mergeInfo = branchFactory.CreateTargetBranchInfo(targetBranch, targetPath);
-                        mergeInfo.Checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
+                        mergeInfo._checked = mergeInfo.ValidationResult == BranchValidationResult.Success;
 
                         result.Add(mergeInfo);
                     }
@@ -534,7 +535,7 @@ namespace AutoMerge
             return serverItem.Substring(0, lastPosDelimiter + 1);
         }
 
-        public void MergeExecute(MergeMode? mergeMode)
+        private async void MergeExecute(MergeMode? mergeMode)
         {
             Logger.Info("Merging start...");
             if (!mergeMode.HasValue)
@@ -544,16 +545,16 @@ namespace AutoMerge
             switch (mergeMode)
             {
                 case MergeMode.Merge:
-                    MergeWithoutCheckInExecute();
+                    await MergeWithoutCheckInExecute();
                     break;
                 case MergeMode.MergeAndCheckIn:
-                    MergeAndCheckInExecute();
+                    await MergeAndCheckInExecute();
                     break;
             }
             Logger.Info("Merging end");
         }
 
-        public async void MergeAndCheckInExecute()
+        private async Task MergeAndCheckInExecute()
         {
             try
             {
@@ -619,7 +620,7 @@ namespace AutoMerge
             }
         }
 
-        public async void MergeWithoutCheckInExecute()
+        private async Task MergeWithoutCheckInExecute()
         {
             try
             {
@@ -907,18 +908,18 @@ namespace AutoMerge
             return result;
         }
 
-        private static MergeOptions ToTfsMergeOptions(MergeOption mergeOption)
+        private static MergeOptionsEx ToTfsMergeOptions(MergeOption mergeOption)
         {
             switch (mergeOption)
             {
                 case MergeOption.KeepTarget:
-                    return MergeOptions.AlwaysAcceptMine;
+                    return MergeOptionsEx.AlwaysAcceptMine;
                 case MergeOption.OverwriteTarget:
-                    return MergeOptions.ForceMerge;
+                    return MergeOptionsEx.ForceMerge;
                 case MergeOption.ManualResolveConflict:
-                    return MergeOptions.None;
+                    return MergeOptionsEx.None;
                 default:
-                    return MergeOptions.None;
+                    return MergeOptionsEx.None;
             }
         }
 

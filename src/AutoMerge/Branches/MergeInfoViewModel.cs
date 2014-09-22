@@ -9,7 +9,7 @@ namespace AutoMerge
 	public class MergeInfoViewModel
 	{
 		private readonly IEventAggregator _eventAggregator;
-		private bool _checked;
+		internal bool _checked;
 
 		public MergeInfoViewModel(IEventAggregator eventAggregator)
 		{
