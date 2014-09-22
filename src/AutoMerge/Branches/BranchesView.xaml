@@ -153,7 +153,7 @@
                   </Binding>
                 </MenuItem.IsChecked>
               </MenuItem>
-              <MenuItem Header="Overwrite target (force)" IsCheckable="True">
+              <MenuItem Header="Overwrite target" IsCheckable="True">
                 <MenuItem.IsChecked>
                   <Binding Converter="{StaticResource MergeOptionToCheckedConverter}"
                            Mode="TwoWay"

@@ -878,7 +878,7 @@ namespace AutoMerge
 
             if (HasConflicts(status))
             {
-                var conflicts = AutoResolveConflicts(workspace, target);
+                var conflicts = AutoResolveConflicts(workspace, target, mergeOption);
                 if (!conflicts.IsNullOrEmpty())
                 {
                     if (resolveConflict)
@@ -914,10 +914,6 @@ namespace AutoMerge
             {
                 case MergeOption.KeepTarget:
                     return MergeOptionsEx.AlwaysAcceptMine;
-                case MergeOption.OverwriteTarget:
-                    return MergeOptionsEx.ForceMerge;
-                case MergeOption.ManualResolveConflict:
-                    return MergeOptionsEx.None;
                 default:
                     return MergeOptionsEx.None;
             }
@@ -954,15 +950,41 @@ namespace AutoMerge
             return true;
         }
 
-        private static Conflict[] AutoResolveConflicts(Workspace workspace, string targetPath)
+        private static Conflict[] AutoResolveConflicts(Workspace workspace, string targetPath, MergeOption mergeOption)
         {
-            var conflicts = workspace.QueryConflicts(new[] { targetPath }, true);
+            var targetPaths = new[] {targetPath};
+            var conflicts = workspace.QueryConflicts(targetPaths, true);
+            if (conflicts.IsNullOrEmpty())
+                return null;
+
+            foreach (var conflict in conflicts)
+            {
+                TryResolve(workspace, conflict, mergeOption);
+            }
+
+            conflicts = workspace.QueryConflicts(targetPaths, true);
             if (conflicts.IsNullOrEmpty())
                 return null;
 
             workspace.AutoResolveValidConflicts(conflicts, AutoResolveOptions.AllSilent);
 
-            return workspace.QueryConflicts(new[] { targetPath }, true);
+            return workspace.QueryConflicts(targetPaths, true);
+        }
+
+        private static void TryResolve(Workspace workspace, Conflict conflict, MergeOption mergeOption)
+        {
+            if (mergeOption == MergeOption.KeepTarget)
+            {
+                conflict.Resolution = Resolution.AcceptYours;
+                //conflict.IsResolved = true;
+                workspace.ResolveConflict(conflict);
+            }
+            if (mergeOption == MergeOption.OverwriteTarget)
+            {
+                conflict.Resolution = Resolution.AcceptTheirs;
+                //conflict.IsResolved = true;
+                workspace.ResolveConflict(conflict);
+            }
         }
 
 
