@@ -122,7 +122,14 @@ namespace AutoMerge
 
         protected override async Task InitializeAsync(object sender, SectionInitializeEventArgs e)
         {
-            await RefreshAsync();
+            if (e.Context == null)
+            {
+                await RefreshAsync();
+            }
+            else
+            {
+                RestoreContext(e);
+            }
         }
 
         protected override async Task RefreshAsync()
@@ -264,6 +271,31 @@ namespace AutoMerge
         {
             base.Dispose();
             _eventAggregator.GetEvent<MergeCompleteEvent>().Unsubscribe(OnMergeComplete);
+        }
+
+        public override void SaveContext(object sender, SectionSaveContextEventArgs e)
+        {
+            base.SaveContext(sender, e);
+            var context = new RecentChangesetsViewModelContext
+            {
+                ChangesetIdsText = ChangesetIdsText,
+                Changesets = Changesets,
+                SelectedChangeset = SelectedChangeset,
+                ShowAddByIdChangeset = ShowAddByIdChangeset,
+                Title = Title
+            };
+
+            e.Context = context;
+        }
+
+        private void RestoreContext(SectionInitializeEventArgs e)
+        {
+            var context = (RecentChangesetsViewModelContext)e.Context;
+            ChangesetIdsText = context.ChangesetIdsText;
+            Changesets = context.Changesets;
+            SelectedChangeset = context.SelectedChangeset;
+            ShowAddByIdChangeset = context.ShowAddByIdChangeset;
+            Title = context.Title;
         }
     }
 }

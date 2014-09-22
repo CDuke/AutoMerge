@@ -186,29 +186,40 @@ namespace AutoMerge
 
             _changesetService = new ChangesetService(versionControl, Context.TeamProjectName);
 
-            Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
-            if (Workspaces.Count > 0)
-            {
-                Workspace = WorkspaceHelper.GetWorkspace(versionControl, Workspaces);
-                ShowWorkspaceChooser = Workspaces.Count > 1;
-            }
-            else
-            {
-                Workspace = null;
-            }
-
-            MergeModes = new ObservableCollection<MergeMode>
-            {
-                MergeMode.Merge, MergeMode.MergeAndCheckIn
-            };
-            MergeMode = Settings.Instance.LastMergeOperation;
-
-            await RefreshAsync();
-
             _eventAggregator.GetEvent<SelectChangesetEvent>()
                 .Subscribe(OnSelectedChangeset);
             _eventAggregator.GetEvent<BranchSelectedChangedEvent>()
                 .Subscribe(OnBranchSelectedChanged);
+
+            if (e.Context == null)
+            {
+                Workspaces =
+                    new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null,
+                        tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+                if (Workspaces.Count > 0)
+                {
+                    Workspace = WorkspaceHelper.GetWorkspace(versionControl, Workspaces);
+                    ShowWorkspaceChooser = Workspaces.Count > 1;
+                }
+                else
+                {
+                    Workspace = null;
+                }
+
+                MergeModes = new ObservableCollection<MergeMode>
+                {
+                    MergeMode.Merge,
+                    MergeMode.MergeAndCheckIn
+                };
+                MergeMode = Settings.Instance.LastMergeOperation;
+
+                await RefreshAsync();
+            }
+            else
+            {
+                RestoreContext(e);
+            }
+
             Log(string.Format("End initialize {0}", typeof(BranchesViewModel).Name));
         }
 
@@ -1060,6 +1071,50 @@ namespace AutoMerge
                 _eventAggregator.GetEvent<SelectChangesetEvent>().Unsubscribe(OnSelectedChangeset);
                 _eventAggregator.GetEvent<BranchSelectedChangedEvent>().Unsubscribe(OnBranchSelectedChanged);
             }
+
+            var tfs = Context.TeamProjectCollection;
+            if (tfs != null)
+            {
+                var versionControl = tfs.GetService<VersionControlServer>();
+                if (versionControl != null)
+                {
+                    versionControl.CreatedWorkspace -= RefreshWorkspaces;
+                    versionControl.UpdatedWorkspace -= RefreshWorkspaces;
+                    versionControl.DeletedWorkspace -= RefreshWorkspaces;
+                }
+            }
+        }
+
+        public override void SaveContext(object sender, SectionSaveContextEventArgs e)
+        {
+            var context = new BranchesViewModelContext
+            {
+                Branches = Branches,
+                ErrorMessage = ErrorMessage,
+                MergeMode = MergeMode,
+                MergeModes = MergeModes,
+                MergeOption = MergeOption,
+                SelectedBranch = SelectedBranch,
+                ShowWorkspaceChooser = ShowWorkspaceChooser,
+                Workspace = Workspace,
+                Workspaces = Workspaces
+            };
+
+            e.Context = context;
+        }
+
+        private void RestoreContext(SectionInitializeEventArgs e)
+        {
+            var context = (BranchesViewModelContext)e.Context;
+            Branches = context.Branches;
+            ErrorMessage = context.ErrorMessage;
+            MergeMode = context.MergeMode;
+            MergeModes = context.MergeModes;
+            MergeOption = context.MergeOption;
+            SelectedBranch = context.SelectedBranch;
+            ShowWorkspaceChooser = context.ShowWorkspaceChooser;
+            Workspace = context.Workspace;
+            Workspaces = context.Workspaces;
         }
     }
 }

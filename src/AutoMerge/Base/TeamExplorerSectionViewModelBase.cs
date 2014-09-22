@@ -63,15 +63,15 @@ namespace AutoMerge.Base
             HideBusy();
         }
 
-        public new void ShowBusy()
-        {
-            IsBusy = true;
-        }
-
-        public new void HideBusy()
-        {
-            IsBusy = false;
-        }
+//        public new void ShowBusy()
+//        {
+//            IsBusy = true;
+//        }
+//
+//        public new void HideBusy()
+//        {
+//            IsBusy = false;
+//        }
 
         protected void SetMvvmFocus(string id, params object[] args)
         {

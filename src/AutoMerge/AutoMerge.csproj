@@ -172,6 +172,7 @@
     <Compile Include="Branches\BranchesView.xaml.cs">
       <DependentUpon>BranchesView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Branches\BranchesViewModelContext.cs" />
     <Compile Include="Branches\BranchFactory.cs" />
     <Compile Include="Branches\BranchValidationResult.cs" />
     <Compile Include="Branches\BranchValidator.cs" />
@@ -232,6 +233,7 @@
       <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="RecentChangesets\RecentChangesetsViewModel.cs" />
+    <Compile Include="RecentChangesets\RecentChangesetsViewModelContext.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
