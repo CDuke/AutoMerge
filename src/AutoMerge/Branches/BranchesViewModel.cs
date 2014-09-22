@@ -1094,6 +1094,7 @@ namespace AutoMerge
             var context = new BranchesViewModelContext
             {
                 Branches = Branches,
+                Changeset = _changeset,
                 ErrorMessage = ErrorMessage,
                 MergeMode = MergeMode,
                 MergeModes = MergeModes,
@@ -1110,6 +1111,7 @@ namespace AutoMerge
         private void RestoreContext(SectionInitializeEventArgs e)
         {
             var context = (BranchesViewModelContext)e.Context;
+            _changeset = context.Changeset;
             Branches = context.Branches;
             ErrorMessage = context.ErrorMessage;
             MergeMode = context.MergeMode;

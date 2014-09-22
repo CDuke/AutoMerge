@@ -22,5 +22,7 @@ namespace AutoMerge
         public MergeMode MergeMode { get; set; }
 
         public ObservableCollection<MergeMode> MergeModes { get; set; }
+
+        public ChangesetViewModel Changeset { get; set; }
     }
 }
