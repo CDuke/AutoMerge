@@ -1,5 +1,6 @@
-﻿using Microsoft.TeamFoundation.Controls;
-using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
+﻿
+using AutoMerge.Base;
+using Microsoft.TeamFoundation.Controls;
 
 namespace AutoMerge
 {
@@ -11,7 +12,7 @@ namespace AutoMerge
 		/// Constructor.
 		/// </summary>
 		public AutoMergePage()
-		{ 
+		{
 			Title = Resources.AutoMergePageName;
 		}
 	}

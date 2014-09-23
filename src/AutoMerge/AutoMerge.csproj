@@ -158,10 +158,9 @@
   <ItemGroup>
     <Compile Include="AutoMergeNavigationItem.cs" />
     <Compile Include="AutoMergePage.cs" />
-    <Compile Include="Base\TeamExplorerBaseNavigationItem.cs" />
-    <Compile Include="Base\TeamExplorerBase.cs" />
+    <Compile Include="Base\TeamExplorerNavigationItemBase.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
-    <Compile Include="Base\TeamExplorerBasePage.cs" />
+    <Compile Include="Base\TeamExplorerPageBase.cs" />
     <Compile Include="Base\TeamExplorerSectionBase.cs" />
     <Compile Include="Base\TeamExplorerSectionViewModelBase.cs" />
     <Compile Include="Behaviours\GridViewColumnResize.cs" />

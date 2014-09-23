@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.Shell;
 namespace AutoMerge
 {
 	[TeamExplorerNavigationItem(GuidList.AutoMergeNavigationItemId, 210, TargetPageId = GuidList.AutoMergePageId)]
-	public class AutoMergeNavigationItem : TeamExplorerBaseNavigationItem
+	public class AutoMergeNavigationItem : TeamExplorerNavigationItemBase
 	{
 
 		[ImportingConstructor]

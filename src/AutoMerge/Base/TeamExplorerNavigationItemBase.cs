@@ -6,14 +6,14 @@ using TfsTeamExplorerNavigationItemBase = Microsoft.TeamFoundation.Controls.WPF.
 
 namespace AutoMerge.Base
 {
-	public abstract class TeamExplorerBaseNavigationItem : TfsTeamExplorerNavigationItemBase
+	public abstract class TeamExplorerNavigationItemBase : TfsTeamExplorerNavigationItemBase
     {
 		private readonly VersionControlProvider _versionControlProvider;
 		private Guid _pageId;
 
 		protected IServiceProvider ServiceProvider { get; private set; }
 
-		protected TeamExplorerBaseNavigationItem(IServiceProvider serviceProvider,
+		protected TeamExplorerNavigationItemBase(IServiceProvider serviceProvider,
 			string pageId, VersionControlProvider versionControlProvider)
 		{
 			_versionControlProvider = versionControlProvider;
