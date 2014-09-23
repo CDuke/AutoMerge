@@ -1,89 +1,41 @@
 ﻿using System;
-using Microsoft.TeamFoundation.Controls;
+using AutoMerge.VersionControl;
+using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
 
-namespace AutoMerge.Base 
-{ 
-	/// <summary>
-	/// Team Explorer base navigation item class.
-	/// </summary>
-	public abstract class TeamExplorerBaseNavigationItem : TeamExplorerBase, ITeamExplorerNavigationItem
-	{ 
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		protected TeamExplorerBaseNavigationItem(IServiceProvider serviceProvider)
+using TfsTeamExplorerNavigationItemBase = Microsoft.TeamFoundation.Controls.WPF.TeamExplorer.TeamExplorerNavigationItemBase;
+
+namespace AutoMerge.Base
+{
+	public abstract class TeamExplorerBaseNavigationItem : TfsTeamExplorerNavigationItemBase
+    {
+		private readonly VersionControlProvider _versionControlProvider;
+		private Guid _pageId;
+
+		protected IServiceProvider ServiceProvider { get; private set; }
+
+		protected TeamExplorerBaseNavigationItem(IServiceProvider serviceProvider,
+			string pageId, VersionControlProvider versionControlProvider)
 		{
+			_versionControlProvider = versionControlProvider;
 			ServiceProvider = serviceProvider;
+			_pageId = new Guid(pageId);
 		}
 
-		#region ITeamExplorerNavigationItem
-
-		/// <summary>
-		/// Get/set the item text.
-		/// </summary>
-		public string Text
+		public override void Execute()
 		{
-			get
-			{
-				return _text;
-			}
-			set
-			{
-			    SetProperty(ref _text, value);
-			}
-		}
-		private string _text;
- 
-		/// <summary>
-		/// Get/set the item image.
-		/// </summary>
-		public System.Drawing.Image Image
-		{
-			get
-			{
-				return _image;
-			}
-			set
-			{
-			    SetProperty(ref _image, value);
-			}
-		}
-		private System.Drawing.Image _image;
- 
-		/// <summary>
-		/// Get/set the IsVisible flag.
-		/// </summary>
-		public bool IsVisible
-		{
-			get
-			{
-				return _isVisible;
-			}
-			set
-			{
-                SetProperty(ref _isVisible, value);
-			}
-		}
-		private bool _isVisible = true;
- 
-		/// <summary>
-		/// Invalidate the item state.
-		/// </summary> 
-		public virtual void Invalidate()
-		{ 
-		} 
- 
-		/// <summary>
-		/// Execute the item action.
-		/// </summary> 
-		public virtual void Execute()
-		{
+			TeamExplorerUtils.Instance.NavigateToPage(_pageId.ToString(), ServiceProvider, null);
 		}
 
-		protected override void Dispose(bool disposing)
+		public override void Invalidate()
 		{
-			base.Dispose(disposing);
+			base.Invalidate();
+			IsVisible = CalculateVisible();
 		}
-		#endregion 
-	} 
-} 
+
+		private bool CalculateVisible()
+		{
+			return VersionControlNavigationHelper.IsProviderActive(ServiceProvider, _versionControlProvider)
+			&& VersionControlNavigationHelper.IsConnectedToTfsCollectionAndProject(ServiceProvider);
+		}
+	}
+}

@@ -158,9 +158,8 @@
   <ItemGroup>
     <Compile Include="AutoMergeNavigationItem.cs" />
     <Compile Include="AutoMergePage.cs" />
-    <Compile Include="Base\PageNavigationItemBase.cs" />
-    <Compile Include="Base\TeamExplorerBase.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationItem.cs" />
+    <Compile Include="Base\TeamExplorerBase.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerBasePage.cs" />
     <Compile Include="Base\TeamExplorerSectionBase.cs" />
