@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -234,8 +235,9 @@ namespace AutoMerge
         /// </summary>
         protected override async Task RefreshAsync()
         {
-            Logger.Debug("Start refresh branches section");
             var changeset = _changeset;
+            Logger.Debug("Start refresh branches section for changeset {0} ...",
+                changeset == null ? "null" : changeset.ChangesetId.ToString(CultureInfo.InvariantCulture));
 
             string errorMessage = null;
             if (Workspaces.Count == 0)
@@ -250,9 +252,11 @@ namespace AutoMerge
             }
             else
             {
-                Logger.Info("Getting branches...");
+                Logger.Info("Getting branches for changeset {0} ...",
+                    changeset.ChangesetId.ToString(CultureInfo.InvariantCulture));
                 var branches = await Task.Run(() => GetBranches(Context, changeset));
-                Logger.Info("Getting branches end");
+                Logger.Info("Getting branches end for changeset {0}",
+                    changeset.ChangesetId.ToString(CultureInfo.InvariantCulture));
 
                 // Selected changeset in sequence
                 if (changeset.ChangesetId == _changeset.ChangesetId)
@@ -262,7 +266,8 @@ namespace AutoMerge
                     MergeCommand.RaiseCanExecuteChanged();
                 }
             }
-            Logger.Debug("End refresh branches section");
+            Logger.Debug("End refresh branches section for changeset {0}",
+                changeset == null ? "null" : changeset.ChangesetId.ToString(CultureInfo.InvariantCulture));
         }
 
         private static string CalculateError(ChangesetViewModel changeset)
