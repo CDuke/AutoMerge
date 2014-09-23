@@ -78,6 +78,16 @@
     </Reference>
   </ItemGroup>
   <Choose>
+    <When Condition=" $(VisualStudioVersion) == '11.0'">
+      <ItemGroup>
+        <Reference Include="Microsoft.TeamFoundation.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+        <Reference Include="Microsoft.TeamFoundation.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+        <Reference Include="Microsoft.TeamFoundation.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+      </ItemGroup>
+    </When>
     <When Condition=" $(VisualStudioVersion) == '12.0'">
       <ItemGroup>
         <Reference Include="Microsoft.TeamFoundation.Client, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -88,14 +98,26 @@
         <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <When Condition=" $(VisualStudioVersion) == '11.0'">
-      <ItemGroup Condition=" $(VisualStudioVersion) == '11.0'">
-        <Reference Include="Microsoft.TeamFoundation.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <When Condition=" $(VisualStudioVersion) == '14.0'">
+      <ItemGroup>
+        <Reference Include="Microsoft.TeamFoundation.Client, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.Client.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.TeamFoundation.Common, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.TeamFoundation.Controls, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.Controls.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.VersionControl.Client.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.VersionControl.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</HintPath>
+        </Reference>
       </ItemGroup>
     </When>
   </Choose>
@@ -322,6 +344,7 @@
   <Target Name="BeforeBuild">
     <Copy SourceFiles="source.vs11.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='11.0'" />
     <Copy SourceFiles="source.vs12.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='12.0'" />
+    <Copy SourceFiles="source.vs14.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='14.0'" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
