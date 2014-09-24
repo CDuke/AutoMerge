@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace AutoMerge
 {
@@ -13,6 +14,12 @@ namespace AutoMerge
         private const string mergeModeMerge = "merge";
         private const string mergeModeMergeAndCheckin = "merge_checkin";
 
+        private const string mergeOperationDefault = "merge_operation_default";
+        private const string mergeOperationDefaultLast = "last";
+        private const string mergeOperationDefaultMerge = mergeModeMerge;
+        private const string mergeOperationDefaultMergeCheckin = mergeModeMergeAndCheckin;
+        private readonly string[] _mergeOperationDefaultValues;
+
         static Settings()
         {
             _instance = new Lazy<Settings>(() => new Settings());
@@ -21,6 +28,8 @@ namespace AutoMerge
         private Settings()
         {
             _settingProvider = new FileSettingProvider();
+            _mergeOperationDefaultValues = new[]
+                {mergeOperationDefaultLast, mergeOperationDefaultMerge, mergeOperationDefaultMergeCheckin};
         }
 
         public static Settings Instance
@@ -36,22 +45,34 @@ namespace AutoMerge
             set
             {
                 LastMergeOperationSet(value);
-            } }
+            }
+        }
 
         private MergeMode LastMergeOperationGet()
         {
-            if (!_lastMergeOperation.HasValue)
+            MergeMode result;
+            var mergeOperationDefaultValue = MergeOperationDefaultGet();
+            if (mergeOperationDefaultValue == mergeOperationDefaultLast)
             {
-                string stringValue;
-                if (!_settingProvider.TryReadValue(lastMergeOperationKey, out stringValue))
+                if (!_lastMergeOperation.HasValue)
                 {
-                    stringValue = mergeModeMergeAndCheckin;
+                    string stringValue;
+                    if (!_settingProvider.TryReadValue(lastMergeOperationKey, out stringValue))
+                    {
+                        stringValue = mergeModeMergeAndCheckin;
+                    }
+
+                    _lastMergeOperation = ToMergeMode(stringValue);
                 }
 
-                _lastMergeOperation = ToMergeMode(stringValue);
+                result = _lastMergeOperation.Value;
+            }
+            else
+            {
+                result = ToMergeMode(mergeOperationDefaultValue);
             }
 
-            return _lastMergeOperation.Value;
+            return result;
         }
 
         private void LastMergeOperationSet(MergeMode mergeMode)
@@ -82,6 +103,21 @@ namespace AutoMerge
                 default:
                     return "unknown";
             }
+        }
+
+        private string MergeOperationDefaultGet()
+        {
+            string mergeOperationDefaultValue;
+            if (!_settingProvider.TryReadValue(mergeOperationDefault, out mergeOperationDefaultValue))
+            {
+                mergeOperationDefaultValue = mergeOperationDefaultLast;
+                _settingProvider.WriteValue(mergeOperationDefault, mergeOperationDefaultValue);
+            }
+
+            if (!_mergeOperationDefaultValues.Contains(mergeOperationDefaultValue))
+                mergeOperationDefaultValue = "mergeOperationDefaultLast";
+
+            return mergeOperationDefaultValue;
         }
     }
 }

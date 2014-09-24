@@ -56,7 +56,7 @@ namespace AutoMerge
         {
             var entries = dict.Select(d =>
                 string.Format("\"{0}\": \"{1}\"", d.Key, d.Value));
-            return "{" + Environment.NewLine + "  " + string.Join(",\r\n", entries) + Environment.NewLine + "}";
+            return "{" + Environment.NewLine + "  " + string.Join(",\r\n  ", entries) + Environment.NewLine + "}";
         }
 
         private static string ClearString(string str)
