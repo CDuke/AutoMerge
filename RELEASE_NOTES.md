@@ -1,3 +1,6 @@
+#### 0.2.4 (2014-09-24)
+* (enhancement) Allow set default mode for "Merge" button
+
 #### 0.2.3 (2014-09-22)
 * (enhancement) Double click on branch open it in source control explorer (#7)
 * (fix) Multi load branches info, because not unsubscribe events
