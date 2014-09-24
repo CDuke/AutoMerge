@@ -60,6 +60,7 @@ namespace AutoMerge
             {
                 var stringValue = ToString(mergeMode);
                 _settingProvider.WriteValue(lastMergeOperationKey, stringValue);
+                _lastMergeOperation = mergeMode;
             }
         }
 
