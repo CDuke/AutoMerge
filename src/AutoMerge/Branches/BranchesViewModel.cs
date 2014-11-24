@@ -470,23 +470,33 @@ namespace AutoMerge
             return mergeRelations.Item.Contains(branch.Item);
         }
 
-        private static string CalculateTopFolder(ICollection<Change> changes)
+        private static string CalculateTopFolder(IList<Change> changes)
         {
             if (changes == null || changes.Count == 0)
                 throw new ArgumentNullException("changes");
 
             string topFolder = null;
-            foreach (var change in changes)
+            if (changes.Count == 1 &&
+                (changes[0].ChangeType.HasFlag(ChangeType.Edit)
+                && !changes[0].ChangeType.HasFlag(ChangeType.Add)
+                && !changes[0].ChangeType.HasFlag(ChangeType.Branch)))
             {
-                if (topFolder != null)
+                topFolder = changes[0].Item.ServerItem;
+            }
+            else
+            {
+                foreach (var change in changes)
                 {
-                    if (change.Item.ServerItem.Contains(topFolder) && change.Item.ServerItem != topFolder)
-                        continue;
+                    if (topFolder != null)
+                    {
+                        if (change.Item.ServerItem.Contains(topFolder) && change.Item.ServerItem != topFolder)
+                            continue;
+                    }
+
+                    var changeFolder = ExtractFolder(change.ChangeType, change.Item);
+
+                    topFolder = FindShareFolder(topFolder, changeFolder);
                 }
-
-                var changeFolder = ExtractFolder(change.ChangeType, change.Item);
-
-                topFolder = FindShareFolder(topFolder, changeFolder);
             }
 
             if (topFolder != null && topFolder.EndsWith("/"))
