@@ -4,8 +4,14 @@ namespace AutoMerge
 {
 	public class TrackMergeInfo
 	{
-		public string SourceComment { get; set; }
+	    public string OriginaBranch { get; set; }
 
-		public List<string> SourceBranches { get; set; }
+		public string OriginalComment { get; set; }
+
+		public List<string> FromOriginalToSourceBranches { get; set; }
+
+	    public string SourceBranch { get; set; }
+
+	    public string SourceComment { get; set; }
 	}
 }

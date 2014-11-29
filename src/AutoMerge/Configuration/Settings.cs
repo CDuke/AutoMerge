@@ -14,11 +14,16 @@ namespace AutoMerge
         private const string mergeModeMerge = "merge";
         private const string mergeModeMergeAndCheckin = "merge_checkin";
 
-        private const string mergeOperationDefault = "merge_operation_default";
+        private const string mergeOperationDefaultKey = "merge_operation_default";
         private const string mergeOperationDefaultLast = "last";
         private const string mergeOperationDefaultMerge = mergeModeMerge;
         private const string mergeOperationDefaultMergeCheckin = mergeModeMergeAndCheckin;
         private readonly string[] _mergeOperationDefaultValues;
+
+        private const string commentFormatKey = "comment_format";
+        private const string commentFormatDefault = "MERGE {FromOriginalToTarget} ({OriginalComment})";
+        private const string branchDelimiterKey = "branch_delimiter";
+        private const string branchDelimiterDefault = " -> ";
 
         static Settings()
         {
@@ -46,6 +51,33 @@ namespace AutoMerge
             {
                 LastMergeOperationSet(value);
             }
+        }
+
+        public CommentFormat CommentFormat
+        {
+            get { return CommentFormatGet(); }
+        }
+
+        private CommentFormat CommentFormatGet()
+        {
+            string commentFormat;
+            if (!_settingProvider.TryReadValue(commentFormatKey, out commentFormat))
+            {
+                commentFormat = commentFormatDefault;
+            }
+
+            string branchDelimiter;
+            if (!_settingProvider.TryReadValue(branchDelimiterKey, out branchDelimiter))
+            {
+                branchDelimiter = branchDelimiterDefault;
+            }
+
+            return new CommentFormat
+            {
+                Format = commentFormat,
+                BranchDelimiter = branchDelimiter
+            };
+
         }
 
         private MergeMode LastMergeOperationGet()
@@ -108,10 +140,10 @@ namespace AutoMerge
         private string MergeOperationDefaultGet()
         {
             string mergeOperationDefaultValue;
-            if (!_settingProvider.TryReadValue(mergeOperationDefault, out mergeOperationDefaultValue))
+            if (!_settingProvider.TryReadValue(mergeOperationDefaultKey, out mergeOperationDefaultValue))
             {
                 mergeOperationDefaultValue = mergeOperationDefaultLast;
-                _settingProvider.WriteValue(mergeOperationDefault, mergeOperationDefaultValue);
+                _settingProvider.WriteValue(mergeOperationDefaultKey, mergeOperationDefaultValue);
             }
 
             if (!_mergeOperationDefaultValues.Contains(mergeOperationDefaultValue))

@@ -1,3 +1,6 @@
+#### 0.2.5 (2014-11-29)
+* (enhancement) Allow templating merge comment (#6)
+
 #### 0.2.4 (2014-09-24)
 * (enhancement) Allow set default mode for "Merge" button
 

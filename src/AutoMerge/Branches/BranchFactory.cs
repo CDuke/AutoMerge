@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AutoMerge.Prism.Events;
 using Microsoft.TeamFoundation.VersionControl.Client;
 
@@ -13,13 +12,15 @@ namespace AutoMerge
 		private readonly TrackMergeInfo _trackMergeInfo;
 		private readonly BranchValidator _branchValidator;
 		private readonly IEventAggregator _eventAggregator;
+	    private readonly CommentFormater _commentFormater;
 
-		public BranchFactory(string sourceBranch,
+	    public BranchFactory(string sourceBranch,
 			string sourceFolder,
 			ChangesetVersionSpec changesetVersion,
 			TrackMergeInfo trackMergeInfo,
 			BranchValidator branchValidator,
-			IEventAggregator eventAggregator)
+			IEventAggregator eventAggregator,
+            CommentFormater commentFormater)
 		{
 			_sourceBranch = sourceBranch;
 			_sourceFolder = sourceFolder;
@@ -27,6 +28,7 @@ namespace AutoMerge
 			_trackMergeInfo = trackMergeInfo;
 			_branchValidator = branchValidator;
 			_eventAggregator = eventAggregator;
+		    _commentFormater = commentFormater;
 		}
 
 		public MergeInfoViewModel CreateTargetBranchInfo(ItemIdentifier targetBranch, ItemIdentifier targetPath)
@@ -54,26 +56,11 @@ namespace AutoMerge
 
 			if (_sourceBranch != targetBranch)
 			{
-				mergeInfo.Comment = EvaluateComment(_trackMergeInfo, _sourceBranch, targetBranch);
+				mergeInfo.Comment = _commentFormater.Format(_trackMergeInfo, targetBranch);
 				mergeInfo = _branchValidator.Validate(mergeInfo);
 			}
 
 			return mergeInfo;
-		}
-
-		private static string EvaluateComment(TrackMergeInfo trackMergeInfo, string sourceBranch, string targetBranch)
-		{
-			var mergePath = trackMergeInfo.SourceBranches.Concat(new[] { sourceBranch, targetBranch })
-				.Select(GetShortBranchName);
-			var mergePathString = string.Join(" -> ", mergePath);
-			return string.Format("MERGE {0} ({1})", mergePathString, trackMergeInfo.SourceComment);
-		}
-
-		private static string GetShortBranchName(string fullBranchName)
-		{
-			var pos = fullBranchName.LastIndexOf('/');
-			var shortName = fullBranchName.Substring(pos + 1);
-			return shortName;
 		}
 	}
 }
