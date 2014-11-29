@@ -13,5 +13,9 @@ namespace AutoMerge
 	    public string SourceBranch { get; set; }
 
 	    public string SourceComment { get; set; }
+
+        public long SourceChangesetId { get; set; }
+
+        public List<long> SourceWorkItemIds { get; set; }
 	}
 }

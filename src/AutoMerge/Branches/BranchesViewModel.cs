@@ -303,7 +303,8 @@ namespace AutoMerge
 
             var changesetService = _changesetService;
 
-            var changes = changesetService.GetChanges(changesetViewModel.ChangesetId);
+            var changeset = changesetService.GetChangeset(changesetViewModel.ChangesetId);
+            var changes = changeset.Changes;
 
             var sourceTopFolder = CalculateTopFolder(changes);
             var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder)
@@ -326,6 +327,10 @@ namespace AutoMerge
                 trackMergeInfo.FromOriginalToSourceBranches.Reverse();
                 trackMergeInfo.SourceComment = changesetViewModel.Comment;
                 trackMergeInfo.SourceBranch = sourceBranch;
+                trackMergeInfo.SourceChangesetId = changesetViewModel.ChangesetId;
+                trackMergeInfo.SourceWorkItemIds = changeset.AssociatedWorkItems != null
+                    ? changeset.AssociatedWorkItems.Select(w => (long)w.Id).ToList()
+                    : new List<long>();
                 trackMergeInfo.OriginaBranch = trackMergeInfo.OriginaBranch ?? trackMergeInfo.SourceBranch;
                 trackMergeInfo.OriginalComment = trackMergeInfo.OriginalComment ?? trackMergeInfo.SourceComment;
 

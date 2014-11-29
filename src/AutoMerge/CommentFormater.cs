@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace AutoMerge
 {
@@ -24,9 +26,16 @@ namespace AutoMerge
                 .Replace("{FromOriginalToTarget}", FromOriginalToTarget(trackMergeInfo, targetBranch))
                 .Replace("{FromOriginalToTargetFull}", FromOriginalToTargetFull(trackMergeInfo, targetBranch))
                 .Replace("{OriginalComment}", trackMergeInfo.OriginalComment)
-                .Replace("{SourceComment}", trackMergeInfo.SourceComment);
+                .Replace("{SourceComment}", trackMergeInfo.SourceComment)
+                .Replace("{SourceChangesetId}", trackMergeInfo.SourceChangesetId.ToString(CultureInfo.InvariantCulture))
+                .Replace("{SourceWorkItemIds}", GetWorkItemIds(trackMergeInfo.SourceWorkItemIds));
 
             return comment;
+        }
+
+        private string GetWorkItemIds(List<long> sourceWorkItemIds)
+        {
+            return string.Join(", ", sourceWorkItemIds.Select(id => id.ToString(CultureInfo.InvariantCulture)));
         }
 
         private string FromOriginalToTarget(TrackMergeInfo trackMergeInfo, string targetBranch)
