@@ -1,3 +1,6 @@
+#### 0.2.5.1 (2014-12-03)
+* (enhancement) Allow templating discard merge comment (#11)
+
 #### 0.2.5 (2014-11-29)
 * (enhancement) Allow templating merge comment (#6)
 
