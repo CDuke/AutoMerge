@@ -303,13 +303,10 @@ namespace AutoMerge
 
             var changesetService = _changesetService;
 
-            var changeset = changesetService.GetChangeset(changesetViewModel.ChangesetId);
-            var changes = changeset.Changes;
+            var changes = changesetService.GetChanges(changesetViewModel.ChangesetId);
 
             var sourceTopFolder = CalculateTopFolder(changes);
-            var mergesRelationships = versionControl.QueryMergeRelationships(sourceTopFolder)
-                .Where(r => !r.IsDeleted)
-                .ToList();
+            var mergesRelationships = GetMergesRelationships(sourceTopFolder, versionControl);
 
             if (mergesRelationships.Count > 0)
             {
@@ -322,25 +319,12 @@ namespace AutoMerge
                     mergesRelationships.ToArray(),
                     null);
 
-                var trackMergeInfo = GetTrackMergeInfo(versionControl,
-                    trackMerges, sourceTopFolder);
-                trackMergeInfo.FromOriginalToSourceBranches.Reverse();
-                trackMergeInfo.SourceComment = changesetViewModel.Comment;
-                trackMergeInfo.SourceBranch = sourceBranch;
-                trackMergeInfo.SourceChangesetId = changesetViewModel.ChangesetId;
-                trackMergeInfo.SourceWorkItemIds = changeset.AssociatedWorkItems != null
-                    ? changeset.AssociatedWorkItems.Select(w => (long)w.Id).ToList()
-                    : new List<long>();
-                trackMergeInfo.OriginaBranch = trackMergeInfo.OriginaBranch ?? trackMergeInfo.SourceBranch;
-                trackMergeInfo.OriginalComment = trackMergeInfo.OriginalComment ?? trackMergeInfo.SourceComment;
-
                 var changesetVersionSpec = new ChangesetVersionSpec(changesetViewModel.ChangesetId);
 
                 var branchValidator = new BranchValidator(workspace, trackMerges);
-                var commentFormater = new CommentFormater(Settings.Instance.CommentFormat);
                 var branchFactory = new BranchFactory(sourceBranch, sourceTopFolder,
-                    changesetVersionSpec, trackMergeInfo, branchValidator,
-                    _eventAggregator, commentFormater);
+                    changesetVersionSpec, branchValidator,
+                    _eventAggregator);
 
                 var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
                 if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
@@ -398,15 +382,22 @@ namespace AutoMerge
             return result;
         }
 
+        private static List<ItemIdentifier> GetMergesRelationships(string sourceTopFolder, VersionControlServer versionControl)
+        {
+            return versionControl.QueryMergeRelationships(sourceTopFolder)
+                .Where(r => !r.IsDeleted)
+                .ToList();
+        }
+
         private TrackMergeInfo GetTrackMergeInfo(VersionControlServer versionControl,
             IEnumerable<ExtendedMerge> allTrackMerges,
-            string targetPath)
+            string sourcePath)
         {
             var result = new TrackMergeInfo
             {
                 FromOriginalToSourceBranches = new List<string>(),
             };
-            var trackMerges = allTrackMerges.Where(m => m.TargetItem.Item == targetPath).ToArray();
+            var trackMerges = allTrackMerges.Where(m => m.TargetItem.Item == sourcePath).ToArray();
             if (!trackMerges.IsNullOrEmpty())
             {
                 var changesetIds = trackMerges.Select(t => t.SourceChangeset.ChangesetId).ToArray();
@@ -720,9 +711,9 @@ namespace AutoMerge
             foreach (var resultModel in resultModels)
             {
                 if (string.IsNullOrEmpty(comment))
-                    comment = resultModel.BranchInfo.Comment;
+                    comment = resultModel.Comment;
                 else
-                    comment = comment + ";" + resultModel.BranchInfo.Comment;
+                    comment = comment + ";" + resultModel.Comment;
 
                 if (resultModel.PendingChanges != null && resultModel.PendingChanges.Count > 0)
                     pendingChanges.AddRange(resultModel.PendingChanges);
@@ -770,8 +761,9 @@ namespace AutoMerge
 
             var workspace = _workspace;
 
+            var changesetId = _changeset.ChangesetId;
             var changesetService = _changesetService;
-            var changeset = changesetService.GetChangeset(_changeset.ChangesetId);
+            var changeset = changesetService.GetChangeset(changesetId);
             var mergeOption = _mergeOption;
             var workItemStore = tfs.GetService<WorkItemStore>();
             var workItemIds = changeset.AssociatedWorkItems != null
@@ -792,12 +784,17 @@ namespace AutoMerge
                 }
             }
 
+            var commentFormater = new CommentFormater(Settings.Instance.CommentFormat);
             foreach (var mergeInfo in _branches.Where(b => b.Checked))
             {
                 var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, resolveConficts, workspace);
                 mergeResultModel.WorkItemIds = workItemIds;
-                result.Add(mergeResultModel);
 
+                var trackMergeInfo = GetTrackMergeInfo(mergeInfo, changeset, versionControl);
+                var comment = commentFormater.Format(trackMergeInfo, mergeInfo.TargetBranch, mergeOption);
+                mergeResultModel.Comment = comment;
+
+                result.Add(mergeResultModel);
                 if (!checkInAfterMerge)
                 {
                     mergeResultModel.MergeResult = MergeResult.NotCheckIn;
@@ -808,7 +805,8 @@ namespace AutoMerge
                     continue;
                 }
 
-                var checkInResult = CheckIn(mergeResultModel.PendingChanges, mergeInfo, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
+
+                var checkInResult = CheckIn(mergeResultModel.PendingChanges, comment, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
                 mergeResultModel.ChangesetId = checkInResult.ChangesetId;
                 mergeResultModel.MergeResult = checkInResult.CheckinResult;
 
@@ -821,7 +819,29 @@ namespace AutoMerge
             return result;
         }
 
-        private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, MergeInfoViewModel mergeInfoView,
+        private TrackMergeInfo GetTrackMergeInfo(MergeInfoViewModel mergeInfo, Changeset changeset, VersionControlServer versionControl)
+        {
+            var mergesRelationships = GetMergesRelationships(mergeInfo.SourcePath, versionControl);
+            var trackMerges = versionControl.TrackMerges(new[] {changeset.ChangesetId},
+                new ItemIdentifier(mergeInfo.SourcePath),
+                mergesRelationships.ToArray(),
+                null);
+
+            var trackMergeInfo = GetTrackMergeInfo(versionControl,
+                trackMerges, mergeInfo.SourcePath);
+            trackMergeInfo.FromOriginalToSourceBranches.Reverse();
+            trackMergeInfo.SourceComment = changeset.Comment;
+            trackMergeInfo.SourceBranch = mergeInfo.SourceBranch;
+            trackMergeInfo.SourceChangesetId = changeset.ChangesetId;
+            trackMergeInfo.SourceWorkItemIds = changeset.AssociatedWorkItems != null
+                ? changeset.AssociatedWorkItems.Select(w => (long) w.Id).ToList()
+                : new List<long>();
+            trackMergeInfo.OriginaBranch = trackMergeInfo.OriginaBranch ?? trackMergeInfo.SourceBranch;
+            trackMergeInfo.OriginalComment = trackMergeInfo.OriginalComment ?? trackMergeInfo.SourceComment;
+            return trackMergeInfo;
+        }
+
+        private static CheckInResult CheckIn(IReadOnlyCollection<PendingChange> targetPendingChanges, string comment,
             Workspace workspace, IReadOnlyCollection<int> workItemIds, PolicyOverrideInfo policyOverride, WorkItemStore workItemStore)
         {
             var result = new CheckInResult();
@@ -834,7 +854,6 @@ namespace AutoMerge
             // Another user can update workitem. Need re-read before update.
             var workItems = GetWorkItemCheckinInfo(workItemIds, workItemStore);
 
-            var comment = mergeInfoView.Comment;
             var evaluateCheckIn = workspace.EvaluateCheckin2(CheckinEvaluationOptions.All,
                 targetPendingChanges,
                 comment,
@@ -869,37 +888,18 @@ namespace AutoMerge
                 BranchInfo = mergeInfoeViewModel,
             };
 
-            var mergeOptions = ToTfsMergeOptions(mergeOption);
-
             var source = mergeInfoeViewModel.SourcePath;
             var target = mergeInfoeViewModel.TargetPath;
             var version = mergeInfoeViewModel.ChangesetVersionSpec;
 
-            var getLatestFiles = new List<string>();
-            foreach (var mergeRelationship in mergeRelationships)
+            if (!GetLatest(target, mergeRelationships, workspace))
             {
-                if (mergeRelationship.Item.StartsWith(mergeInfoeViewModel.TargetPath))
-                    getLatestFiles.Add(mergeRelationship.Item);
+                result.MergeResult = MergeResult.CanNotGetLatest;
+                result.Message = "Can not get latest";
+                return result;
             }
 
-            var getLatestFilesArray = getLatestFiles.ToArray();
-            if (getLatestFilesArray.Length > 0)
-            {
-                const RecursionType recursionType = RecursionType.None;
-                var getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
-                if (!getLatestResult.NoActionNeeded)
-                {
-                    // HACK.
-                    getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
-                    if (!getLatestResult.NoActionNeeded)
-                    {
-                        result.MergeResult = MergeResult.CanNotGetLatest;
-                        result.Message = "Can not get latest";
-                        return result;
-                    }
-                }
-            }
-
+            var mergeOptions = ToTfsMergeOptions(mergeOption);
             var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
 
             if (HasConflicts(status))
@@ -924,14 +924,48 @@ namespace AutoMerge
                 }
             }
 
-            var allPendingChanges = workspace.GetPendingChangesEnumerable(target, RecursionType.Full);
-            var targetPendingChanges = allPendingChanges
-                .Where(p => p.IsMerge && p.ServerItem.Contains(target))
-                .ToList();
+            var targetPendingChanges = GetPendingChanges(target, workspace);
 
             result.MergeResult = MergeResult.Success;
             result.PendingChanges = targetPendingChanges;
             return result;
+        }
+
+        private static List<PendingChange> GetPendingChanges(string target, Workspace workspace)
+        {
+            var allPendingChanges = workspace.GetPendingChangesEnumerable(target, RecursionType.Full);
+            var targetPendingChanges = allPendingChanges
+                .Where(p => p.IsMerge && p.ServerItem.Contains(target))
+                .ToList();
+            return targetPendingChanges;
+        }
+
+        private static bool GetLatest(string targetPath, IEnumerable<ItemIdentifier> mergeRelationships, Workspace workspace)
+        {
+            var getLatestFiles = new List<string>();
+            foreach (var mergeRelationship in mergeRelationships)
+            {
+                if (mergeRelationship.Item.StartsWith(targetPath))
+                    getLatestFiles.Add(mergeRelationship.Item);
+            }
+
+            var getLatestFilesArray = getLatestFiles.ToArray();
+            if (getLatestFilesArray.Length > 0)
+            {
+                const RecursionType recursionType = RecursionType.None;
+                var getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
+                if (!getLatestResult.NoActionNeeded)
+                {
+                    // HACK.
+                    getLatestResult = workspace.Get(getLatestFilesArray, VersionSpec.Latest, recursionType, GetOptions.None);
+                    if (!getLatestResult.NoActionNeeded)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static MergeOptionsEx ToTfsMergeOptions(MergeOption mergeOption)

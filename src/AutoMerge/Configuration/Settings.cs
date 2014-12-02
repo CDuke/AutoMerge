@@ -22,6 +22,8 @@ namespace AutoMerge
 
         private const string commentFormatKey = "comment_format";
         private const string commentFormatDefault = "MERGE {FromOriginalToTarget} ({OriginalComment})";
+        private const string commentFormatDiscardKey = "comment_format_discard";
+        private const string commentFormatDiscardDefault = "DISCARD {" + commentFormatKey + "}";
         private const string branchDelimiterKey = "branch_delimiter";
         private const string branchDelimiterDefault = " -> ";
 
@@ -66,6 +68,14 @@ namespace AutoMerge
                 commentFormat = commentFormatDefault;
             }
 
+            string commentFormatDiscard;
+            if (!_settingProvider.TryReadValue(commentFormatDiscardKey, out commentFormatDiscard))
+            {
+                commentFormatDiscard = commentFormatDiscardDefault;
+            }
+
+            commentFormatDiscard = commentFormatDiscard.Replace("{" + commentFormatKey + "}", commentFormat);
+
             string branchDelimiter;
             if (!_settingProvider.TryReadValue(branchDelimiterKey, out branchDelimiter))
             {
@@ -75,7 +85,8 @@ namespace AutoMerge
             return new CommentFormat
             {
                 Format = commentFormat,
-                BranchDelimiter = branchDelimiter
+                BranchDelimiter = branchDelimiter,
+                DiscardFormat = commentFormatDiscard
             };
 
         }

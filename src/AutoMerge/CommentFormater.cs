@@ -13,9 +13,9 @@ namespace AutoMerge
             _format = format;
         }
 
-        public string Format(TrackMergeInfo trackMergeInfo, string targetBranch)
+        public string Format(TrackMergeInfo trackMergeInfo, string targetBranch, MergeOption mergeOption)
         {
-            var comment = _format.Format;
+            var comment = mergeOption == MergeOption.KeepTarget ? _format.DiscardFormat : _format.Format;
             comment = comment
                 .Replace("{OriginalBranch}", GetShortBranchName(trackMergeInfo.OriginaBranch))
                 .Replace("{OriginalBranchFull}", trackMergeInfo.OriginaBranch)

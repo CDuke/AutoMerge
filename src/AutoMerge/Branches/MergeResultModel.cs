@@ -15,6 +15,8 @@ namespace AutoMerge
 
 		public MergeInfoViewModel BranchInfo { get; set; }
 
+        public string Comment { get; set; }
+
 		public List<int> WorkItemIds { get; set; }
 
 		public int? ChangesetId { get; set; }

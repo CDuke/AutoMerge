@@ -39,7 +39,6 @@ namespace AutoMerge
 
 		public ChangesetVersionSpec ChangesetVersionSpec { get; set; }
 
-		public string Comment { get; set; }
 
 		public string DisplayBranchName
 		{
@@ -48,8 +47,6 @@ namespace AutoMerge
 				return BranchHelper.GetShortBranchName(TargetBranch);
 			}
 		}
-
-		public List<FileMergeInfo> FileMergeInfos { get; set; }
 
 		public BranchValidationResult ValidationResult { get; set; }
 

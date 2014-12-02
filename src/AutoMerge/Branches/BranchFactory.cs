@@ -9,26 +9,20 @@ namespace AutoMerge
 		private readonly string _sourceBranch;
 		private readonly string _sourceFolder;
 		private readonly ChangesetVersionSpec _changesetVersion;
-		private readonly TrackMergeInfo _trackMergeInfo;
 		private readonly BranchValidator _branchValidator;
 		private readonly IEventAggregator _eventAggregator;
-	    private readonly CommentFormater _commentFormater;
 
 	    public BranchFactory(string sourceBranch,
 			string sourceFolder,
 			ChangesetVersionSpec changesetVersion,
-			TrackMergeInfo trackMergeInfo,
 			BranchValidator branchValidator,
-			IEventAggregator eventAggregator,
-            CommentFormater commentFormater)
+			IEventAggregator eventAggregator)
 		{
 			_sourceBranch = sourceBranch;
 			_sourceFolder = sourceFolder;
 			_changesetVersion = changesetVersion;
-			_trackMergeInfo = trackMergeInfo;
 			_branchValidator = branchValidator;
 			_eventAggregator = eventAggregator;
-		    _commentFormater = commentFormater;
 		}
 
 		public MergeInfoViewModel CreateTargetBranchInfo(ItemIdentifier targetBranch, ItemIdentifier targetPath)
@@ -50,13 +44,11 @@ namespace AutoMerge
 				SourcePath = _sourceFolder,
 				TargetPath = targetPath,
 				ChangesetVersionSpec = _changesetVersion,
-				FileMergeInfos = new List<FileMergeInfo>(0),
 				ValidationResult = BranchValidationResult.Success,
 			};
 
 			if (_sourceBranch != targetBranch)
 			{
-				mergeInfo.Comment = _commentFormater.Format(_trackMergeInfo, targetBranch);
 				mergeInfo = _branchValidator.Validate(mergeInfo);
 			}
 
