@@ -1,3 +1,6 @@
+#### 0.2.6
+* (enhancement) Change behavior "Merge & Check In". Now it check in if no conflicts, otherwise show resolve conflicts window.
+
 #### 0.2.5.1 (2014-12-03)
 * (enhancement) Allow templating discard merge comment (#11)
 
