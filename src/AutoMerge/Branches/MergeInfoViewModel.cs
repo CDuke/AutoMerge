@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using AutoMerge.Events;
 using AutoMerge.Prism.Events;
 using Microsoft.TeamFoundation.VersionControl.Client;

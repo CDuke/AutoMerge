@@ -562,128 +562,92 @@ namespace AutoMerge
             switch (mergeMode)
             {
                 case MergeMode.Merge:
-                    await MergeWithoutCheckInExecute();
+                    await MergeAndCheckInExecute(false);
                     break;
                 case MergeMode.MergeAndCheckIn:
-                    await MergeAndCheckInExecute();
+                    await MergeAndCheckInExecute(true);
                     break;
             }
             Logger.Info("Merging end");
         }
 
-        private async Task MergeAndCheckInExecute()
+        private async Task MergeAndCheckInExecute(bool checkInIfSuccess)
         {
             try
             {
                 IsBusy = true;
                 _merging = true;
+
                 MergeCommand.RaiseCanExecuteChanged();
 
-                var result = await Task.Run(() => MergeExecuteInternal(true, true));
-
+                var result = await Task.Run(() => MergeExecuteInternal(checkInIfSuccess));
+                var notifications = new List<Notification>();
+                var notCheckedIn = new List<MergeResultModel>(result.Count);
                 ClearNotifications();
                 foreach (var resultModel in result)
                 {
-                    var notificationType = NotificationType.Information;
-                    var message = string.Empty;
+                    var notification = new Notification
+                    {
+                        NotificationType = NotificationType.Information,
+                        Message = string.Empty
+                    };
                     var mergePath = string.Format("{0} -> {1}",
                         resultModel.BranchInfo.SourceBranch,
                         resultModel.BranchInfo.TargetBranch);
                     switch (resultModel.MergeResult)
                     {
                         case MergeResult.CheckInEvaluateFail:
-                            notificationType = NotificationType.Error;
-                            message = "Check In evaluate failed";
+                            notification.NotificationType = NotificationType.Error;
+                            notification.Message = "Check In evaluate failed";
                             break;
                         case MergeResult.CheckInFail:
-                            notificationType = NotificationType.Error;
-                            message = "Check In failed";
+                            notification.NotificationType = NotificationType.Error;
+                            notification.Message = "Check In failed";
                             break;
                         case MergeResult.NothingMerge:
-                            notificationType = NotificationType.Warning;
-                            message = "Nothing merged";
+                            notification.NotificationType = NotificationType.Warning;
+                            notification.Message = "Nothing merged";
                             break;
-                        case MergeResult.UnresolvedConflicts:
-                            notificationType = NotificationType.Error;
-                            message = "Unresolved conflicts";
-                            break;
-                        case MergeResult.CanNotGetLatest:
-                            notificationType = NotificationType.Error;
-                            message = "Can not get lates";
-                            break;
-                        case MergeResult.Success:
-                            notificationType = NotificationType.Information;
-                            message = "Merge is successful";
-                            break;
-                    }
-                    message = string.Format("{0}: {1}", mergePath, message);
-                    if (!string.IsNullOrEmpty(message))
-                        ShowNotification(message, notificationType);
-                }
-
-                _eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error while merging", ex);
-                ClearNotifications();
-                ShowNotification(ex.Message, NotificationType.Error);
-            }
-            finally
-            {
-                IsBusy = false;
-                _merging = false;
-                MergeCommand.RaiseCanExecuteChanged();
-            }
-        }
-
-        private async Task MergeWithoutCheckInExecute()
-        {
-            try
-            {
-                IsBusy = true;
-                _merging = true;
-
-                MergeCommand.RaiseCanExecuteChanged();
-
-                var result = await Task.Run(() => MergeExecuteInternal(false, false));
-
-                ClearNotifications();
-                var notCheckedIn = new List<MergeResultModel>(result.Count);
-                foreach (var resultModel in result)
-                {
-                    var notificationType = NotificationType.Information;
-                    var message = string.Empty;
-                    var mergePath = string.Format("{0} -> {1}",
-                        resultModel.BranchInfo.SourceBranch,
-                        resultModel.BranchInfo.TargetBranch);
-                    switch (resultModel.MergeResult)
-                    {
-                        case MergeResult.NothingMerge:
-                            notificationType = NotificationType.Warning;
-                            message = "Nothing merged";
-                            break;
-                        case MergeResult.UnresolvedConflicts:
-                            notificationType = NotificationType.Error;
-                            message = "Unresolved conflicts";
-                            break;
-                        case MergeResult.CanNotGetLatest:
-                            notificationType = NotificationType.Error;
-                            message = "Can not get lates";
-                            break;
-                        case MergeResult.NotCheckIn:
-                            message = "Files merge but not chekced in";
+                        case MergeResult.HasConflicts:
+                            notification.NotificationType = NotificationType.Error;
+                            notification.Message = "Has conflicts";
                             notCheckedIn.Add(resultModel);
                             break;
+                        case MergeResult.CanNotGetLatest:
+                            notification.NotificationType = NotificationType.Error;
+                            notification.Message = "Can not get lates";
+                            break;
+                        case MergeResult.TryRestoreFile:
+                            notification.NotificationType = NotificationType.Warning;
+                            notification.Message = "Some files were restored";
+                            break;
+                        case MergeResult.Merged:
+                            notification.NotificationType = NotificationType.Information;
+                            notification.Message = "Files merge but not chekced in";
+                            notCheckedIn.Add(resultModel);
+                            break;
+                        case MergeResult.CheckIn:
+                            notification.NotificationType = NotificationType.Information;
+                            notification.Message = "Merge is successful";
+                            break;
                     }
-                    message = string.Format("{0}: {1}", mergePath, message);
-                    if (!string.IsNullOrEmpty(message))
-                        ShowNotification(message, notificationType);
+                    notification.Message = string.Format("{0}: {1}", mergePath, notification.Message);
+                    if (!string.IsNullOrEmpty(notification.Message))
+                        notifications.Add(notification);
                 }
 
                 if (notCheckedIn.Count > 0)
                 {
                     OpenPendingChanges(notCheckedIn);
+                }
+                else
+                {
+                    _eventAggregator.GetEvent<MergeCompleteEvent>().Publish(true);
+                }
+
+                foreach (var notification in notifications)
+                {
+                    ShowNotification(notification.Message, notification.NotificationType, NotificationFlags.RequiresConfirmation);
                 }
             }
             catch (Exception ex)
@@ -718,7 +682,7 @@ namespace AutoMerge
                 if (resultModel.PendingChanges != null && resultModel.PendingChanges.Count > 0)
                     pendingChanges.AddRange(resultModel.PendingChanges);
 
-                if (resultModel.HasConflicts)
+                if (resultModel.MergeResult == MergeResult.HasConflicts)
                     conflictsPath.Add(resultModel.BranchInfo.TargetPath);
             }
 
@@ -752,7 +716,7 @@ namespace AutoMerge
             }
         }
 
-        private List<MergeResultModel> MergeExecuteInternal(bool checkInAfterMerge, bool resolveConficts)
+        private List<MergeResultModel> MergeExecuteInternal(bool checkInIfSuccess)
         {
             var result = new List<MergeResultModel>();
             var context = Context;
@@ -787,7 +751,23 @@ namespace AutoMerge
             var commentFormater = new CommentFormater(Settings.Instance.CommentFormat);
             foreach (var mergeInfo in _branches.Where(b => b.Checked))
             {
-                var mergeResultModel = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, resolveConficts, workspace);
+                var mergeResultModel = new MergeResultModel
+                {
+                    BranchInfo = mergeInfo,
+                };
+
+                var mergeResult = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, workspace);
+                var targetPendingChanges = GetPendingChanges(mergeInfo.TargetPath, workspace);
+                if (targetPendingChanges.Count == 0)
+                {
+                    mergeResult = MergeResult.NothingMerge;
+                }
+                if (targetPendingChanges.Any(change => change.IsUndelete))
+                {
+                    mergeResult = MergeResult.TryRestoreFile;
+                }
+                mergeResultModel.MergeResult = mergeResult;
+                mergeResultModel.PendingChanges = targetPendingChanges;
                 mergeResultModel.WorkItemIds = workItemIds;
 
                 var trackMergeInfo = GetTrackMergeInfo(mergeInfo, changeset, versionControl);
@@ -795,24 +775,11 @@ namespace AutoMerge
                 mergeResultModel.Comment = comment;
 
                 result.Add(mergeResultModel);
-                if (!checkInAfterMerge)
+                if (checkInIfSuccess && mergeResultModel.MergeResult == MergeResult.Merged)
                 {
-                    mergeResultModel.MergeResult = MergeResult.NotCheckIn;
-                }
-
-                if (mergeResultModel.MergeResult != MergeResult.Success)
-                {
-                    continue;
-                }
-
-
-                var checkInResult = CheckIn(mergeResultModel.PendingChanges, comment, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
-                mergeResultModel.ChangesetId = checkInResult.ChangesetId;
-                mergeResultModel.MergeResult = checkInResult.CheckinResult;
-
-                if (mergeResultModel.MergeResult == MergeResult.Success)
-                {
-                    mergeResultModel.CheckedIn = true;
+                    var checkInResult = CheckIn(mergeResultModel.PendingChanges, comment, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
+                    mergeResultModel.ChangesetId = checkInResult.ChangesetId;
+                    mergeResultModel.MergeResult = checkInResult.CheckinResult;
                 }
             }
 
@@ -845,11 +812,6 @@ namespace AutoMerge
             Workspace workspace, IReadOnlyCollection<int> workItemIds, PolicyOverrideInfo policyOverride, WorkItemStore workItemStore)
         {
             var result = new CheckInResult();
-            if (targetPendingChanges.Count == 0)
-            {
-                result.CheckinResult = MergeResult.NothingMerge;
-                return result;
-            }
 
             // Another user can update workitem. Need re-read before update.
             var workItems = GetWorkItemCheckinInfo(workItemIds, workItemStore);
@@ -871,7 +833,7 @@ namespace AutoMerge
             if (changesetId > 0)
             {
                 result.ChangesetId = changesetId;
-                result.CheckinResult = MergeResult.Success;
+                result.CheckinResult = MergeResult.CheckIn;
             }
             else
             {
@@ -880,55 +842,24 @@ namespace AutoMerge
             return result;
         }
 
-        private static MergeResultModel MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption,
-            IEnumerable<ItemIdentifier> mergeRelationships, bool resolveConflict, Workspace workspace)
+        private static MergeResult MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption,
+            IEnumerable<ItemIdentifier> mergeRelationships, Workspace workspace)
         {
-            var result = new MergeResultModel
-            {
-                BranchInfo = mergeInfoeViewModel,
-            };
-
             var source = mergeInfoeViewModel.SourcePath;
             var target = mergeInfoeViewModel.TargetPath;
             var version = mergeInfoeViewModel.ChangesetVersionSpec;
 
             if (!GetLatest(target, mergeRelationships, workspace))
             {
-                result.MergeResult = MergeResult.CanNotGetLatest;
-                result.Message = "Can not get latest";
-                return result;
+                return MergeResult.CanNotGetLatest;
             }
 
-            var mergeOptions = ToTfsMergeOptions(mergeOption);
-            var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
-
-            if (HasConflicts(status))
+            if (!Merge(source, target, version, mergeOption, workspace))
             {
-                var conflicts = AutoResolveConflicts(workspace, target, mergeOption);
-                if (!conflicts.IsNullOrEmpty())
-                {
-                    if (resolveConflict)
-                    {
-                        var resolved = ManualResolveConflicts(workspace, conflicts);
-                        if (!resolved)
-                        {
-                            result.MergeResult = MergeResult.UnresolvedConflicts;
-                            result.Message = "Unresolved conflicts";
-                            return result;
-                        }
-                    }
-                    else
-                    {
-                        result.HasConflicts = true;
-                    }
-                }
+                return MergeResult.HasConflicts;
             }
 
-            var targetPendingChanges = GetPendingChanges(target, workspace);
-
-            result.MergeResult = MergeResult.Success;
-            result.PendingChanges = targetPendingChanges;
-            return result;
+            return MergeResult.Merged;
         }
 
         private static List<PendingChange> GetPendingChanges(string target, Workspace workspace)
@@ -962,6 +893,24 @@ namespace AutoMerge
                     {
                         return false;
                     }
+                }
+            }
+
+            return true;
+        }
+
+        private static bool Merge(string source, string target, ChangesetVersionSpec version, MergeOption mergeOption,
+            Workspace workspace)
+        {
+            var mergeOptions = ToTfsMergeOptions(mergeOption);
+            var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
+
+            if (HasConflicts(status))
+            {
+                var conflicts = AutoResolveConflicts(workspace, target, mergeOption);
+                if (!conflicts.IsNullOrEmpty())
+                {
+                    return false;
                 }
             }
 

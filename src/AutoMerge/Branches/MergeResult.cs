@@ -1,13 +1,15 @@
 namespace AutoMerge
 {
-	public enum MergeResult
-	{
-		Success,
-		NothingMerge,
-		CheckInFail,
-		CheckInEvaluateFail,
-		UnresolvedConflicts,
-		NotCheckIn,
-		CanNotGetLatest
-	}
+    public enum MergeResult
+    {
+        CheckIn,
+        Merged,
+        NothingMerge,
+        CheckInFail,
+        CheckInEvaluateFail,
+        HasConflicts,
+        CanNotGetLatest,
+        HasLocalChanges,
+        TryRestoreFile,
+    }
 }
