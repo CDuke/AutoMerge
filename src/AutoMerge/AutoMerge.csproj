@@ -205,6 +205,7 @@
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
     <Compile Include="Branches\MergeResult.cs" />
     <Compile Include="Branches\MergeResultModel.cs" />
+    <Compile Include="Branches\Notification.cs" />
     <Compile Include="Branches\TrackMergeInfo.cs" />
     <Compile Include="CommentFormater.cs" />
     <Compile Include="Configuration\CommentFormat.cs" />
