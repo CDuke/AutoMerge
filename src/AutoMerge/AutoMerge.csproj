@@ -203,6 +203,7 @@
     <Compile Include="Branches\MergeModeToStringConverter.cs" />
     <Compile Include="Branches\MergeOption.cs" />
     <Compile Include="Branches\MergeOptionToCheckedConverter.cs" />
+    <Compile Include="Branches\MergeOptionToStringConverter.cs" />
     <Compile Include="Branches\MergeResult.cs" />
     <Compile Include="Branches\MergeResultModel.cs" />
     <Compile Include="Branches\Notification.cs" />

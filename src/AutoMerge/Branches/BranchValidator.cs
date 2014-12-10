@@ -96,7 +96,7 @@ namespace AutoMerge
 				case BranchValidationResult.Success:
 					return null;
 				case BranchValidationResult.AlreadyMerged:
-					return "Changeset already merged";
+					return "Already merged";
 				case BranchValidationResult.BranchNotMapped:
 					return "Branch not mapped";
 				case BranchValidationResult.ItemHasLocalChanges:
