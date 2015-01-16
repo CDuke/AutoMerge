@@ -591,7 +591,7 @@ namespace AutoMerge
                         NotificationType = NotificationType.Information,
                         Message = string.Empty
                     };
-                    var mergePath = string.Format("{0} -> {1}",
+                    var mergePath = string.Format("MERGE {0} -> {1}",
                         BranchHelper.GetShortBranchName(resultModel.BranchInfo.SourceBranch),
                         BranchHelper.GetShortBranchName(resultModel.BranchInfo.TargetBranch));
                     switch (resultModel.MergeResult)
@@ -629,7 +629,7 @@ namespace AutoMerge
                         case MergeResult.CheckIn:
                             var changesetId = resultModel.ChangesetId.Value;
                             notification.NotificationType = NotificationType.Information;
-                            notification.Message = string.Format("Merge is successful. [Changeset {0}] created.", changesetId);
+                            notification.Message = string.Format("[Changeset {0}](Click to view the changeset details) successfully checked in.", changesetId);
                             notification.Command = new DelegateCommand(() => ViewChangesetDetailsExecute(changesetId));
                             break;
                     }
