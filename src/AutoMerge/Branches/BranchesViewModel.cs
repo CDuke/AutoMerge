@@ -592,8 +592,8 @@ namespace AutoMerge
                         Message = string.Empty
                     };
                     var mergePath = string.Format("{0} -> {1}",
-                        resultModel.BranchInfo.SourceBranch,
-                        resultModel.BranchInfo.TargetBranch);
+                        BranchHelper.GetShortBranchName(resultModel.BranchInfo.SourceBranch),
+                        BranchHelper.GetShortBranchName(resultModel.BranchInfo.TargetBranch));
                     switch (resultModel.MergeResult)
                     {
                         case MergeResult.CheckInEvaluateFail:
