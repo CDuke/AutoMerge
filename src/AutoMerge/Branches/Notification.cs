@@ -1,4 +1,5 @@
-﻿using Microsoft.TeamFoundation.Controls;
+﻿using System.Windows.Input;
+using Microsoft.TeamFoundation.Controls;
 
 namespace AutoMerge
 {
@@ -7,5 +8,7 @@ namespace AutoMerge
         public string Message { get; set; }
 
         public NotificationType NotificationType { get; set; }
+
+        public ICommand Command { get; set; }
     }
 }

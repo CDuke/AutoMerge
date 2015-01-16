@@ -627,8 +627,10 @@ namespace AutoMerge
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.CheckIn:
+                            var changesetId = resultModel.ChangesetId.Value;
                             notification.NotificationType = NotificationType.Information;
-                            notification.Message = "Merge is successful";
+                            notification.Message = string.Format("Merge is successful. [Changeset {0}] created.", changesetId);
+                            notification.Command = new DelegateCommand(() => ViewChangesetDetailsExecute(changesetId));
                             break;
                     }
                     notification.Message = string.Format("{0}: {1}", mergePath, notification.Message);
@@ -647,7 +649,7 @@ namespace AutoMerge
 
                 foreach (var notification in notifications)
                 {
-                    ShowNotification(notification.Message, notification.NotificationType, NotificationFlags.RequiresConfirmation);
+                    ShowNotification(notification.Message, notification.NotificationType, NotificationFlags.RequiresConfirmation, notification.Command);
                 }
             }
             catch (Exception ex)
@@ -1096,6 +1098,11 @@ namespace AutoMerge
         private bool OpenSourceControlExplorerCanExecute()
         {
             return SelectedBranch != null && !string.IsNullOrEmpty(SelectedBranch.TargetPath);
+        }
+
+        private void ViewChangesetDetailsExecute(int changesetId)
+        {
+            TeamExplorerUtils.Instance.NavigateToPage(TeamExplorerPageIds.ChangesetDetails, ServiceProvider, changesetId);
         }
 
         public override void Dispose()
