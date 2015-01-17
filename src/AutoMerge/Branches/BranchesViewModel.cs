@@ -488,15 +488,18 @@ namespace AutoMerge
             {
                 foreach (var change in changes)
                 {
-                    if (topFolder != null)
-                    {
-                        if (change.Item.ServerItem.Contains(topFolder) && change.Item.ServerItem != topFolder)
-                            continue;
-                    }
+//                    if (SkipChange(change.ChangeType, change.Item))
+//                        continue;
+
+//                    if (topFolder != null)
+//                    {
+//                        if (!IsNeedCalculateTopFolder(change.ChangeType, change.Item) change.Item.ServerItem.Contains(topFolder) && change.Item.ServerItem != topFolder)
+//                            continue;
+//                    }
 
                     var changeFolder = ExtractFolder(change.ChangeType, change.Item);
-
-                    topFolder = FindShareFolder(topFolder, changeFolder);
+                    if (changeFolder != topFolder)
+                        topFolder = FindShareFolder(topFolder, changeFolder);
                 }
             }
 
@@ -516,7 +519,7 @@ namespace AutoMerge
             }
             const string rootFolder = "$/";
             var folder = topFolder;
-            while (folder != rootFolder)
+            while (folder != rootFolder && !changeFolder.Contains(folder))
             {
                 folder = ExtractParentFolder(folder);
                 if (folder != null && changeFolder.Contains(folder))
@@ -526,14 +529,29 @@ namespace AutoMerge
             return folder == rootFolder ? folder + "/" : folder;
         }
 
+//        private static bool SkipChange(ChangeType changeType, Item item)
+//        {
+//            return changeType.HasFlag(ChangeType.SourceRename) && changeType.HasFlag(ChangeType.Delete);
+//        }
+
         private static string ExtractFolder(ChangeType changeType, Item item)
         {
-            if (changeType.HasFlag(ChangeType.Add) && item.ItemType == ItemType.Folder)
+            if (IsNeedCalculateTopFolder(changeType, item))
                 return ExtractParentFolder(item.ServerItem);
 
             return item.ItemType == ItemType.Folder
                 ? item.ServerItem
                 : ExtractParentFolder(item.ServerItem);
+        }
+
+        private static bool IsNeedCalculateTopFolder(ChangeType changeType, Item item)
+        {
+            return ((changeType.HasFlag(ChangeType.Add)
+                     || changeType.HasFlag(ChangeType.Branch)
+                     || changeType.HasFlag(ChangeType.Delete)
+                     || changeType.HasFlag(ChangeType.Rename)) && item.ItemType == ItemType.Folder)
+                   || (item.ItemType == ItemType.File);
+
         }
 
         private static string ExtractParentFolder(string serverItem)
@@ -792,9 +810,8 @@ namespace AutoMerge
 
             foreach (var change in changeset.Changes)
             {
-                if (change.ChangeType.HasFlag(ChangeType.Add))
+                if (change.ChangeType.HasFlag(ChangeType.Add) || change.ChangeType.HasFlag(ChangeType.Branch))
                 {
-                    //TODO: multy levels
                     var parentFolder = ExtractFolder(change.ChangeType, change.Item);
                     var parentFolderRelationships = versionControl.QueryMergeRelationships(parentFolder);
                     if (parentFolderRelationships != null)
@@ -808,6 +825,7 @@ namespace AutoMerge
                                 Target = parentFolderRelationship.Item,
                                 TargetItemType = ItemType.Folder,
                                 GetLatesPath = parentFolderRelationship.Item,
+                                Recursively = change.Item.ItemType == ItemType.Folder
                             });
                         }
                     }
@@ -828,14 +846,15 @@ namespace AutoMerge
                             if (targetBranch != null)
                             {
                                 var changeRelationship = changeRelationships
-                                    .First(r => r.Item.Contains(targetBranch));
+                                    .FirstOrDefault(r => r.Item.Contains(targetBranch));
                                 mergeRelationships.Add(new MergeRelation
                                 {
                                     Item = change.Item.ServerItem,
                                     Source = parentFolder,
                                     Target = parentFolderRelationship.Item,
                                     TargetItemType = ItemType.Folder,
-                                    GetLatesPath = changeRelationship.Item,
+                                    GetLatesPath = changeRelationship != null ? changeRelationship.Item : null,
+                                    Recursively = change.Item.ItemType == ItemType.Folder
                                 });
                             }
                         }
@@ -937,8 +956,9 @@ namespace AutoMerge
                         r => r.Item == change.Item.ServerItem && r.Target.StartsWith(targetBranch));
                 if (mergeRelation != null)
                 {
+                    var recursionType = CalculateRecursionType(mergeRelation);
                     var status = workspace.Merge(mergeRelation.Source, mergeRelation.Target, version, version,
-                        LockLevel.None, RecursionType.OneLevel, mergeOptions);
+                        LockLevel.None, recursionType, mergeOptions);
                     if (!hasConflicts && HasConflicts(status))
                     {
                         hasConflicts = true;
@@ -955,7 +975,9 @@ namespace AutoMerge
                 var conflicts = AutoResolveConflicts(workspace, targetBranch, mergeOption);
                 if (!conflicts.IsNullOrEmpty())
                 {
-                    return MergeResult.HasConflicts;
+                    return IsTryRestoreUnexpectedFile(conflicts)
+                        ? MergeResult.UnexpectedFileRestored
+                        : MergeResult.HasConflicts;
                 }
             }
 
@@ -1020,20 +1042,30 @@ namespace AutoMerge
             {
                 if (mergeRelationship.Target.StartsWith(targetBranch))
                 {
-                    itemSpecs.Add(new ItemSpec(mergeRelationship.Target,
-                        mergeRelationship.TargetItemType == ItemType.File ? RecursionType.None : RecursionType.OneLevel));
+                    var recursionType = CalculateRecursionType(mergeRelationship);
+                    itemSpecs.Add(new ItemSpec(mergeRelationship.Target, recursionType));
                 }
             }
             return workspace.GetPendingChanges(itemSpecs.ToArray()).ToList();
         }
 
+        private static RecursionType CalculateRecursionType(MergeRelation mergeRelationship)
+        {
+            var recursionType = mergeRelationship.Recursively
+                ? RecursionType.Full
+                : mergeRelationship.TargetItemType == ItemType.File
+                    ? RecursionType.None
+                    : RecursionType.OneLevel;
+            return recursionType;
+        }
+
         private static bool GetLatest(string targetPath, List<MergeRelation> mergeRelationships, Workspace workspace)
         {
             var getLatestFiles = new List<string>();
-            foreach (var mergeRelationship in mergeRelationships.Where(r => r.TargetItemType == ItemType.File))
+            foreach (var mergeRelationship in mergeRelationships.Where(r => r.TargetItemType == ItemType.File && r.GetLatesPath != null))
             {
                 if (mergeRelationship.GetLatesPath.StartsWith(targetPath))
-                    getLatestFiles.Add(mergeRelationship.Target);
+                    getLatestFiles.Add(mergeRelationship.GetLatesPath);
             }
 
             var getLatestFilesArray = getLatestFiles.ToArray();

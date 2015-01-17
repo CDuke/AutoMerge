@@ -1,6 +1,7 @@
 #### 0.2.6
 * (enhancement) Change behavior "Merge & Check In". Now it check in if no conflicts, otherwise show resolve conflicts window.
 * (enhancement) If found to be restored unexpected file, merging occurs by file.
+* (fix) Fix refreshing changeset when project changed.
 
 #### 0.2.5.1 (2014-12-03)
 * (enhancement) Allow templating discard merge comment (#11)

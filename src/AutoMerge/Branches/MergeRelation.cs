@@ -13,5 +13,7 @@ namespace AutoMerge
         public ItemType TargetItemType { get; set; }
 
         public string GetLatesPath { get; set; }
+
+        public bool Recursively { get; set; }
     }
 }
