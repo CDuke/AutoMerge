@@ -10,13 +10,12 @@ namespace AutoMerge
 		private readonly string _teamProjectName;
 		
 
-		public ChangesetService(VersionControlServer versionControlServer, string teamProjectName)
+		public ChangesetService(VersionControlServer versionControlServer)
 		{
 			_versionControlServer = versionControlServer;
-			_teamProjectName = teamProjectName;
 		}
 
-		public ICollection<Changeset> GetUserChangesets(string userName, int count)
+		public ICollection<Changeset> GetUserChangesets(string teamProjectName, string userName, int count)
 		{
 			var path = "$/" + _teamProjectName;
 			return _versionControlServer.QueryHistory(path,

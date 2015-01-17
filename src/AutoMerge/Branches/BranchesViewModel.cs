@@ -177,16 +177,15 @@ namespace AutoMerge
 
         public DelegateCommand OpenSourceControlExplorerCommand { get; set; }
 
-        public async override void Initialize(object sender, SectionInitializeEventArgs e)
+        protected async override Task InitializeAsync(object sender, SectionInitializeEventArgs e)
         {
             Logger.Debug("Start initilize branches section");
-            base.Initialize(sender, e);
 
             var tfs = Context.TeamProjectCollection;
             var versionControl = tfs.GetService<VersionControlServer>();
             SubscribeWorkspaceChanges(versionControl);
 
-            _changesetService = new ChangesetService(versionControl, Context.TeamProjectName);
+            _changesetService = new ChangesetService(versionControl);
 
             _eventAggregator.GetEvent<SelectChangesetEvent>()
                 .Subscribe(OnSelectedChangeset);

@@ -49,7 +49,7 @@ namespace AutoMerge
 
 		public static bool IsConnectedToTfsCollectionAndProject(IServiceProvider provider)
 		{
-			var context = GetContext(provider);
+			var context = GetTeamFoundationContext(provider);
 			if (context != null)
 			{
 				return context.HasCollection && context.HasTeamProject;
@@ -81,7 +81,7 @@ namespace AutoMerge
 			}
 		}
 
-		public static ITeamFoundationContext GetContext(IServiceProvider serviceProvider)
+		public static ITeamFoundationContext GetTeamFoundationContext(IServiceProvider serviceProvider)
 		{
 			if (serviceProvider != null)
 			{
@@ -98,7 +98,7 @@ namespace AutoMerge
 
 		public static string GetAuthorizedUser(IServiceProvider serviceProvider)
 		{
-			var context = GetContext(serviceProvider);
+			var context = GetTeamFoundationContext(serviceProvider);
 			if (context != null && IsConnectedToTfsCollectionAndProject(context))
 			{
 				var vcs = context.TeamProjectCollection.GetService<VersionControlServer>();

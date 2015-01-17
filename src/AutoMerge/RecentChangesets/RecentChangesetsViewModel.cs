@@ -5,6 +5,7 @@ using AutoMerge.Events;
 using AutoMerge.Prism.Command;
 using AutoMerge.Prism.Events;
 using Microsoft.TeamFoundation;
+using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Controls;
 using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
 using Task = System.Threading.Tasks.Task;
@@ -138,7 +139,7 @@ namespace AutoMerge
 
             var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider);
             var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
-            
+
             Logger.Info("Getting changesets ...");
             var changesets = await changesetProvider.GetChangesets(userLogin);
             Logger.Info("Getting changesets end");
@@ -296,6 +297,11 @@ namespace AutoMerge
             SelectedChangeset = context.SelectedChangeset;
             ShowAddByIdChangeset = context.ShowAddByIdChangeset;
             Title = context.Title;
+        }
+
+        protected override void OnContextChanged(object sender, ContextChangedEventArgs e)
+        {
+            Refresh();
         }
     }
 }
