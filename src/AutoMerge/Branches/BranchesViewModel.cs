@@ -599,10 +599,12 @@ namespace AutoMerge
                         case MergeResult.CheckInEvaluateFail:
                             notification.NotificationType = NotificationType.Error;
                             notification.Message = "Check In evaluate failed";
+                            notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.CheckInFail:
                             notification.NotificationType = NotificationType.Error;
                             notification.Message = "Check In failed";
+                            notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.NothingMerge:
                             notification.NotificationType = NotificationType.Warning;
@@ -617,9 +619,10 @@ namespace AutoMerge
                             notification.NotificationType = NotificationType.Error;
                             notification.Message = "Can not get lates";
                             break;
-                        case MergeResult.TryRestoreFile:
+                        case MergeResult.UnexpectedFileRestored:
                             notification.NotificationType = NotificationType.Warning;
-                            notification.Message = "Some files were restored";
+                            notification.Message = "Some unexpected files were restored";
+                            notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.Merged:
                             notification.NotificationType = NotificationType.Information;
@@ -684,7 +687,8 @@ namespace AutoMerge
                 if (resultModel.PendingChanges != null && resultModel.PendingChanges.Count > 0)
                     pendingChanges.AddRange(resultModel.PendingChanges);
 
-                if (resultModel.MergeResult == MergeResult.HasConflicts)
+                if (resultModel.MergeResult == MergeResult.HasConflicts
+                    || resultModel.MergeResult == MergeResult.UnexpectedFileRestored)
                     conflictsPath.Add(resultModel.BranchInfo.TargetPath);
             }
 
@@ -736,22 +740,12 @@ namespace AutoMerge
                 ? changeset.AssociatedWorkItems.Select(w => w.Id).ToList()
                 : new List<int>();
 
-            var mergeRelationships = new List<ItemIdentifier>();
-
-            foreach (var change in changeset.Changes)
-            {
-                if (!change.ChangeType.HasFlag(ChangeType.Add) && change.Item.ItemType == ItemType.File)
-                {
-                    var changeRelationShips = versionControl.QueryMergeRelationships(change.Item.ServerItem);
-                    if (changeRelationShips != null)
-                    {
-                        mergeRelationships.AddRange(changeRelationShips.Where(r => !r.IsDeleted));
-                    }
-                }
-            }
+            var mergeInfos = _branches;
+            var targetBranches = mergeInfos.Select(m => m.TargetBranch).ToArray();
+            var mergeRelationships = GetMergeRelationships(changeset, targetBranches, versionControl);
 
             var commentFormater = new CommentFormater(Settings.Instance.CommentFormat);
-            foreach (var mergeInfo in _branches.Where(b => b.Checked))
+            foreach (var mergeInfo in mergeInfos.Where(b => b.Checked))
             {
                 var mergeResultModel = new MergeResultModel
                 {
@@ -760,13 +754,18 @@ namespace AutoMerge
 
                 var mergeResult = MergeToBranch(mergeInfo, mergeOption, mergeRelationships, workspace);
                 var targetPendingChanges = GetPendingChanges(mergeInfo.TargetPath, workspace);
+                if (mergeResult == MergeResult.UnexpectedFileRestored)
+                {
+                    workspace.Undo(targetPendingChanges.Select(pendingChange => new ItemSpec(pendingChange)).ToArray(),
+                        true);
+                    mergeResult = MergeByFile(changeset.Changes, mergeInfo.TargetBranch, mergeRelationships,
+                        mergeInfo.ChangesetVersionSpec, mergeOption, workspace);
+                    targetPendingChanges = GetPendingChangesByFile(mergeRelationships, mergeInfo.TargetBranch, workspace);
+                }
+
                 if (targetPendingChanges.Count == 0)
                 {
                     mergeResult = MergeResult.NothingMerge;
-                }
-                if (targetPendingChanges.Any(change => change.IsUndelete))
-                {
-                    mergeResult = MergeResult.TryRestoreFile;
                 }
                 mergeResultModel.MergeResult = mergeResult;
                 mergeResultModel.PendingChanges = targetPendingChanges;
@@ -787,6 +786,84 @@ namespace AutoMerge
 
             return result;
         }
+
+        private static List<MergeRelation> GetMergeRelationships(Changeset changeset, string[] targetBranches, VersionControlServer versionControl)
+        {
+            var mergeRelationships = new List<MergeRelation>();
+
+            foreach (var change in changeset.Changes)
+            {
+                if (change.ChangeType.HasFlag(ChangeType.Add))
+                {
+                    //TODO: multy levels
+                    var parentFolder = ExtractFolder(change.ChangeType, change.Item);
+                    var parentFolderRelationships = versionControl.QueryMergeRelationships(parentFolder);
+                    if (parentFolderRelationships != null)
+                    {
+                        foreach (var parentFolderRelationship in parentFolderRelationships.Where(r => !r.IsDeleted))
+                        {
+                            mergeRelationships.Add(new MergeRelation
+                            {
+                                Item = change.Item.ServerItem,
+                                Source = parentFolder,
+                                Target = parentFolderRelationship.Item,
+                                TargetItemType = ItemType.Folder,
+                                GetLatesPath = parentFolderRelationship.Item,
+                            });
+                        }
+                    }
+                }
+                else if (change.ChangeType.HasFlag(ChangeType.Rename))
+                {
+                    var changeRelationships = versionControl.QueryMergeRelationships(change.Item.ServerItem) ??
+                                              new ItemIdentifier[0];
+                    changeRelationships = changeRelationships.Where(r => !r.IsDeleted).ToArray();
+                    var parentFolder = ExtractFolder(change.ChangeType, change.Item);
+                    var parentFolderRelationShips = versionControl.QueryMergeRelationships(parentFolder);
+                    if (parentFolderRelationShips != null)
+                    {
+                        foreach (var parentFolderRelationship in parentFolderRelationShips.Where(r => !r.IsDeleted))
+                        {
+                            var targetBranch =
+                                targetBranches.FirstOrDefault(b => parentFolderRelationship.Item.Contains(b));
+                            if (targetBranch != null)
+                            {
+                                var changeRelationship = changeRelationships
+                                    .First(r => r.Item.Contains(targetBranch));
+                                mergeRelationships.Add(new MergeRelation
+                                {
+                                    Item = change.Item.ServerItem,
+                                    Source = parentFolder,
+                                    Target = parentFolderRelationship.Item,
+                                    TargetItemType = ItemType.Folder,
+                                    GetLatesPath = changeRelationship.Item,
+                                });
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var changeRelationShips = versionControl.QueryMergeRelationships(change.Item.ServerItem);
+                    if (changeRelationShips != null)
+                    {
+                        foreach (var changeRelationShip in changeRelationShips.Where(r => !r.IsDeleted))
+                        {
+                            mergeRelationships.Add(new MergeRelation
+                            {
+                                Item = change.Item.ServerItem,
+                                Source = change.Item.ServerItem,
+                                Target = changeRelationShip.Item,
+                                TargetItemType = change.Item.ItemType,
+                                GetLatesPath = changeRelationShip.Item
+                            });
+                        }
+                    }
+                }
+            }
+            return mergeRelationships;
+        }
+
 
         private TrackMergeInfo GetTrackMergeInfo(MergeInfoViewModel mergeInfo, Changeset changeset, VersionControlServer versionControl)
         {
@@ -844,8 +921,50 @@ namespace AutoMerge
             return result;
         }
 
+        private MergeResult MergeByFile(Change[] changes, string targetBranch, List<MergeRelation> mergeRelationships,
+            VersionSpec version, MergeOption mergeOption, Workspace workspace)
+        {
+            if (!GetLatest(targetBranch, mergeRelationships, workspace))
+            {
+                return MergeResult.CanNotGetLatest;
+            }
+
+            var mergeOptions = ToTfsMergeOptions(mergeOption);
+            var hasConflicts = false;
+            foreach (var change in changes)
+            {
+                var mergeRelation =
+                    mergeRelationships.FirstOrDefault(
+                        r => r.Item == change.Item.ServerItem && r.Target.StartsWith(targetBranch));
+                if (mergeRelation != null)
+                {
+                    var status = workspace.Merge(mergeRelation.Source, mergeRelation.Target, version, version,
+                        LockLevel.None, RecursionType.OneLevel, mergeOptions);
+                    if (!hasConflicts && HasConflicts(status))
+                    {
+                        hasConflicts = true;
+                    }
+                }
+                else
+                {
+                    Logger.Info("File {0} not merged to branch {1}", change.Item.ServerItem, targetBranch);
+                }
+            }
+
+            if (hasConflicts)
+            {
+                var conflicts = AutoResolveConflicts(workspace, targetBranch, mergeOption);
+                if (!conflicts.IsNullOrEmpty())
+                {
+                    return MergeResult.HasConflicts;
+                }
+            }
+
+            return MergeResult.Merged;
+        }
+
         private static MergeResult MergeToBranch(MergeInfoViewModel mergeInfoeViewModel, MergeOption mergeOption,
-            IEnumerable<ItemIdentifier> mergeRelationships, Workspace workspace)
+            List<MergeRelation> mergeRelationships, Workspace workspace)
         {
             var source = mergeInfoeViewModel.SourcePath;
             var target = mergeInfoeViewModel.TargetPath;
@@ -856,12 +975,34 @@ namespace AutoMerge
                 return MergeResult.CanNotGetLatest;
             }
 
-            if (!Merge(source, target, version, mergeOption, workspace))
+            var mergeOptions = ToTfsMergeOptions(mergeOption);
+            var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
+            if (HasConflicts(status))
             {
-                return MergeResult.HasConflicts;
+                var conflicts = AutoResolveConflicts(workspace, target, mergeOption);
+                if (!conflicts.IsNullOrEmpty())
+                {
+                    return IsTryRestoreUnexpectedFile(conflicts)
+                        ? MergeResult.UnexpectedFileRestored
+                        : MergeResult.HasConflicts;
+                }
             }
 
             return MergeResult.Merged;
+        }
+
+        private static bool IsTryRestoreUnexpectedFile(Conflict[] conflicts)
+        {
+            foreach (var conflict in conflicts)
+            {
+                if (conflict.BaseChangeType.HasFlag(ChangeType.Undelete)
+                    && !conflict.TheirChangeType.HasFlag(ChangeType.Undelete))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static List<PendingChange> GetPendingChanges(string target, Workspace workspace)
@@ -873,13 +1014,27 @@ namespace AutoMerge
             return targetPendingChanges;
         }
 
-        private static bool GetLatest(string targetPath, IEnumerable<ItemIdentifier> mergeRelationships, Workspace workspace)
+        private static List<PendingChange> GetPendingChangesByFile(List<MergeRelation> mergeRelationships, string targetBranch, Workspace workspace)
         {
-            var getLatestFiles = new List<string>();
+            var itemSpecs = new List<ItemSpec>();
             foreach (var mergeRelationship in mergeRelationships)
             {
-                if (mergeRelationship.Item.StartsWith(targetPath))
-                    getLatestFiles.Add(mergeRelationship.Item);
+                if (mergeRelationship.Target.StartsWith(targetBranch))
+                {
+                    itemSpecs.Add(new ItemSpec(mergeRelationship.Target,
+                        mergeRelationship.TargetItemType == ItemType.File ? RecursionType.None : RecursionType.OneLevel));
+                }
+            }
+            return workspace.GetPendingChanges(itemSpecs.ToArray()).ToList();
+        }
+
+        private static bool GetLatest(string targetPath, List<MergeRelation> mergeRelationships, Workspace workspace)
+        {
+            var getLatestFiles = new List<string>();
+            foreach (var mergeRelationship in mergeRelationships.Where(r => r.TargetItemType == ItemType.File))
+            {
+                if (mergeRelationship.GetLatesPath.StartsWith(targetPath))
+                    getLatestFiles.Add(mergeRelationship.Target);
             }
 
             var getLatestFilesArray = getLatestFiles.ToArray();
@@ -895,24 +1050,6 @@ namespace AutoMerge
                     {
                         return false;
                     }
-                }
-            }
-
-            return true;
-        }
-
-        private static bool Merge(string source, string target, ChangesetVersionSpec version, MergeOption mergeOption,
-            Workspace workspace)
-        {
-            var mergeOptions = ToTfsMergeOptions(mergeOption);
-            var status = workspace.Merge(source, target, version, version, LockLevel.None, RecursionType.Full, mergeOptions);
-
-            if (HasConflicts(status))
-            {
-                var conflicts = AutoResolveConflicts(workspace, target, mergeOption);
-                if (!conflicts.IsNullOrEmpty())
-                {
-                    return false;
                 }
             }
 
@@ -938,27 +1075,6 @@ namespace AutoMerge
         private static bool HasConflicts(GetStatus mergeStatus)
         {
             return !mergeStatus.NoActionNeeded && mergeStatus.NumConflicts > 0;
-        }
-
-        private static bool ManualResolveConflicts(Workspace workspace, Conflict[] conflicts)
-        {
-            if (conflicts.IsNullOrEmpty())
-                return true;
-
-            foreach (var conflict in conflicts)
-            {
-                if (workspace.MergeContent(conflict, true))
-                {
-                    conflict.Resolution = Resolution.AcceptMerge;
-                    workspace.ResolveConflict(conflict);
-                }
-                if (!conflict.IsResolved)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private static Conflict[] AutoResolveConflicts(Workspace workspace, string targetPath, MergeOption mergeOption)
@@ -987,13 +1103,11 @@ namespace AutoMerge
             if (mergeOption == MergeOption.KeepTarget)
             {
                 conflict.Resolution = Resolution.AcceptYours;
-                //conflict.IsResolved = true;
                 workspace.ResolveConflict(conflict);
             }
             if (mergeOption == MergeOption.OverwriteTarget)
             {
                 conflict.Resolution = Resolution.AcceptTheirs;
-                //conflict.IsResolved = true;
                 workspace.ResolveConflict(conflict);
             }
         }

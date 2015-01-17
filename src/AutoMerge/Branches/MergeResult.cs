@@ -10,6 +10,6 @@ namespace AutoMerge
         HasConflicts,
         CanNotGetLatest,
         HasLocalChanges,
-        TryRestoreFile,
+        UnexpectedFileRestored,
     }
 }
