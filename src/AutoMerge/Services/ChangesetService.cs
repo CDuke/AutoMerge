@@ -34,14 +34,14 @@ namespace AutoMerge
 
 		public Changeset GetChangeset(int changesetId)
 		{
-			var changeset = _versionControlServer.GetChangeset(changesetId, true, false);
+			var changeset = _versionControlServer.GetChangeset(changesetId, false, false);
 
 			return changeset;
 		}
 
 		public Change[] GetChanges(int changesetId)
 		{
-			return _versionControlServer.GetChangesForChangeset(changesetId, false, int.MaxValue, null, null, null, false);
+			return _versionControlServer.GetChangesForChangeset(changesetId, false, int.MaxValue, null, null, null, true);
 		}
 
 		public List<ItemIdentifier> GetAssociatedBranches(params int[] changesetId)

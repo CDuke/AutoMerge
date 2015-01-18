@@ -536,21 +536,25 @@ namespace AutoMerge
 
         private static string ExtractFolder(ChangeType changeType, Item item)
         {
-            if (IsNeedCalculateTopFolder(changeType, item))
-                return ExtractParentFolder(item.ServerItem);
-
-            return item.ItemType == ItemType.Folder
-                ? item.ServerItem
-                : ExtractParentFolder(item.ServerItem);
+            return ExtractFolder(changeType, item.ServerItem, item.ItemType);
         }
 
-        private static bool IsNeedCalculateTopFolder(ChangeType changeType, Item item)
+        private static string ExtractFolder(ChangeType changeType, string path, ItemType itemType)
+        {
+            if (IsNeedCalculateTopFolder(changeType, itemType))
+                return ExtractParentFolder(path);
+
+            return itemType == ItemType.Folder
+                ? path
+                : ExtractParentFolder(path);
+        }
+
+        private static bool IsNeedCalculateTopFolder(ChangeType changeType, ItemType itemType)
         {
             return ((changeType.HasFlag(ChangeType.Add)
                      || changeType.HasFlag(ChangeType.Branch)
-                     || changeType.HasFlag(ChangeType.Delete)
-                     || changeType.HasFlag(ChangeType.Rename)) && item.ItemType == ItemType.Folder)
-                   || (item.ItemType == ItemType.File);
+                     || changeType.HasFlag(ChangeType.Rename)) && itemType == ItemType.Folder)
+                   || (itemType == ItemType.File);
 
         }
 
@@ -751,6 +755,7 @@ namespace AutoMerge
             var changesetId = _changeset.ChangesetId;
             var changesetService = _changesetService;
             var changeset = changesetService.GetChangeset(changesetId);
+            changeset.Changes = changesetService.GetChanges(changesetId);
             var mergeOption = _mergeOption;
             var workItemStore = tfs.GetService<WorkItemStore>();
             var workItemIds = changeset.AssociatedWorkItems != null
@@ -759,7 +764,8 @@ namespace AutoMerge
 
             var mergeInfos = _branches;
             var targetBranches = mergeInfos.Select(m => m.TargetBranch).ToArray();
-            var mergeRelationships = GetMergeRelationships(changeset, targetBranches, versionControl);
+            var pendingChanges = GetChangesetPendingChanges(changeset.Changes);
+            var mergeRelationships = GetMergeRelationships(pendingChanges, targetBranches, versionControl);
 
             var commentFormater = new CommentFormater(Settings.Instance.CommentFormat);
             foreach (var mergeInfo in mergeInfos.Where(b => b.Checked))
@@ -804,15 +810,43 @@ namespace AutoMerge
             return result;
         }
 
-        private static List<MergeRelation> GetMergeRelationships(Changeset changeset, string[] targetBranches, VersionControlServer versionControl)
+        // Copy from Microsoft.TeamFoundation.VersionControl.Controls.PendingChanges.ChangesetDataProvider.ResetDataFromChangeset,
+        // Microsoft.TeamFoundation.VersionControl.Controls
+        private static List<PendingChange> GetChangesetPendingChanges(Change[] changes)
+        {
+            var pendingChanges = new List<PendingChange>(changes.Length);
+            foreach (var change in changes)
+            {
+                if (ChangeType.SourceRename != (change.ChangeType & (ChangeType.Add | ChangeType.Branch | ChangeType.Rename | ChangeType.SourceRename)))
+                {
+                    var pendingChange = new PendingChange(change);
+                    if (change.MergeSources != null)
+                    {
+                        foreach (var mergeSource in change.MergeSources)
+                        {
+                            if (mergeSource.IsRename)
+                            {
+                                pendingChange.UpdateSourceItems(null, mergeSource.ServerItem);
+                                break;
+                            }
+                        }
+                    }
+                    pendingChanges.Add(pendingChange);
+                }
+            }
+
+            return pendingChanges;
+        }
+
+        private static List<MergeRelation> GetMergeRelationships(List<PendingChange> pendingChanges, string[] targetBranches, VersionControlServer versionControl)
         {
             var mergeRelationships = new List<MergeRelation>();
 
-            foreach (var change in changeset.Changes)
+            foreach (var pendingChange in pendingChanges)
             {
-                if (change.ChangeType.HasFlag(ChangeType.Add) || change.ChangeType.HasFlag(ChangeType.Branch))
+                if (pendingChange.IsAdd || pendingChange.IsBranch)
                 {
-                    var parentFolder = ExtractFolder(change.ChangeType, change.Item);
+                    var parentFolder = ExtractFolder(pendingChange.ChangeType, pendingChange.ServerItem, pendingChange.ItemType);
                     var parentFolderRelationships = versionControl.QueryMergeRelationships(parentFolder);
                     if (parentFolderRelationships != null)
                     {
@@ -820,41 +854,39 @@ namespace AutoMerge
                         {
                             mergeRelationships.Add(new MergeRelation
                             {
-                                Item = change.Item.ServerItem,
+                                Item = pendingChange.ServerItem,
                                 Source = parentFolder,
                                 Target = parentFolderRelationship.Item,
                                 TargetItemType = ItemType.Folder,
                                 GetLatesPath = parentFolderRelationship.Item,
-                                Recursively = change.Item.ItemType == ItemType.Folder
+                                Recursively = pendingChange.ItemType == ItemType.Folder
                             });
                         }
                     }
                 }
-                else if (change.ChangeType.HasFlag(ChangeType.Rename))
+                else if (pendingChange.IsRename)
                 {
-                    var changeRelationships = versionControl.QueryMergeRelationships(change.Item.ServerItem) ??
-                                              new ItemIdentifier[0];
-                    changeRelationships = changeRelationships.Where(r => !r.IsDeleted).ToArray();
-                    var parentFolder = ExtractFolder(change.ChangeType, change.Item);
-                    var parentFolderRelationShips = versionControl.QueryMergeRelationships(parentFolder);
-                    if (parentFolderRelationShips != null)
+                    var shareFolder = FindShareFolder(pendingChange.ServerItem, pendingChange.SourceServerItem);
+                    var shareFolderRelationships = versionControl.QueryMergeRelationships(shareFolder);
+                    var sourceRelationships = versionControl.QueryMergeRelationships(pendingChange.SourceServerItem) ?? new ItemIdentifier[0];
+                    if (shareFolderRelationships != null)
                     {
-                        foreach (var parentFolderRelationship in parentFolderRelationShips.Where(r => !r.IsDeleted))
+                        foreach (var shareFolderRelationship in shareFolderRelationships.Where(r => !r.IsDeleted))
                         {
                             var targetBranch =
-                                targetBranches.FirstOrDefault(b => parentFolderRelationship.Item.Contains(b));
+                                targetBranches.FirstOrDefault(branch => shareFolderRelationship.Item.Contains(branch));
                             if (targetBranch != null)
                             {
-                                var changeRelationship = changeRelationships
+                                var sourceRelationship = sourceRelationships
                                     .FirstOrDefault(r => r.Item.Contains(targetBranch));
                                 mergeRelationships.Add(new MergeRelation
                                 {
-                                    Item = change.Item.ServerItem,
-                                    Source = parentFolder,
-                                    Target = parentFolderRelationship.Item,
+                                    Item = pendingChange.ServerItem,
+                                    Source = shareFolder,
+                                    Target = shareFolderRelationship.Item,
                                     TargetItemType = ItemType.Folder,
-                                    GetLatesPath = changeRelationship != null ? changeRelationship.Item : null,
-                                    Recursively = change.Item.ItemType == ItemType.Folder
+                                    GetLatesPath = sourceRelationship != null ? sourceRelationship.Item : null,
+                                    Recursively = true
                                 });
                             }
                         }
@@ -862,17 +894,17 @@ namespace AutoMerge
                 }
                 else
                 {
-                    var changeRelationShips = versionControl.QueryMergeRelationships(change.Item.ServerItem);
+                    var changeRelationShips = versionControl.QueryMergeRelationships(pendingChange.ServerItem);
                     if (changeRelationShips != null)
                     {
                         foreach (var changeRelationShip in changeRelationShips.Where(r => !r.IsDeleted))
                         {
                             mergeRelationships.Add(new MergeRelation
                             {
-                                Item = change.Item.ServerItem,
-                                Source = change.Item.ServerItem,
+                                Item = pendingChange.ServerItem,
+                                Source = pendingChange.ServerItem,
                                 Target = changeRelationShip.Item,
-                                TargetItemType = change.Item.ItemType,
+                                TargetItemType = pendingChange.ItemType,
                                 GetLatesPath = changeRelationShip.Item
                             });
                         }
