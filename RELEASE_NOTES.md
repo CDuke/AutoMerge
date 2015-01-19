@@ -1,3 +1,6 @@
+#### 0.2.6.1 (2015-01-19)
+* (fix) Showing all changes regardless of the project
+
 #### 0.2.6 (2015-01-18)
 * (enhancement) Change behavior "Merge & Check In". Now it check in if no conflicts, otherwise show resolve conflicts window.
 * (enhancement) If found to be restored unexpected file, merging occurs by file.
