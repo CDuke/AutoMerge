@@ -619,35 +619,35 @@ namespace AutoMerge
                     {
                         case MergeResult.CheckInEvaluateFail:
                             notification.NotificationType = NotificationType.Error;
-                            notification.Message = "Check In evaluate failed";
+                            notification.Message = "Check In evaluate failed.";
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.CheckInFail:
                             notification.NotificationType = NotificationType.Error;
-                            notification.Message = "Check In failed";
+                            notification.Message = "Check In failed.";
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.NothingMerge:
                             notification.NotificationType = NotificationType.Warning;
-                            notification.Message = "Nothing merged";
+                            notification.Message = "Nothing merged.";
                             break;
                         case MergeResult.HasConflicts:
                             notification.NotificationType = NotificationType.Error;
-                            notification.Message = "Has conflicts";
+                            notification.Message = "Has conflicts.";
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.CanNotGetLatest:
                             notification.NotificationType = NotificationType.Error;
-                            notification.Message = "Can not get lates";
+                            notification.Message = "Can not get latest.";
                             break;
                         case MergeResult.UnexpectedFileRestored:
                             notification.NotificationType = NotificationType.Warning;
-                            notification.Message = "Some unexpected files were restored";
+                            notification.Message = "Some unexpected files were restored.";
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.Merged:
                             notification.NotificationType = NotificationType.Information;
-                            notification.Message = "Files merge but not chekced in";
+                            notification.Message = "Files merged but not checked in.";
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.CheckIn:
