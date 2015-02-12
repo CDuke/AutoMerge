@@ -6,13 +6,6 @@ namespace AutoMerge
 	[TeamExplorerSection(GuidList.RecentChangesetsSectionId, GuidList.AutoMergePageId, 10)]
 	public class RecentChangesetsSection : TeamExplorerSectionBase
 	{
-		private static readonly object _view;
-
-		static RecentChangesetsSection()
-		{
-			_view = new RecentChangesetsView();
-		}
-
 		protected override ITeamExplorerSection CreateViewModel(SectionInitializeEventArgs e)
 		{
 			var viewModel = base.CreateViewModel(e) ?? new RecentChangesetsViewModel(new VsLogger(ServiceProvider));
@@ -22,7 +15,7 @@ namespace AutoMerge
 
 		protected override object CreateView(SectionInitializeEventArgs e)
 		{
-			return _view;
+            return new RecentChangesetsView();
 		}
 	}
 }

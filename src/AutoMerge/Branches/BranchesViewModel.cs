@@ -612,8 +612,7 @@ namespace AutoMerge
                         NotificationType = NotificationType.Information,
                         Message = string.Empty
                     };
-                    var mergePath = string.Format("MERGE {0}  {1} -> {2}",
-                        resultModel.SourceChangesetId,
+                    var mergePath = string.Format("MERGE {0} -> {1}",
                         BranchHelper.GetShortBranchName(resultModel.BranchInfo.SourceBranch),
                         BranchHelper.GetShortBranchName(resultModel.BranchInfo.TargetBranch));
                     switch (resultModel.MergeResult)
