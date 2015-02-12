@@ -612,7 +612,8 @@ namespace AutoMerge
                         NotificationType = NotificationType.Information,
                         Message = string.Empty
                     };
-                    var mergePath = string.Format("MERGE {0} -> {1}",
+                    var mergePath = string.Format("MERGE {0}  {1} -> {2}",
+                        resultModel.SourceChangesetId,
                         BranchHelper.GetShortBranchName(resultModel.BranchInfo.SourceBranch),
                         BranchHelper.GetShortBranchName(resultModel.BranchInfo.TargetBranch));
                     switch (resultModel.MergeResult)
@@ -651,7 +652,7 @@ namespace AutoMerge
                             notCheckedIn.Add(resultModel);
                             break;
                         case MergeResult.CheckIn:
-                            var changesetId = resultModel.ChangesetId.Value;
+                            var changesetId = resultModel.TagetChangesetId.Value;
                             notification.NotificationType = NotificationType.Information;
                             notification.Message = string.Format("[Changeset {0}](Click to view the changeset details) successfully checked in.", changesetId);
                             notification.Command = new DelegateCommand(() => ViewChangesetDetailsExecute(changesetId));
@@ -673,14 +674,14 @@ namespace AutoMerge
 
                 foreach (var notification in notifications)
                 {
-                    ShowNotification(notification.Message, notification.NotificationType, NotificationFlags.RequiresConfirmation, notification.Command);
+                    ShowNotification(notification.Message, notification.NotificationType, NotificationFlags.RequiresConfirmation, notification.Command, Guid.NewGuid());
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error("Error while merging", ex);
                 ClearNotifications();
-                ShowNotification(ex.Message, NotificationType.Error);
+                ShowError(ex.Message);
             }
             finally
             {
@@ -772,6 +773,7 @@ namespace AutoMerge
             {
                 var mergeResultModel = new MergeResultModel
                 {
+                    SourceChangesetId = changesetId,
                     BranchInfo = mergeInfo,
                 };
 
@@ -802,7 +804,7 @@ namespace AutoMerge
                 if (checkInIfSuccess && mergeResultModel.MergeResult == MergeResult.Merged)
                 {
                     var checkInResult = CheckIn(mergeResultModel.PendingChanges, comment, workspace, workItemIds, changeset.PolicyOverride, workItemStore);
-                    mergeResultModel.ChangesetId = checkInResult.ChangesetId;
+                    mergeResultModel.TagetChangesetId = checkInResult.ChangesetId;
                     mergeResultModel.MergeResult = checkInResult.CheckinResult;
                 }
             }

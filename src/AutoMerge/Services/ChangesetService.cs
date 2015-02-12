@@ -15,7 +15,8 @@ namespace AutoMerge
 
 		public ICollection<Changeset> GetUserChangesets(string teamProjectName, string userName, int count)
 		{
-			var path = "$/" + teamProjectName;
+//			var path = "$/" + teamProjectName;
+            var path = "$/FORIS_Mobile/PRODUCTION/5.0.4/Projects/Marti/OrderManagement";
 			return _versionControlServer.QueryHistory(path,
 				VersionSpec.Latest,
 				0,

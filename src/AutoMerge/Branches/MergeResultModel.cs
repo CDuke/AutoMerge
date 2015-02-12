@@ -7,8 +7,6 @@ namespace AutoMerge
     {
         public MergeResult MergeResult { get; set; }
 
-        public string Message { get; set; }
-
         public List<PendingChange> PendingChanges { get; set; }
 
         public MergeInfoViewModel BranchInfo { get; set; }
@@ -17,6 +15,8 @@ namespace AutoMerge
 
         public List<int> WorkItemIds { get; set; }
 
-        public int? ChangesetId { get; set; }
+        public int SourceChangesetId { get; set; }
+
+        public int? TagetChangesetId { get; set; }
     }
 }
