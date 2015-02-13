@@ -27,7 +27,21 @@ namespace AutoMerge
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value != null)
+            {
+                var mergeOptionDisplay = (string) value;
+                if (mergeOptionDisplay == "Keep target (discard)")
+                    return MergeOption.KeepTarget;
+
+                if (mergeOptionDisplay == "Manual")
+                    return MergeOption.ManualResolveConflict;
+
+                if (mergeOptionDisplay == "Overwrite target")
+                    return MergeOption.OverwriteTarget;
+
+            }
+
+            return MergeOption.ManualResolveConflict;
         }
     }
 }
