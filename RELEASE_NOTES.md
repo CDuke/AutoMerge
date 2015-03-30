@@ -1,3 +1,6 @@
+#### 0.2.6.2 (2015-03-30)
+* (fix) SQL Server error 2627
+
 #### 0.2.6.1 (2015-01-19)
 * (fix) Showing all changes regardless of the project
 
