@@ -363,7 +363,9 @@ namespace AutoMerge
                 if (mergesRelationships.Count > 0)
                 {
                     var changetIds =
-                        mergesRelationships.Select(r => r.Version).Cast<ChangesetVersionSpec>().Select(c => c.ChangesetId).ToArray();
+                        mergesRelationships.Select(r => r.Version).Cast<ChangesetVersionSpec>().Select(c => c.ChangesetId)
+                        .Distinct()
+                        .ToArray();
                     var branches = _changesetService.GetAssociatedBranches(changetIds);
 
                     foreach (var mergesRelationship in mergesRelationships)
