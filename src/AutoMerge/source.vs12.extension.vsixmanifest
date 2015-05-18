@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="AutoMerge.VS2013.F05BAC3E-6794-4A9E-9EE7-1B8A200778EE" Version="0.2.6.2" Language="en-US" Publisher="Kulikov Denis" />
+		<Identity Id="AutoMerge.VS2013.F05BAC3E-6794-4A9E-9EE7-1B8A200778EE" Version="0.2.6.3" Language="en-US" Publisher="Kulikov Denis" />
 		<DisplayName>Auto Merge for Visual Studio 2013</DisplayName>
 		<Description>Easy way to merge changeset</Description>
 		<License>LICENSE.txt</License>
@@ -14,7 +14,7 @@
 		<InstallationTarget Version="[12.0, 13.0)" Id="Microsoft.VisualStudio.Pro" />
 	</Installation>
 	<Dependencies>
-		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
+		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
 		<Dependency d:Source="Installed" Version="[12.0,13.0)" Id="Microsoft.VisualStudio.MPF.12.0" DisplayName="Visual Studio MPF 12.0" />
 	</Dependencies>
 	<Assets>
