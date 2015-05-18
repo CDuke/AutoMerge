@@ -1,3 +1,6 @@
+#### 0.2.6.2 (2015-05-18)
+* (fix) The extension requires a version of .NET Framework that is not installed. (#15)
+
 #### 0.2.6.2 (2015-03-30)
 * (fix) SQL Server error 2627
 
