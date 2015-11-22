@@ -1,4 +1,7 @@
-#### 0.2.6.2 (2015-05-18)
+#### 0.2.6.4 (2015-11-23)
+* (fix) Crash when comment template has newline (#18)
+
+#### 0.2.6.3 (2015-05-18)
 * (fix) The extension requires a version of .NET Framework that is not installed. (#15)
 
 #### 0.2.6.2 (2015-03-30)

@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="AutoMerge.VS2012.F05BAC3E-6794-4A9E-9EE7-1B8A200778EE" Version="0.2.6.3" Language="en-US" Publisher="Kulikov Denis" />
+		<Identity Id="AutoMerge.VS2012.F05BAC3E-6794-4A9E-9EE7-1B8A200778EE" Version="0.2.6.4" Language="en-US" Publisher="Kulikov Denis" />
 		<DisplayName>Auto Merge for Visual Studio 2012</DisplayName>
 		<Description>Easy way to merge changeset</Description>
 		<License>LICENSE.txt</License>
-		<ReleaseNotes>RELEASE_NOTES.md</ReleaseNotes>
+		<ReleaseNotes>https://github.com/CDuke/AutoMerge/blob/master/RELEASE_NOTES.md</ReleaseNotes>
 		<Icon>Resources/merge.png</Icon>
 		<PreviewImage>Resources/preview.png</PreviewImage>
 		<Tags>merge code, merge, merging, branch, changeset, merge by work item, tfs</Tags>
