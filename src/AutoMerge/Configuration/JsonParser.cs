@@ -10,7 +10,7 @@ namespace AutoMerge
         public static Dictionary<string, string> ParseJson(string jsonText)
         {
             var jss = new JavaScriptSerializer();
-            return jss.Deserialize<Dictionary<string, string>>(jsonText);
+            return jss.Deserialize<Dictionary<string, string>>(jsonText) ?? new Dictionary<string, string>();
         }
 
         public static string ToJson(Dictionary<string, string> dict)
