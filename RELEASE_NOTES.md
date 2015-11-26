@@ -1,3 +1,6 @@
+#### 0.2.6.5 (2015-11-26)
+* (fix) Null reference when config does not exists
+
 #### 0.2.6.4 (2015-11-23)
 * (fix) Crash when comment template has newline (#18)
 
