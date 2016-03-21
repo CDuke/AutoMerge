@@ -17,5 +17,7 @@ namespace AutoMerge
         public long SourceChangesetId { get; set; }
 
         public List<long> SourceWorkItemIds { get; set; }
+
+        public List<string> SourceWorkItemTitles { get; set; }
 	}
 }

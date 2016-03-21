@@ -934,7 +934,10 @@ namespace AutoMerge
             trackMergeInfo.SourceChangesetId = changeset.ChangesetId;
             trackMergeInfo.SourceWorkItemIds = changeset.AssociatedWorkItems != null
                 ? changeset.AssociatedWorkItems.Select(w => (long) w.Id).ToList()
-                : new List<long>();
+                : new List<long>(0);
+            trackMergeInfo.SourceWorkItemTitles = changeset.AssociatedWorkItems != null
+                ? changeset.AssociatedWorkItems.Select(w => w.Title).ToList()
+                : new List<string>(0);
             trackMergeInfo.OriginaBranch = trackMergeInfo.OriginaBranch ?? trackMergeInfo.SourceBranch;
             trackMergeInfo.OriginalComment = trackMergeInfo.OriginalComment ?? trackMergeInfo.SourceComment;
             return trackMergeInfo;
