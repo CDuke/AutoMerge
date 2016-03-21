@@ -28,14 +28,20 @@ namespace AutoMerge
                 .Replace("{OriginalComment}", trackMergeInfo.OriginalComment)
                 .Replace("{SourceComment}", trackMergeInfo.SourceComment)
                 .Replace("{SourceChangesetId}", trackMergeInfo.SourceChangesetId.ToString(CultureInfo.InvariantCulture))
-                .Replace("{SourceWorkItemIds}", GetWorkItemIds(trackMergeInfo.SourceWorkItemIds));
+                .Replace("{SourceWorkItemIds}", GetWorkItemIds(trackMergeInfo.SourceWorkItemIds))
+                .Replace("{SourceWorkItemTitles}", GetWorkItemTitles(trackMergeInfo.SourceWorkItemTitles));
 
             return comment;
         }
 
-        private string GetWorkItemIds(List<long> sourceWorkItemIds)
+        private static string GetWorkItemIds(List<long> sourceWorkItemIds)
         {
             return string.Join(", ", sourceWorkItemIds.Select(id => id.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        private static string GetWorkItemTitles(List<string> sourceWorkItemTitles)
+        {
+            return string.Join("; ", sourceWorkItemTitles);
         }
 
         private string FromOriginalToTarget(TrackMergeInfo trackMergeInfo, string targetBranch)

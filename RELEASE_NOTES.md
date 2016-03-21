@@ -1,3 +1,6 @@
+#### 0.2.6.6 (2016-03-21)
+* (enhancement) Add "{SourceWorkItemTitles}" keyword for comment_format (#22)
+
 #### 0.2.6.5 (2015-11-26)
 * (fix) Null reference when config does not exists
 
