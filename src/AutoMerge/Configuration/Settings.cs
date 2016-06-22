@@ -1,14 +1,20 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Linq;
+using Microsoft.VisualStudio.Settings;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Settings;
 
 namespace AutoMerge
 {
-    internal class Settings
+    [Export]
+    public class Settings
     {
-        private readonly ISettingProvider _settingProvider;
-        private static readonly Lazy<Settings> _instance;
-
         private MergeMode? _lastMergeOperation;
+        private readonly string[] _mergeOperationDefaultValues;
+        private readonly WritableSettingsStore _vsSettingsProvider;
+
+        private const string collectionKey = "AutoMerge";
 
         private const string lastMergeOperationKey = "last_operation";
         private const string mergeModeMerge = "merge";
@@ -18,7 +24,6 @@ namespace AutoMerge
         private const string mergeOperationDefaultLast = "last";
         private const string mergeOperationDefaultMerge = mergeModeMerge;
         private const string mergeOperationDefaultMergeCheckin = mergeModeMergeAndCheckin;
-        private readonly string[] _mergeOperationDefaultValues;
 
         private const string commentFormatKey = "comment_format";
         private const string commentFormatDefault = "MERGE {FromOriginalToTarget} ({OriginalComment})";
@@ -27,24 +32,27 @@ namespace AutoMerge
         private const string branchDelimiterKey = "branch_delimiter";
         private const string branchDelimiterDefault = " -> ";
 
-        static Settings()
+        private static WritableSettingsStore GetWritableSettingsStore(IServiceProvider vsServiceProvider)
         {
-            _instance = new Lazy<Settings>(() => new Settings());
+            var shellSettingsManager = new ShellSettingsManager(vsServiceProvider);
+            return shellSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
         }
 
-        private Settings()
+        [ImportingConstructor]
+        public Settings(SVsServiceProvider serviceProvider)
         {
-            _settingProvider = new FileSettingProvider();
-            _mergeOperationDefaultValues = new[]
-                {mergeOperationDefaultLast, mergeOperationDefaultMerge, mergeOperationDefaultMergeCheckin};
+            _vsSettingsProvider = GetWritableSettingsStore(serviceProvider);
+
+            if (!_vsSettingsProvider.CollectionExists(collectionKey))
+            {
+                _vsSettingsProvider.CreateCollection(collectionKey);
+            }
+
+            _mergeOperationDefaultValues = new[] { mergeOperationDefaultLast, mergeOperationDefaultMerge, mergeOperationDefaultMergeCheckin };
         }
 
-        public static Settings Instance
+        public MergeMode LastMergeOperation
         {
-            get { return _instance.Value; }
-        }
-
-        public MergeMode LastMergeOperation {
             get
             {
                 return LastMergeOperationGet();
@@ -57,38 +65,15 @@ namespace AutoMerge
 
         public CommentFormat CommentFormat
         {
-            get { return CommentFormatGet(); }
-        }
-
-        private CommentFormat CommentFormatGet()
-        {
-            string commentFormat;
-            if (!_settingProvider.TryReadValue(commentFormatKey, out commentFormat))
+            get
             {
-                commentFormat = commentFormatDefault;
+                return new CommentFormat
+                    {
+                        Format = _vsSettingsProvider.GetString(collectionKey, commentFormatKey, commentFormatDefault),
+                        BranchDelimiter = _vsSettingsProvider.GetString(collectionKey, branchDelimiterKey, branchDelimiterDefault),
+                        DiscardFormat = _vsSettingsProvider.GetString(collectionKey, commentFormatDiscardKey, commentFormatDiscardDefault)
+                    };
             }
-
-            string commentFormatDiscard;
-            if (!_settingProvider.TryReadValue(commentFormatDiscardKey, out commentFormatDiscard))
-            {
-                commentFormatDiscard = commentFormatDiscardDefault;
-            }
-
-            commentFormatDiscard = commentFormatDiscard.Replace("{" + commentFormatKey + "}", commentFormat);
-
-            string branchDelimiter;
-            if (!_settingProvider.TryReadValue(branchDelimiterKey, out branchDelimiter))
-            {
-                branchDelimiter = branchDelimiterDefault;
-            }
-
-            return new CommentFormat
-            {
-                Format = commentFormat,
-                BranchDelimiter = branchDelimiter,
-                DiscardFormat = commentFormatDiscard
-            };
-
         }
 
         private MergeMode LastMergeOperationGet()
@@ -99,13 +84,9 @@ namespace AutoMerge
             {
                 if (!_lastMergeOperation.HasValue)
                 {
-                    string stringValue;
-                    if (!_settingProvider.TryReadValue(lastMergeOperationKey, out stringValue))
-                    {
-                        stringValue = mergeModeMergeAndCheckin;
-                    }
-
-                    _lastMergeOperation = ToMergeMode(stringValue);
+                    _lastMergeOperation =
+                        ToMergeMode(_vsSettingsProvider.GetString(collectionKey, lastMergeOperationKey,
+                            mergeModeMergeAndCheckin));
                 }
 
                 result = _lastMergeOperation.Value;
@@ -123,7 +104,7 @@ namespace AutoMerge
             if (_lastMergeOperation != mergeMode)
             {
                 var stringValue = ToString(mergeMode);
-                _settingProvider.WriteValue(lastMergeOperationKey, stringValue);
+                _vsSettingsProvider.SetString(collectionKey, lastMergeOperationKey, stringValue);
                 _lastMergeOperation = mergeMode;
             }
         }
@@ -150,15 +131,12 @@ namespace AutoMerge
 
         private string MergeOperationDefaultGet()
         {
-            string mergeOperationDefaultValue;
-            if (!_settingProvider.TryReadValue(mergeOperationDefaultKey, out mergeOperationDefaultValue))
-            {
-                mergeOperationDefaultValue = mergeOperationDefaultLast;
-                _settingProvider.WriteValue(mergeOperationDefaultKey, mergeOperationDefaultValue);
-            }
+            var mergeOperationDefaultValue = _vsSettingsProvider.GetString(collectionKey, mergeOperationDefaultKey, mergeOperationDefaultLast);
 
             if (!_mergeOperationDefaultValues.Contains(mergeOperationDefaultValue))
-                mergeOperationDefaultValue = "mergeOperationDefaultLast";
+                mergeOperationDefaultValue = mergeOperationDefaultLast;
+
+            _vsSettingsProvider.SetString(collectionKey, mergeOperationDefaultKey, mergeOperationDefaultValue);
 
             return mergeOperationDefaultValue;
         }

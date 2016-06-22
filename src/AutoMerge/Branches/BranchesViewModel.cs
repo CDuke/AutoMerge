@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Composition;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +17,7 @@ using Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell.Interop;
 using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewModelBase;
 
@@ -24,13 +26,14 @@ namespace AutoMerge
     public sealed class BranchesViewModel : TeamExplorerSectionViewModelBase
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly Settings _settings;
         private ChangesetService _changesetService;
         private Workspace _workspace;
 
         private ChangesetViewModel _changeset;
         private bool _merging;
 
-        public BranchesViewModel(ILogger logger)
+        public BranchesViewModel(Settings settings, ILogger logger)
             : base(logger)
         {
             Title = Resources.BrancheSectionName;
@@ -42,6 +45,7 @@ namespace AutoMerge
             SelectWorkspaceCommand = new DelegateCommand<Workspace>(SelectWorkspaceExecute);
             OpenSourceControlExplorerCommand = new DelegateCommand(OpenSourceControlExplorerExecute, OpenSourceControlExplorerCanExecute);
 
+            _settings = settings;
             _eventAggregator = EventAggregatorFactory.Get();
             _merging = false;
         }
@@ -212,7 +216,7 @@ namespace AutoMerge
                     MergeMode.Merge,
                     MergeMode.MergeAndCheckIn
                 };
-                MergeMode = Settings.Instance.LastMergeOperation;
+                MergeMode = _settings.LastMergeOperation;
 
                 await RefreshAsync();
             }
@@ -581,7 +585,7 @@ namespace AutoMerge
             if (!mergeMode.HasValue)
                 return;
             MergeMode = mergeMode.Value;
-            Settings.Instance.LastMergeOperation = mergeMode.Value;
+            _settings.LastMergeOperation = mergeMode.Value;
             switch (mergeMode)
             {
                 case MergeMode.Merge:
@@ -769,7 +773,7 @@ namespace AutoMerge
             var pendingChanges = GetChangesetPendingChanges(changeset.Changes);
             var mergeRelationships = GetMergeRelationships(pendingChanges, targetBranches, versionControl);
 
-            var commentFormater = new CommentFormater(Settings.Instance.CommentFormat);
+            var commentFormater = new CommentFormater(_settings.CommentFormat);
             foreach (var mergeInfo in mergeInfos.Where(b => b.Checked))
             {
                 var mergeResultModel = new MergeResultModel

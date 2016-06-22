@@ -47,6 +47,7 @@
       <HintPath>..\..\lib\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.ComponentModelHost, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0" />
@@ -216,9 +217,6 @@
     <Compile Include="Branches\TrackMergeInfo.cs" />
     <Compile Include="CommentFormater.cs" />
     <Compile Include="Configuration\CommentFormat.cs" />
-    <Compile Include="Configuration\ISettingProvider.cs" />
-    <Compile Include="Configuration\JsonParser.cs" />
-    <Compile Include="Configuration\FileSettingProvider.cs" />
     <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Controls\SplitButton.xaml.cs">
       <DependentUpon>SplitButton.xaml</DependentUpon>

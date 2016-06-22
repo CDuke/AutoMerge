@@ -15,5 +15,7 @@ namespace AutoMerge
 		{
 			Title = Resources.AutoMergePageName;
 		}
+
+
 	}
 }

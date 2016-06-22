@@ -1,5 +1,7 @@
-﻿using AutoMerge.Base;
+﻿using System.ComponentModel.Composition;
+using AutoMerge.Base;
 using Microsoft.TeamFoundation.Controls;
+using Microsoft.VisualStudio.ComponentModelHost;
 
 namespace AutoMerge
 {
@@ -11,9 +13,12 @@ namespace AutoMerge
             return new BranchesView();
         }
 
+        [Import]
+        public Settings Settings { get; set; }
+
         protected override ITeamExplorerSection CreateViewModel(SectionInitializeEventArgs e)
         {
-            var viewModel = base.CreateViewModel(e) ?? new BranchesViewModel(new VsLogger(ServiceProvider));
+            var viewModel = base.CreateViewModel(e) ?? new BranchesViewModel(Settings, new VsLogger(ServiceProvider));
 
             return viewModel;
         }
