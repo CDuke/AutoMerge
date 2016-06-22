@@ -311,6 +311,8 @@ namespace AutoMerge
             var sourceTopFolder = CalculateTopFolder(changes);
             var mergesRelationships = GetMergesRelationships(sourceTopFolder, versionControl);
 
+
+
             if (mergesRelationships.Count > 0)
             {
                 var sourceBranchIdentifier = changesetViewModel.Branches.Select(b => new ItemIdentifier(b)).First();
@@ -327,7 +329,7 @@ namespace AutoMerge
                 var branchValidator = new BranchValidator(workspace, trackMerges);
                 var branchFactory = new BranchFactory(sourceBranch, sourceTopFolder,
                     changesetVersionSpec, branchValidator,
-                    _eventAggregator);
+                    _eventAggregator, _settings);
 
                 var sourceBranchInfo = versionControl.QueryBranchObjects(sourceBranchIdentifier, RecursionType.None)[0];
                 if (sourceBranchInfo.Properties != null && sourceBranchInfo.Properties.ParentBranch != null
@@ -619,8 +621,8 @@ namespace AutoMerge
                         Message = string.Empty
                     };
                     var mergePath = string.Format("MERGE {0} -> {1}",
-                        BranchHelper.GetShortBranchName(resultModel.BranchInfo.SourceBranch),
-                        BranchHelper.GetShortBranchName(resultModel.BranchInfo.TargetBranch));
+                        BranchHelper.GetShortBranchName(resultModel.BranchInfo.SourceBranch, _settings.BranchNameMatches),
+                        BranchHelper.GetShortBranchName(resultModel.BranchInfo.TargetBranch, _settings.BranchNameMatches));
                     switch (resultModel.MergeResult)
                     {
                         case MergeResult.CheckInEvaluateFail:
@@ -773,7 +775,7 @@ namespace AutoMerge
             var pendingChanges = GetChangesetPendingChanges(changeset.Changes);
             var mergeRelationships = GetMergeRelationships(pendingChanges, targetBranches, versionControl);
 
-            var commentFormater = new CommentFormater(_settings.CommentFormat);
+            var commentFormater = new CommentFormater(_settings.CommentFormat, _settings.BranchNameMatches);
             foreach (var mergeInfo in mergeInfos.Where(b => b.Checked))
             {
                 var mergeResultModel = new MergeResultModel

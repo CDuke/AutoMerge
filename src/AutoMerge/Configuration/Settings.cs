@@ -1,9 +1,13 @@
-﻿using System;
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
+using System.Web.Script.Serialization;
+using AutoMerge.Configuration;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Settings;
+using IServiceProvider = System.IServiceProvider;
 
 namespace AutoMerge
 {
@@ -13,8 +17,9 @@ namespace AutoMerge
         private MergeMode? _lastMergeOperation;
         private readonly string[] _mergeOperationDefaultValues;
         private readonly WritableSettingsStore _vsSettingsProvider;
+	    private BranchNameMatch[] _aliases;
 
-        private const string collectionKey = "AutoMerge";
+	    private const string collectionKey = "AutoMerge";
 
         private const string lastMergeOperationKey = "last_operation";
         private const string mergeModeMerge = "merge";
@@ -31,6 +36,7 @@ namespace AutoMerge
         private const string commentFormatDiscardDefault = "DISCARD {" + commentFormatKey + "}";
         private const string branchDelimiterKey = "branch_delimiter";
         private const string branchDelimiterDefault = " -> ";
+        private const string branchNameMatchesKey = "branch_overrides";
 
         private static WritableSettingsStore GetWritableSettingsStore(IServiceProvider vsServiceProvider)
         {
@@ -49,6 +55,8 @@ namespace AutoMerge
             }
 
             _mergeOperationDefaultValues = new[] { mergeOperationDefaultLast, mergeOperationDefaultMerge, mergeOperationDefaultMergeCheckin };
+
+            BranchNameMatches = BranchNameMatches ?? new BranchNameMatch[0];
         }
 
         public MergeMode LastMergeOperation
@@ -73,6 +81,31 @@ namespace AutoMerge
                         BranchDelimiter = _vsSettingsProvider.GetString(collectionKey, branchDelimiterKey, branchDelimiterDefault),
                         DiscardFormat = _vsSettingsProvider.GetString(collectionKey, commentFormatDiscardKey, commentFormatDiscardDefault)
                     };
+            }
+        }
+
+        public BranchNameMatch[] BranchNameMatches
+        {
+            get
+            {
+                if (_aliases != null)
+                    return _aliases;
+
+                var json = _vsSettingsProvider.GetString(collectionKey, branchNameMatchesKey, "");
+                if (string.IsNullOrWhiteSpace(json))
+                    return null;
+
+                var serializer = new JavaScriptSerializer();
+                var result = serializer.Deserialize<BranchNameMatch[]>(json);
+                _aliases = result;
+                return result;
+            }
+            set
+            {
+                _aliases = value;
+                var serializer = new JavaScriptSerializer();
+                var result = serializer.Serialize(_aliases);
+                _vsSettingsProvider.SetString(collectionKey, branchNameMatchesKey, result);
             }
         }
 

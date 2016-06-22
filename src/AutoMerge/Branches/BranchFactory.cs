@@ -11,18 +11,21 @@ namespace AutoMerge
 		private readonly ChangesetVersionSpec _changesetVersion;
 		private readonly BranchValidator _branchValidator;
 		private readonly IEventAggregator _eventAggregator;
+        private readonly Settings _settings;
 
 	    public BranchFactory(string sourceBranch,
 			string sourceFolder,
 			ChangesetVersionSpec changesetVersion,
 			BranchValidator branchValidator,
-			IEventAggregator eventAggregator)
+			IEventAggregator eventAggregator,
+            Settings settings)
 		{
 			_sourceBranch = sourceBranch;
 			_sourceFolder = sourceFolder;
 			_changesetVersion = changesetVersion;
 			_branchValidator = branchValidator;
 			_eventAggregator = eventAggregator;
+	        _settings = settings;
 		}
 
 		public MergeInfoViewModel CreateTargetBranchInfo(ItemIdentifier targetBranch, ItemIdentifier targetPath)
@@ -37,7 +40,7 @@ namespace AutoMerge
 
 		private MergeInfoViewModel CreateBranch(string targetBranch, string targetPath)
 		{
-			var mergeInfo = new MergeInfoViewModel(_eventAggregator)
+			var mergeInfo = new MergeInfoViewModel(_eventAggregator, _settings.BranchNameMatches)
 			{
 				SourceBranch = _sourceBranch,
 				TargetBranch = targetBranch,
@@ -45,6 +48,7 @@ namespace AutoMerge
 				TargetPath = targetPath,
 				ChangesetVersionSpec = _changesetVersion,
 				ValidationResult = BranchValidationResult.Success,
+                Aliases = _settings.BranchNameMatches
 			};
 
 			if (_sourceBranch != targetBranch)

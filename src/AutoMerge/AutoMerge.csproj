@@ -216,6 +216,7 @@
     <Compile Include="Branches\Notification.cs" />
     <Compile Include="Branches\TrackMergeInfo.cs" />
     <Compile Include="CommentFormater.cs" />
+    <Compile Include="Configuration\BranchNameMatch.cs" />
     <Compile Include="Configuration\CommentFormat.cs" />
     <Compile Include="Configuration\Settings.cs" />
     <Compile Include="Controls\SplitButton.xaml.cs">

@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoMerge.Configuration;
 using AutoMerge.Events;
 using AutoMerge.Prism.Events;
 using Microsoft.TeamFoundation.VersionControl.Client;
@@ -8,11 +9,13 @@ namespace AutoMerge
 	public class MergeInfoViewModel
 	{
 		private readonly IEventAggregator _eventAggregator;
+		private readonly BranchNameMatch[] _aliases;
 		internal bool _checked;
 
-		public MergeInfoViewModel(IEventAggregator eventAggregator)
+		public MergeInfoViewModel(IEventAggregator eventAggregator, BranchNameMatch[] aliases)
 		{
 			_eventAggregator = eventAggregator;
+			_aliases = aliases;
 		}
 
 		public bool Checked
@@ -43,7 +46,7 @@ namespace AutoMerge
 		{
 			get
 			{
-				return BranchHelper.GetShortBranchName(TargetBranch);
+                return BranchHelper.GetShortBranchName(TargetBranch, _aliases);
 			}
 		}
 
@@ -58,5 +61,7 @@ namespace AutoMerge
 				return string.Equals(SourceBranch, TargetBranch, StringComparison.OrdinalIgnoreCase);
 			}
 		}
-	}
+
+        public Configuration.BranchNameMatch[] Aliases { get; set; }
+    }
 }
