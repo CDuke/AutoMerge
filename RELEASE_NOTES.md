@@ -1,3 +1,6 @@
+#### 0.2.6.7 (2016-09-02)
+* (enhancement) Added the ability to specify the number of changesets shown for merging. Name - changeset_count_show
+
 #### 0.2.6.6 (2016-03-21)
 * (enhancement) Add "{SourceWorkItemTitles}" keyword for comment_format (#22)
 

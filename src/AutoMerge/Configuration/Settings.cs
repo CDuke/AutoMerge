@@ -27,6 +27,9 @@ namespace AutoMerge
         private const string branchDelimiterKey = "branch_delimiter";
         private const string branchDelimiterDefault = " -> ";
 
+        private const string changesetCountKey = "changeset_count_show";
+        private const int changesetCountDefault = 20;
+
         static Settings()
         {
             _instance = new Lazy<Settings>(() => new Settings());
@@ -58,6 +61,11 @@ namespace AutoMerge
         public CommentFormat CommentFormat
         {
             get { return CommentFormatGet(); }
+        }
+
+        public int ChangesetCount
+        {
+            get { return ChangesetCountGet(); }
         }
 
         private CommentFormat CommentFormatGet()
@@ -161,6 +169,17 @@ namespace AutoMerge
                 mergeOperationDefaultValue = "mergeOperationDefaultLast";
 
             return mergeOperationDefaultValue;
+        }
+
+        private  int ChangesetCountGet()
+        {
+            int changesetCount;
+            if (!_settingProvider.TryReadValue(changesetCountKey, out changesetCount))
+            {
+                changesetCount = changesetCountDefault;
+            }
+
+            return changesetCount;
         }
     }
 }

@@ -137,7 +137,7 @@ namespace AutoMerge
         {
             Changesets.Clear();
 
-            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider);
+            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount);
             var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
 
             Logger.Info("Getting changesets ...");

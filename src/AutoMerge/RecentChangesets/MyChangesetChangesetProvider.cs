@@ -6,14 +6,15 @@ namespace AutoMerge
 {
 	public class MyChangesetChangesetProvider : ChangesetProviderBase
 	{
-		private const int MaxChangesets = 20;
+	    private readonly int _maxChangesetCount;
 
-		public MyChangesetChangesetProvider(IServiceProvider serviceProvider)
+		public MyChangesetChangesetProvider(IServiceProvider serviceProvider, int maxChangesetCount)
 			: base(serviceProvider)
 		{
+		    _maxChangesetCount = maxChangesetCount;
 		}
 
-		protected override List<ChangesetViewModel> GetChangesetsInternal(string userLogin)
+	    protected override List<ChangesetViewModel> GetChangesetsInternal(string userLogin)
 		{
 			var changesets = new List<ChangesetViewModel>();
 
@@ -24,7 +25,7 @@ namespace AutoMerge
 				if (changesetService != null)
 				{
 				    var projectName = GetProjectName();
-					var tfsChangesets = changesetService.GetUserChangesets(projectName, userLogin, MaxChangesets);
+					var tfsChangesets = changesetService.GetUserChangesets(projectName, userLogin, _maxChangesetCount);
 					changesets = tfsChangesets
 						.Select(tfsChangeset => ToChangesetViewModel(tfsChangeset, changesetService))
 						.ToList();
