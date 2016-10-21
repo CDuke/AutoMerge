@@ -146,7 +146,7 @@
           </controls:SplitButton.DropDownMenu>
         </controls:SplitButton>
         <StackPanel Margin="0,3,0,0" Orientation="Horizontal">
-          <TextBlock Text="Resovle conflict :" />
+          <TextBlock Text="Resolve conflict :" />
           <teamExplorer:DropDownLink Margin="3,0,0,0"
                                      VerticalAlignment="Center"
                                      ShowArrow="True"
