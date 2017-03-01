@@ -177,6 +177,16 @@ namespace AutoMerge
 
         public DelegateCommand OpenSourceControlExplorerCommand { get; set; }
 
+        private static ObservableCollection<Workspace> GetWorkspaces(VersionControlServer versionControl, TfsTeamProjectCollection tfs)
+        {
+            var queryWorkspaces = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName);
+            if (queryWorkspaces.Length > 1)
+            {
+                return new ObservableCollection<Workspace>(queryWorkspaces.OrderBy(w => w.Name));
+            }
+            return new ObservableCollection<Workspace>(queryWorkspaces);
+        }
+
         protected async override Task InitializeAsync(object sender, SectionInitializeEventArgs e)
         {
             Logger.Debug("Start initilize branches section");
@@ -194,9 +204,7 @@ namespace AutoMerge
 
             if (e.Context == null)
             {
-                Workspaces =
-                    new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null,
-                        tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+                Workspaces = GetWorkspaces(versionControl, tfs);
                 if (Workspaces.Count > 0)
                 {
                     Workspace = WorkspaceHelper.GetWorkspace(versionControl, Workspaces);
@@ -1245,7 +1253,7 @@ namespace AutoMerge
             var tfs = Context.TeamProjectCollection;
             var versionControl = tfs.GetService<VersionControlServer>();
 
-            Workspaces = new ObservableCollection<Workspace>(versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName));
+            Workspaces = GetWorkspaces(versionControl, tfs);
             if (Workspaces.Count > 0)
             {
                 Workspace = Workspaces[0];
