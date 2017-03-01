@@ -25,5 +25,7 @@ before_build:
 
 build:
 
+test: off
+
 artifacts:
   - path: '**\*.vsix'
