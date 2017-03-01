@@ -21,8 +21,9 @@ init:
   - git config --global core.autocrlf true
 
 before_build:
+  - nuget restore
 
 build:
 
 artifacts:
-  - path: '**\*.nupkg'
+  - path: '**\*.vsix'
