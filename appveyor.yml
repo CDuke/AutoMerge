@@ -21,7 +21,7 @@ init:
   - git config --global core.autocrlf true
 
 before_build:
-  - nuget restore
+  - nuget restore srs\AutoMerge.sln
 
 build:
 
