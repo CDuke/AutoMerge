@@ -1,3 +1,7 @@
+#### 0.2.6.8 (2017-03-02)
+* (enhancement) Order workspaces by name in "Target branches" list (thanks MrLuje)
+* (fix) Fix typo at "Resolve" word
+
 #### 0.2.6.7 (2016-09-02)
 * (enhancement) Added the ability to specify the number of changesets shown for merging. Name - changeset_count_show
 
