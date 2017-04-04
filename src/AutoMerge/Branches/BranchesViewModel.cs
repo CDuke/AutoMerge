@@ -700,9 +700,13 @@ namespace AutoMerge
             }
         }
 
+        private string ConsolidateDuplicateComments(IEnumerable<MergeResultModel> resultModels)
+        {
+            return String.Join(";", resultModels.Select(rm => rm.Comment).Distinct());
+        }
+        
         private void OpenPendingChanges(ICollection<MergeResultModel> resultModels)
         {
-            var comment = string.Empty;
             var pendingChanges = new List<PendingChange>(20);
             // all results must have identical workItems
             var workItemIds = resultModels.First().WorkItemIds;
@@ -710,11 +714,6 @@ namespace AutoMerge
             var conflictsPath = new List<string>();
             foreach (var resultModel in resultModels)
             {
-                if (string.IsNullOrEmpty(comment))
-                    comment = resultModel.Comment;
-                else
-                    comment = comment + ";" + resultModel.Comment;
-
                 if (resultModel.PendingChanges != null && resultModel.PendingChanges.Count > 0)
                     pendingChanges.AddRange(resultModel.PendingChanges);
 
@@ -725,7 +724,7 @@ namespace AutoMerge
 
             if (conflictsPath.Count > 0)
                 InvokeResolveConflictsPage(_workspace, conflictsPath.ToArray());
-            OpenPendingChanges(pendingChanges, workItemIds, comment);
+            OpenPendingChanges(pendingChanges, workItemIds, ConsolidateDuplicateComments(resultModels));
         }
 
         private void OpenPendingChanges(List<PendingChange> pendingChanges, List<int> workItemIds, string comment)
