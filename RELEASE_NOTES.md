@@ -1,3 +1,6 @@
+#### 0.2.6.9 (2017-05-09)
+* (fix) If the comment doesn't contain any target branch information the comment will be the same for each target branch. Consolidate duplicate comments when displaying in the Pending Changes view (thanks psaut)
+
 #### 0.2.6.8 (2017-03-02)
 * (enhancement) Order workspaces by name in "Target branches" list (thanks MrLuje)
 * (fix) Fix typo at "Resolve" word
