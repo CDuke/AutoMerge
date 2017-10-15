@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -529,10 +529,10 @@ namespace AutoMerge
             }
             const string rootFolder = "$/";
             var folder = topFolder;
-            while (folder != rootFolder && !changeFolder.Contains(folder))
+            while (folder != rootFolder && !changeFolder.StartsWith(folder, StringComparison.OrdinalIgnoreCase))
             {
                 folder = ExtractParentFolder(folder);
-                if (folder != null && changeFolder.Contains(folder))
+                if (folder != null && changeFolder.StartsWith(folder, StringComparison.OrdinalIgnoreCase))
                     break;
             }
 
