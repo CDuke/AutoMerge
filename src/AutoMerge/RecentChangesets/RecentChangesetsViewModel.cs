@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AutoMerge.Events;
@@ -137,11 +137,13 @@ namespace AutoMerge
         {
             Changesets.Clear();
 
-            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount);
-            var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
+            //var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
+            //var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount, userLogin);
+
+            var changesetProvider = new TeamChangesetChangesetProvider(ServiceProvider, "/Branches/B01", Settings.Instance.ChangesetCount);
 
             Logger.Info("Getting changesets ...");
-            var changesets = await changesetProvider.GetChangesets(userLogin);
+            var changesets = await changesetProvider.GetChangesets();
             Logger.Info("Getting changesets end");
 
             Changesets = new ObservableCollection<ChangesetViewModel>(changesets);
@@ -211,7 +213,7 @@ namespace AutoMerge
                 if (changesetIds.Count > 0)
                 {
                     var changesetProvider = new ChangesetByIdChangesetProvider(ServiceProvider, changesetIds);
-                    var changesets = await changesetProvider.GetChangesets(null);
+                    var changesets = await changesetProvider.GetChangesets();
 
                     if (changesets.Count > 0)
                     {

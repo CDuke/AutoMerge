@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TeamFoundation.VersionControl.Client;
 
@@ -37,7 +37,25 @@ namespace AutoMerge
 			return changeset;
 		}
 
-		public Change[] GetChanges(int changesetId)
+        
+
+        public ICollection<Changeset> GetMergeCandidates(string tfsLocationFrom, string tfsLocationTo)
+        {
+            var smos = _versionControlServer.GetMergeCandidates(tfsLocationFrom, tfsLocationTo, RecursionType.Full);
+
+            List<Changeset> result = new List<Changeset>();
+
+            foreach (MergeCandidate mc in smos)
+            {
+                result.Add(mc.Changeset);
+            }
+
+            return result;
+        }
+
+
+
+        public Change[] GetChanges(int changesetId)
 		{
 			return _versionControlServer.GetChangesForChangeset(changesetId, false, int.MaxValue, null, null, null, true);
 		}

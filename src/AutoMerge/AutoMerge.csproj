@@ -23,7 +23,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '15.0'">v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '15.0'">v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -321,6 +321,7 @@
     </Compile>
     <Compile Include="RecentChangesets\RecentChangesetsViewModel.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsViewModelContext.cs" />
+    <Compile Include="RecentChangesets\TeamChangesetChangesetProvider.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
