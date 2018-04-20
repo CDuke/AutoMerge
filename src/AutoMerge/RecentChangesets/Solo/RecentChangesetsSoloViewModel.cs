@@ -21,10 +21,10 @@ namespace AutoMerge.RecentChangesets.Solo
 
         public override async Task<List<ChangesetViewModel>> GetChangesets()
         {
-            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount);
             var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
+            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount, userLogin);
 
-            return await changesetProvider.GetChangesets(userLogin);
+            return await changesetProvider.GetChangesets();
         }
 
         private void ToggleAddByIdExecute()
@@ -77,7 +77,7 @@ namespace AutoMerge.RecentChangesets.Solo
                 if (changesetIds.Count > 0)
                 {
                     var changesetProvider = new ChangesetByIdChangesetProvider(ServiceProvider, changesetIds);
-                    var changesets = await changesetProvider.GetChangesets(null);
+                    var changesets = await changesetProvider.GetChangesets();
 
                     if (changesets.Count > 0)
                     {

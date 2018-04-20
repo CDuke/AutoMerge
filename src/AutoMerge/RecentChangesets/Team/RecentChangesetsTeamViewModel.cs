@@ -13,10 +13,9 @@ namespace AutoMerge
 
         public override async Task<List<ChangesetViewModel>> GetChangesets()
         {
-            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount);
-            var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
+            var changesetProvider = new TeamChangesetChangesetProvider(ServiceProvider, "$/Test/Branches/B01", "$/Test/Main");
 
-            return await changesetProvider.GetChangesets(userLogin);
+            return await changesetProvider.GetChangesets();
         }
 
         public ObservableCollection<ChangesetViewModel> SelectedChangesets { get; }
