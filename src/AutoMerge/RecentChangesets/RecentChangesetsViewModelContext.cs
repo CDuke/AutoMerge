@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 
 namespace AutoMerge
 {
@@ -13,5 +13,11 @@ namespace AutoMerge
         public string ChangesetIdsText { get; set; }
 
         public string Title { get; set; }
+    }
+
+    public class RecentChangesetsTeamViewModelContext : RecentChangesetsViewModelContext
+    {
+        public string SourceBranch { get; set; }
+        public string TargetBranch { get; set; }
     }
 }

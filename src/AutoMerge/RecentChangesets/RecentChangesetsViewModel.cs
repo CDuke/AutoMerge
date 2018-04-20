@@ -17,18 +17,16 @@ namespace AutoMerge
 {
     public abstract class RecentChangesetsViewModel : TeamExplorerSectionViewModelBase
     {
-        private readonly string _baseTitle;
         private readonly IEventAggregator _eventAggregator;
 
         protected RecentChangesetsViewModel(ILogger logger)
             : base(logger)
         {
-            Title = Resources.RecentChangesetSectionName;
+            Title = BaseTitle;
             IsVisible = true;
             IsExpanded = true;
             IsBusy = false;
             Changesets = new ObservableCollection<ChangesetViewModel>();
-            _baseTitle = Title;
 
             _eventAggregator = EventAggregatorFactory.Get();
             _eventAggregator.GetEvent<MergeCompleteEvent>()
@@ -148,8 +146,8 @@ namespace AutoMerge
         protected void UpdateTitle()
         {
             Title = Changesets.Count > 0
-                ? string.Format("{0} ({1})", _baseTitle, Changesets.Count)
-                : _baseTitle;
+                ? string.Format("{0} ({1})", BaseTitle, Changesets.Count)
+                : BaseTitle;
         }
 
         protected virtual void InvalidateCommands()
@@ -192,5 +190,7 @@ namespace AutoMerge
         {
             Refresh();
         }
+
+        protected abstract string BaseTitle { get; }
     }
 }

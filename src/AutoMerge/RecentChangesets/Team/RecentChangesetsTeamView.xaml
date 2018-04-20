@@ -55,8 +55,22 @@
   </UserControl.Resources>
 
   <StackPanel Margin="6,6,6,6">
+
+    <Label>From: </Label>
+
+    <ComboBox ItemsSource="{Binding SourcesBranches}"
+              SelectedItem="{Binding SourceBranch, UpdateSourceTrigger=PropertyChanged}">
+
+    </ComboBox>
+
+    <Label>To: </Label>
+    <ComboBox ItemsSource="{Binding TargetBranches}"
+              SelectedItem="{Binding TargetBranch, UpdateSourceTrigger=PropertyChanged}">
+
+    </ComboBox>
+
     <ListBox x:Name="changesetList"
-             Margin="0"
+             Margin="0 20 0 0"
              ItemsSource="{Binding Changesets}"
              SelectedItem="{Binding SelectedChangeset,
                                     Mode=TwoWay}"

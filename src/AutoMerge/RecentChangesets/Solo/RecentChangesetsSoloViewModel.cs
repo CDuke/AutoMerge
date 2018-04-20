@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMerge.Prism.Command;
 using Microsoft.TeamFoundation;
+using Microsoft.TeamFoundation.Controls;
 
 namespace AutoMerge.RecentChangesets.Solo
 {
@@ -134,5 +135,7 @@ namespace AutoMerge.RecentChangesets.Solo
             CancelAddChangesetByIdCommand.RaiseCanExecuteChanged();
             AddChangesetByIdCommand.RaiseCanExecuteChanged();
         }
+
+        protected override string BaseTitle => Resources.RecentChangesetSectionName;
     }
 }

@@ -57,7 +57,7 @@ namespace AutoMerge
             return null;
         }
 
-        protected string GetProjectName()
+        public string GetProjectName()
         {
             var context = VersionControlNavigationHelper.GetTeamFoundationContext(_serviceProvider);
             if (context != null)
