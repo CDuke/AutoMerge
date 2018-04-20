@@ -8,13 +8,14 @@ namespace AutoMerge
 {
     public class TeamChangesetChangesetProvider : ChangesetProviderBase
     {
-        private readonly int _maxChangesetCount;
-        private readonly string _branchLocation;
+        private readonly string _sourceBranch;
+        private readonly string _targetBranch;
 
-        public TeamChangesetChangesetProvider(IServiceProvider serviceProvider, string branchLocation,  int maxChangesetCount) : base(serviceProvider)
+
+        public TeamChangesetChangesetProvider(IServiceProvider serviceProvider, string sourceBranch, string targetBranch) : base(serviceProvider)
         {
-            _maxChangesetCount = maxChangesetCount;
-            _branchLocation = branchLocation;
+            _sourceBranch = sourceBranch;
+            _targetBranch = targetBranch;
         }
 
         protected override List<ChangesetViewModel> GetChangesetsInternal()
@@ -26,9 +27,7 @@ namespace AutoMerge
                 if (changesetService != null)
                 {                    
                     var projectName = GetProjectName();
-                    var tfsChangesets = changesetService.GetMergeCandidates("$/Test/Branches/B01", "$/Test/Main");
-
-                    //var tfsChangesets = changesetService.GetTeamChangesets(projectName, _branchLocation, _maxChangesetCount);
+                    var tfsChangesets = changesetService.GetMergeCandidates(_sourceBranch, _targetBranch);
 
                     changesets = tfsChangesets
                         .Select(tfsChangeset => ToChangesetViewModel(tfsChangeset, changesetService))
