@@ -1,4 +1,4 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 using Microsoft.TeamFoundation.Controls.MVVM;
 
 namespace AutoMerge
@@ -6,9 +6,9 @@ namespace AutoMerge
 	/// <summary>
 	/// Interaction logic for RecentChangesetsView.xaml
 	/// </summary>
-	public partial class RecentChangesetsView : UserControl, IFocusService
+	public partial class RecentChangesetsSoloView : UserControl, IFocusService
 	{
-		public RecentChangesetsView()
+		public RecentChangesetsSoloView()
 		{
 			InitializeComponent();
 		}

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using AutoMerge.Events;
 using AutoMerge.Prism.Command;
 using AutoMerge.Prism.Events;
@@ -14,12 +15,12 @@ using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewM
 
 namespace AutoMerge
 {
-    public sealed class RecentChangesetsViewModel : TeamExplorerSectionViewModelBase
+    public abstract class RecentChangesetsViewModel : TeamExplorerSectionViewModelBase
     {
         private readonly string _baseTitle;
         private readonly IEventAggregator _eventAggregator;
 
-        public RecentChangesetsViewModel(ILogger logger)
+        protected RecentChangesetsViewModel(ILogger logger)
             : base(logger)
         {
             Title = Resources.RecentChangesetSectionName;
@@ -34,9 +35,6 @@ namespace AutoMerge
                 .Subscribe(OnMergeComplete);
 
             ViewChangesetDetailsCommand = new DelegateCommand(ViewChangesetDetailsExecute, ViewChangesetDetailsCanExecute);
-            ToggleAddByIdCommand = new DelegateCommand(ToggleAddByIdExecute, ToggleAddByIdCanExecute);
-            CancelAddChangesetByIdCommand = new DelegateCommand(CancelAddByIdExecute);
-            AddChangesetByIdCommand = new DelegateCommand(AddChangesetByIdExecute, AddChangesetByIdCanExecute);
         }
 
         public ChangesetViewModel SelectedChangeset
@@ -99,12 +97,6 @@ namespace AutoMerge
 
         public DelegateCommand ViewChangesetDetailsCommand { get; private set; }
 
-        public DelegateCommand ToggleAddByIdCommand { get; private set; }
-
-        public DelegateCommand AddChangesetByIdCommand { get; private set; }
-
-        public DelegateCommand CancelAddChangesetByIdCommand { get; private set; }
-
         private void ViewChangesetDetailsExecute()
         {
             var changesetId = SelectedChangeset.ChangesetId;
@@ -137,11 +129,8 @@ namespace AutoMerge
         {
             Changesets.Clear();
 
-            var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount);
-            var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
-
             Logger.Info("Getting changesets ...");
-            var changesets = await changesetProvider.GetChangesets(userLogin);
+            var changesets = await GetChangesets();
             Logger.Info("Getting changesets end");
 
             Changesets = new ObservableCollection<ChangesetViewModel>(changesets);
@@ -154,118 +143,18 @@ namespace AutoMerge
             }
         }
 
-        private void UpdateTitle()
+        public abstract Task<List<ChangesetViewModel>> GetChangesets();
+
+        protected void UpdateTitle()
         {
             Title = Changesets.Count > 0
                 ? string.Format("{0} ({1})", _baseTitle, Changesets.Count)
                 : _baseTitle;
         }
 
-        private void ToggleAddByIdExecute()
-        {
-            try
-            {
-                ShowAddByIdChangeset = true;
-                InvalidateCommands();
-                ResetAddById();
-                SetMvvmFocus(RecentChangesetFocusableControlNames.ChangesetIdTextBox);
-            }
-            catch (Exception ex)
-            {
-                ShowException(ex);
-                throw;
-            }
-        }
-
-        private bool ToggleAddByIdCanExecute()
-        {
-            return !ShowAddByIdChangeset;
-        }
-
-        private void CancelAddByIdExecute()
-        {
-            try
-            {
-                ShowAddByIdChangeset = false;
-                InvalidateCommands();
-                SetMvvmFocus(RecentChangesetFocusableControlNames.AddChangesetByIdLink);
-                ResetAddById();
-            }
-            catch (Exception ex)
-            {
-                ShowException(ex);
-            }
-        }
-
-        private void ResetAddById()
-        {
-            ChangesetIdsText = string.Empty;
-        }
-
-        private async void AddChangesetByIdExecute()
-        {
-            ShowBusy();
-            try
-            {
-                var changesetIds = GeChangesetIdsToAdd(ChangesetIdsText);
-                if (changesetIds.Count > 0)
-                {
-                    var changesetProvider = new ChangesetByIdChangesetProvider(ServiceProvider, changesetIds);
-                    var changesets = await changesetProvider.GetChangesets(null);
-
-                    if (changesets.Count > 0)
-                    {
-                        Changesets.Add(changesets[0]);
-                        SelectedChangeset = changesets[0];
-                        SetMvvmFocus(RecentChangesetFocusableControlNames.ChangesetList);
-                        UpdateTitle();
-                    }
-                    ShowAddByIdChangeset = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowException(ex);
-            }
-            HideBusy();
-        }
-
-        private bool AddChangesetByIdCanExecute()
-        {
-            try
-            {
-                return GeChangesetIdsToAdd(ChangesetIdsText).Count > 0;
-            }
-            catch (Exception ex)
-            {
-                ShowException(ex);
-                TeamFoundationTrace.TraceException(ex);
-            }
-            return false;
-        }
-
-        private static List<int> GeChangesetIdsToAdd(string text)
-        {
-            var list = new List<int>();
-            var idsStrArray = string.IsNullOrEmpty(text) ? new string[0] : text.Split(new[] { ',', ';' });
-            if (idsStrArray.Length > 0)
-            {
-                foreach (var idStr in idsStrArray)
-                {
-                    int result;
-                    if (int.TryParse(idStr.Trim(), out result) && result > 0)
-                        list.Add(result);
-                }
-            }
-            return list;
-        }
-
-        private void InvalidateCommands()
+        protected virtual void InvalidateCommands()
         {
             ViewChangesetDetailsCommand.RaiseCanExecuteChanged();
-            ToggleAddByIdCommand.RaiseCanExecuteChanged();
-            CancelAddChangesetByIdCommand.RaiseCanExecuteChanged();
-            AddChangesetByIdCommand.RaiseCanExecuteChanged();
         }
 
         public override void Dispose()

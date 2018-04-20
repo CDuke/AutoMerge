@@ -1,4 +1,5 @@
-﻿using AutoMerge.Base;
+using AutoMerge.Base;
+using AutoMerge.RecentChangesets.Solo;
 using Microsoft.TeamFoundation.Controls;
 
 namespace AutoMerge
@@ -8,14 +9,14 @@ namespace AutoMerge
 	{
 		protected override ITeamExplorerSection CreateViewModel(SectionInitializeEventArgs e)
 		{
-			var viewModel = base.CreateViewModel(e) ?? new RecentChangesetsViewModel(new VsLogger(ServiceProvider));
+			var viewModel = base.CreateViewModel(e) ?? new RecentChangesetsSoloViewModel(new VsLogger(ServiceProvider));
 
 			return viewModel;
 		}
 
 		protected override object CreateView(SectionInitializeEventArgs e)
 		{
-            return new RecentChangesetsView();
+            return new RecentChangesetsSoloView();
 		}
 	}
 }

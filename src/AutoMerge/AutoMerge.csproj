@@ -242,6 +242,8 @@
   <ItemGroup>
     <Compile Include="AutoMergeNavigationItem.cs" />
     <Compile Include="AutoMergePage.cs" />
+    <Compile Include="AutoMergeTeamNavigationItem.cs" />
+    <Compile Include="AutoMergeTeamPage.cs" />
     <Compile Include="Base\TeamExplorerNavigationItemBase.cs" />
     <Compile Include="Base\TeamExplorerBaseNavigationLink.cs" />
     <Compile Include="Base\TeamExplorerPageBase.cs" />
@@ -316,11 +318,17 @@
     <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
     <Compile Include="RecentChangesets\RecentChangesetFocusableControlNames.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetsView.xaml.cs">
-      <DependentUpon>RecentChangesetsView.xaml</DependentUpon>
+    <Compile Include="RecentChangesets\RecentChangesetsTeamSection.cs" />
+    <Compile Include="RecentChangesets\Solo\RecentChangesetsSoloView.xaml.cs">
+      <DependentUpon>RecentChangesetsSoloView.xaml</DependentUpon>
     </Compile>
     <Compile Include="RecentChangesets\RecentChangesetsViewModel.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsViewModelContext.cs" />
+    <Compile Include="RecentChangesets\Solo\RecentChangesetsSoloViewModel.cs" />
+    <Compile Include="RecentChangesets\Team\RecentChangesetsTeamView.xaml.cs">
+      <DependentUpon>RecentChangesetsTeamView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RecentChangesets\Team\RecentChangesetsTeamViewModel.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -393,9 +401,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RecentChangesets\RecentChangesetsView.xaml">
+    <Page Include="RecentChangesets\Solo\RecentChangesetsSoloView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RecentChangesets\Team\RecentChangesetsTeamView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Styles\CommonStyles.xaml">
       <SubType>Designer</SubType>
