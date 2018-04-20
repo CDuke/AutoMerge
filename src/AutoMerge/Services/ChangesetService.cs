@@ -39,9 +39,9 @@ namespace AutoMerge
 
         
 
-        public ICollection<Changeset> GetMergeCandidates(string tfsLocationFrom, string tfsLocationTo)
+        public ICollection<Changeset> GetMergeCandidates(string sourceBranch, string targetBranch)
         {
-            var smos = _versionControlServer.GetMergeCandidates(tfsLocationFrom, tfsLocationTo, RecursionType.Full);
+            var smos = _versionControlServer.GetMergeCandidates(sourceBranch, targetBranch, RecursionType.Full);
 
             List<Changeset> result = new List<Changeset>();
 
