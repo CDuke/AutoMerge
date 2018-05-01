@@ -26,7 +26,7 @@ namespace AutoMerge
 
 				if (changesetService != null)
 				{
-				    var projectName = GetProjectName();
+				    var projectName = ProjectNameHelper.GetProjectName(ServiceProvider);
 					var tfsChangesets = changesetService.GetUserChangesets(projectName, _userLogin, _maxChangesetCount);
 					changesets = tfsChangesets
 						.Select(tfsChangeset => ToChangesetViewModel(tfsChangeset, changesetService))

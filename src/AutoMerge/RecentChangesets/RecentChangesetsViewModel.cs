@@ -56,7 +56,7 @@ namespace AutoMerge
             {
                 return _changesets;
             }
-            private set
+            protected set
             {
                 _changesets = value;
                 RaisePropertyChanged("Changesets");
@@ -64,34 +64,7 @@ namespace AutoMerge
         }
         private ObservableCollection<ChangesetViewModel> _changesets;
 
-        public bool ShowAddByIdChangeset
-        {
-            get
-            {
-                return _showAddByIdChangeset;
-            }
-            set
-            {
-                _showAddByIdChangeset = value;
-                RaisePropertyChanged("ShowAddByIdChangeset");
-            }
-        }
-        private bool _showAddByIdChangeset;
-
-        public string ChangesetIdsText
-        {
-            get
-            {
-                return _changesetIdsText;
-            }
-            set
-            {
-                _changesetIdsText = value;
-                RaisePropertyChanged("ChangesetIdsText");
-                InvalidateCommands();
-            }
-        }
-        private string _changesetIdsText;
+        
 
         public DelegateCommand ViewChangesetDetailsCommand { get; private set; }
 
@@ -161,30 +134,7 @@ namespace AutoMerge
             _eventAggregator.GetEvent<MergeCompleteEvent>().Unsubscribe(OnMergeComplete);
         }
 
-        public override void SaveContext(object sender, SectionSaveContextEventArgs e)
-        {
-            base.SaveContext(sender, e);
-            var context = new RecentChangesetsViewModelContext
-            {
-                ChangesetIdsText = ChangesetIdsText,
-                Changesets = Changesets,
-                SelectedChangeset = SelectedChangeset,
-                ShowAddByIdChangeset = ShowAddByIdChangeset,
-                Title = Title
-            };
-
-            e.Context = context;
-        }
-
-        private void RestoreContext(SectionInitializeEventArgs e)
-        {
-            var context = (RecentChangesetsViewModelContext)e.Context;
-            ChangesetIdsText = context.ChangesetIdsText;
-            Changesets = context.Changesets;
-            SelectedChangeset = context.SelectedChangeset;
-            ShowAddByIdChangeset = context.ShowAddByIdChangeset;
-            Title = context.Title;
-        }
+        protected abstract void RestoreContext(SectionInitializeEventArgs e);        
 
         protected override void OnContextChanged(object sender, ContextChangedEventArgs e)
         {

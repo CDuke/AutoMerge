@@ -20,6 +20,35 @@ namespace AutoMerge.RecentChangesets.Solo
         public DelegateCommand CancelAddChangesetByIdCommand { get; private set; }
         public DelegateCommand AddChangesetByIdCommand { get; private set; }
 
+        public bool ShowAddByIdChangeset
+        {
+            get
+            {
+                return _showAddByIdChangeset;
+            }
+            set
+            {
+                _showAddByIdChangeset = value;
+                RaisePropertyChanged("ShowAddByIdChangeset");
+            }
+        }
+        private bool _showAddByIdChangeset;
+
+        public string ChangesetIdsText
+        {
+            get
+            {
+                return _changesetIdsText;
+            }
+            set
+            {
+                _changesetIdsText = value;
+                RaisePropertyChanged("ChangesetIdsText");
+                InvalidateCommands();
+            }
+        }
+        private string _changesetIdsText;
+
         public override async Task<List<ChangesetViewModel>> GetChangesets()
         {
             var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
@@ -134,6 +163,33 @@ namespace AutoMerge.RecentChangesets.Solo
             ToggleAddByIdCommand.RaiseCanExecuteChanged();
             CancelAddChangesetByIdCommand.RaiseCanExecuteChanged();
             AddChangesetByIdCommand.RaiseCanExecuteChanged();
+        }
+
+        public override void SaveContext(object sender, SectionSaveContextEventArgs e)
+        {
+            base.SaveContext(sender, e);
+
+            var context = new RecentChangesetsSoloViewModelContext
+            {
+                ChangesetIdsText = ChangesetIdsText,
+                Changesets = Changesets,
+                SelectedChangeset = SelectedChangeset,
+                ShowAddByIdChangeset = ShowAddByIdChangeset,
+                Title = Title
+            };
+
+            e.Context = context;
+        }
+
+        protected override void RestoreContext(SectionInitializeEventArgs e)
+        {
+            var context = (RecentChangesetsSoloViewModelContext)e.Context;
+
+            ChangesetIdsText = context.ChangesetIdsText;
+            Changesets = context.Changesets;
+            SelectedChangeset = context.SelectedChangeset;
+            ShowAddByIdChangeset = context.ShowAddByIdChangeset;
+            Title = context.Title;
         }
 
         protected override string BaseTitle => Resources.RecentChangesetSectionName;

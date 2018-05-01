@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.VersionControl.Client;
@@ -106,6 +107,16 @@ namespace AutoMerge
                 }
             }
             return null;
+        }
+
+        public static ObservableCollection<Workspace> GetWorkspaces(VersionControlServer versionControl, TfsTeamProjectCollection tfs)
+        {
+            var queryWorkspaces = versionControl.QueryWorkspaces(null, tfs.AuthorizedIdentity.UniqueName, Environment.MachineName);
+            if (queryWorkspaces.Length > 1)
+            {
+                return new ObservableCollection<Workspace>(queryWorkspaces.OrderBy(w => w.Name));
+            }
+            return new ObservableCollection<Workspace>(queryWorkspaces);
         }
     }
 }

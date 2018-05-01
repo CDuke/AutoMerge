@@ -290,6 +290,7 @@
     <Compile Include="Guids.cs" />
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
+    <Compile Include="Helpers\ProjectNameHelper.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
     <Compile Include="Helpers\WorkspaceHelper.cs" />
     <Compile Include="Prism\BindableBase.cs" />
@@ -338,10 +339,12 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="AutoMergePackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\BranchTeamService.cs" />
     <Compile Include="Services\ChangesetService.cs" />
     <Compile Include="Services\ILogger.cs" />
     <Compile Include="Services\LoggerBase.cs" />
     <Compile Include="Services\VsLogger.cs" />
+    <Compile Include="UI\AutoMergeListBox.cs" />
     <Compile Include="VersionControl\VersionControlProvider.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -399,6 +402,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\SplitButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\RecentChangesetResource.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

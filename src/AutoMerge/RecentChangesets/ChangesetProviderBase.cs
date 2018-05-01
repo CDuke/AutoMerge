@@ -57,14 +57,6 @@ namespace AutoMerge
             return null;
         }
 
-        public string GetProjectName()
-        {
-            var context = VersionControlNavigationHelper.GetTeamFoundationContext(_serviceProvider);
-            if (context != null)
-            {
-                return context.TeamProjectName;
-            }
-            return null;
-        }
+        protected IServiceProvider ServiceProvider => _serviceProvider;
     }
 }

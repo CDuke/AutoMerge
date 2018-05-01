@@ -18,41 +18,11 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml" />
+        <ResourceDictionary Source="../../Styles/RecentChangesetResource.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
-      <autoMerge:ChangesetCommentConverter x:Key="ChangesetCommentConverter" />
-      <converters:NonEmptyStringToVisibleConverter x:Key="NonEmptyStringToVisibleConverter" />
       <converters:TrueToVisibleConverter x:Key="TrueToVisibleConverter" />
-
-      <DataTemplate x:Key="ChangesetItemDataTemplate" DataType="autoMerge:ChangesetViewModel">
-        <StackPanel Orientation="Horizontal">
-          <StackPanel.ToolTip>
-            <ToolTip Content="{Binding Comment}" />
-          </StackPanel.ToolTip>
-          <TextBlock Margin="0, 0, 0, 0" Text="{Binding ChangesetId}" />
-          <TextBlock Margin="5, 0, 0, 0"
-                     VerticalAlignment="Center"
-                     Background="{DynamicResource EmbeddedDialogBackgroundBrushKey}"
-                     FontSize="8"
-                     Foreground="{DynamicResource BodyTextBrushKey}"
-                     Padding="2"
-                     Text="{Binding DisplayBranchName}"
-                     Visibility="{Binding DisplayBranchName,
-                                          Converter={StaticResource NonEmptyStringToVisibleConverter}}" />
-          <TextBlock Margin="10, 0, 0, 0" Text="{Binding Comment, Converter={StaticResource ChangesetCommentConverter}}" />
-        </StackPanel>
-      </DataTemplate>
-      <Style x:Key="ChangesetListStyle"
-             BasedOn="{StaticResource {x:Type ListBox}}"
-             TargetType="ListBox">
-        <Setter Property="ItemTemplate" Value="{StaticResource ChangesetItemDataTemplate}" />
-        <Setter Property="ItemContainerStyle" Value="{StaticResource ListBoxItemStyle}" />
-        <Setter Property="SelectionMode" Value="Single" />
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="IsSynchronizedWithCurrentItem" Value="True" />
-      </Style>
+      
     </ResourceDictionary>
   </UserControl.Resources>
   <StackPanel Margin="6,6,6,6">
