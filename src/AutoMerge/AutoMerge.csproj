@@ -311,12 +311,12 @@
     <Compile Include="Prism\Events\SubscriptionToken.cs" />
     <Compile Include="Prism\Events\ThreadOption.cs" />
     <Compile Include="Prism\PropertySupport.cs" />
-    <Compile Include="RecentChangesets\ChangesetByIdChangesetProvider.cs" />
+    <Compile Include="RecentChangesets\Providers\ChangesetByIdChangesetProvider.cs" />
     <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
     <Compile Include="RecentChangesets\ChangesetProviderBase.cs" />
     <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
     <Compile Include="RecentChangesets\IChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\MyChangesetChangesetProvider.cs" />
+    <Compile Include="RecentChangesets\Providers\MyChangesetChangesetProvider.cs" />
     <Compile Include="RecentChangesets\RecentChangesetFocusableControlNames.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
     <Compile Include="RecentChangesets\RecentChangesetsTeamSection.cs" />
@@ -326,7 +326,7 @@
       <DependentUpon>RecentChangesetsSoloView.xaml</DependentUpon>
     </Compile>
     <Compile Include="RecentChangesets\Solo\RecentChangesetsSoloViewModel.cs" />
-    <Compile Include="RecentChangesets\TeamChangesetChangesetProvider.cs" />
+    <Compile Include="RecentChangesets\Providers\TeamChangesetChangesetProvider.cs" />
     <Compile Include="RecentChangesets\Team\RecentChangesetsTeamView.xaml.cs">
       <DependentUpon>RecentChangesetsTeamView.xaml</DependentUpon>
     </Compile>
