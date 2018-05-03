@@ -69,7 +69,7 @@ namespace AutoMerge
             {
 
                 var prj = changesetService.ListTfsProjects();
-                var s = changesetService.ListBranches("test");
+                var s = changesetService.ListBranches("Test");
 
                 var tfsChangesets = changesetService.GetMergeCandidates(_sourceBranch, _targetBranch);
 

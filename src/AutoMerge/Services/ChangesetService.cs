@@ -74,7 +74,7 @@ namespace AutoMerge
 
         public IEnumerable<BranchObject> ListBranches(string projectName)
         {                
-            var dummy =  _versionControlServer.QueryRootBranchObjects(RecursionType.OneLevel);
+            var dummy =  _versionControlServer.QueryRootBranchObjects(RecursionType.Full);
 
             List<BranchObject> result = new List<BranchObject>();
             foreach(BranchObject bo in dummy)
@@ -83,7 +83,7 @@ namespace AutoMerge
 
                 System.Diagnostics.Debug.WriteLine(ro.Item);
 
-                if (!ro.IsDeleted && ro.Item.Replace(@"$/", "").StartsWith(projectName + @"/"))
+                if (!ro.IsDeleted &&  ro.Item.Replace(@"$/", "").StartsWith(projectName + @"/"))
                     result.Add(bo);
             }
 
