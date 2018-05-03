@@ -17,18 +17,16 @@ namespace AutoMerge
 {
     public abstract class RecentChangesetsViewModel : TeamExplorerSectionViewModelBase
     {
-        private readonly string _baseTitle;
         private readonly IEventAggregator _eventAggregator;
 
         protected RecentChangesetsViewModel(ILogger logger)
             : base(logger)
         {
-            Title = Resources.RecentChangesetSectionName;
+            Title = BaseTitle;
             IsVisible = true;
             IsExpanded = true;
             IsBusy = false;
             Changesets = new ObservableCollection<ChangesetViewModel>();
-            _baseTitle = Title;
 
             _eventAggregator = EventAggregatorFactory.Get();
             _eventAggregator.GetEvent<MergeCompleteEvent>()
@@ -58,7 +56,7 @@ namespace AutoMerge
             {
                 return _changesets;
             }
-            private set
+            protected set
             {
                 _changesets = value;
                 RaisePropertyChanged("Changesets");
@@ -66,34 +64,7 @@ namespace AutoMerge
         }
         private ObservableCollection<ChangesetViewModel> _changesets;
 
-        public bool ShowAddByIdChangeset
-        {
-            get
-            {
-                return _showAddByIdChangeset;
-            }
-            set
-            {
-                _showAddByIdChangeset = value;
-                RaisePropertyChanged("ShowAddByIdChangeset");
-            }
-        }
-        private bool _showAddByIdChangeset;
-
-        public string ChangesetIdsText
-        {
-            get
-            {
-                return _changesetIdsText;
-            }
-            set
-            {
-                _changesetIdsText = value;
-                RaisePropertyChanged("ChangesetIdsText");
-                InvalidateCommands();
-            }
-        }
-        private string _changesetIdsText;
+        
 
         public DelegateCommand ViewChangesetDetailsCommand { get; private set; }
 
@@ -148,8 +119,8 @@ namespace AutoMerge
         protected void UpdateTitle()
         {
             Title = Changesets.Count > 0
-                ? string.Format("{0} ({1})", _baseTitle, Changesets.Count)
-                : _baseTitle;
+                ? string.Format("{0} ({1})", BaseTitle, Changesets.Count)
+                : BaseTitle;
         }
 
         protected virtual void InvalidateCommands()
@@ -163,34 +134,13 @@ namespace AutoMerge
             _eventAggregator.GetEvent<MergeCompleteEvent>().Unsubscribe(OnMergeComplete);
         }
 
-        public override void SaveContext(object sender, SectionSaveContextEventArgs e)
-        {
-            base.SaveContext(sender, e);
-            var context = new RecentChangesetsViewModelContext
-            {
-                ChangesetIdsText = ChangesetIdsText,
-                Changesets = Changesets,
-                SelectedChangeset = SelectedChangeset,
-                ShowAddByIdChangeset = ShowAddByIdChangeset,
-                Title = Title
-            };
-
-            e.Context = context;
-        }
-
-        private void RestoreContext(SectionInitializeEventArgs e)
-        {
-            var context = (RecentChangesetsViewModelContext)e.Context;
-            ChangesetIdsText = context.ChangesetIdsText;
-            Changesets = context.Changesets;
-            SelectedChangeset = context.SelectedChangeset;
-            ShowAddByIdChangeset = context.ShowAddByIdChangeset;
-            Title = context.Title;
-        }
+        protected abstract void RestoreContext(SectionInitializeEventArgs e);        
 
         protected override void OnContextChanged(object sender, ContextChangedEventArgs e)
         {
             Refresh();
         }
+
+        protected abstract string BaseTitle { get; }
     }
 }

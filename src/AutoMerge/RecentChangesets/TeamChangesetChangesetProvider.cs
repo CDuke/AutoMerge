@@ -26,7 +26,7 @@ namespace AutoMerge
 
                 if (changesetService != null)
                 {                    
-                    var projectName = GetProjectName();
+                    var projectName = ProjectNameHelper.GetProjectName(ServiceProvider);
                     var tfsChangesets = changesetService.GetMergeCandidates(_sourceBranch, _targetBranch);
 
                     changesets = tfsChangesets
