@@ -143,7 +143,8 @@ namespace AutoMerge
         {
             if (SourceBranch != null && TargetBranch != null)
             {
-                var changesetProvider = new TeamChangesetChangesetProvider(ServiceProvider, SourceBranch, TargetBranch);
+                var changesetProvider = new TeamChangesetChangesetProvider(ServiceProvider);
+                changesetProvider.SetSourceAndTargetBranch(SourceBranch, TargetBranch);
                 return await changesetProvider.GetChangesets();
             }
 
