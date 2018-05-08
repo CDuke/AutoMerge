@@ -14,14 +14,17 @@ namespace AutoMerge
 
         private void AutoMergeListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach(var removedItem in e.RemovedItems.Cast<ChangesetViewModel>())
+            if (SelectedItemsList != null)
             {
-                SelectedItemsList.Remove(removedItem);
-            }
+                foreach (var removedItem in e.RemovedItems.Cast<ChangesetViewModel>())
+                {
+                    SelectedItemsList.Remove(removedItem);
+                }
 
-            foreach(var addItem in e.AddedItems.Cast<ChangesetViewModel>())
-            {
-                SelectedItemsList.Add(addItem);
+                foreach (var addItem in e.AddedItems.Cast<ChangesetViewModel>())
+                {
+                    SelectedItemsList.Add(addItem);
+                }
             }
         }
 

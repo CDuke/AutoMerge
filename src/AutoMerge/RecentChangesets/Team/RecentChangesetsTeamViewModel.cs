@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMerge.Prism.Command;
@@ -18,10 +19,12 @@ namespace AutoMerge
             SourcesBranches = new ObservableCollection<string>();
             TargetBranches = new ObservableCollection<string>();
 
-            MergeCommand = new DelegateCommand(Merge, CanMerge);
+            MergeCommand = DelegateCommand.FromAsyncHandler(MergeAsync, CanMerge);
+            FetchChangesetsCommand = DelegateCommand.FromAsyncHandler(FetchChangesetsAsync, CanFetchChangesets);
         }
 
-        public DelegateCommand MergeCommand { get; private set; }
+        public DelegateCommand MergeCommand { get; }
+        public DelegateCommand FetchChangesetsCommand { get; }
 
         public ObservableCollection<string> SourcesBranches { get; set; }
         public ObservableCollection<string> TargetBranches { get; set; }
@@ -36,6 +39,8 @@ namespace AutoMerge
                 _sourceBranch = value;
                 RaisePropertyChanged(nameof(SourceBranch));
                 InitializeTargetBranches();
+
+                FetchChangesetsCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -49,7 +54,7 @@ namespace AutoMerge
                 _targetBranch = value;
                 RaisePropertyChanged(nameof(TargetBranch));
 
-                RefreshAsync();
+                FetchChangesetsCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -80,27 +85,46 @@ namespace AutoMerge
             MergeCommand.RaiseCanExecuteChanged();
         }
 
-        private void Merge()
+        private async Task MergeAsync()
         {
-            var orderedSelectedChangesets = SelectedChangesets.OrderBy(x => x.ChangesetId).ToList();
+            await SetBusyWhileExecutingAsync(async () =>
+            {
+                var orderedSelectedChangesets = SelectedChangesets.OrderBy(x => x.ChangesetId).ToList();
 
-            _branchTeamService.MergeBranches(SourceBranch, TargetBranch, orderedSelectedChangesets.First().ChangesetId, orderedSelectedChangesets.Last().ChangesetId);
-            _branchTeamService.AddWorkItemsAndNavigate(orderedSelectedChangesets.Select(x => x.ChangesetId));
+                await Task.Run(() => _branchTeamService.MergeBranches(SourceBranch, TargetBranch, orderedSelectedChangesets.First().ChangesetId, orderedSelectedChangesets.Last().ChangesetId));
+                _branchTeamService.AddWorkItemsAndNavigate(orderedSelectedChangesets.Select(x => x.ChangesetId));
+            });
         }
 
         private bool CanMerge()
         {
             return SelectedChangesets != null
+                && !IsBusy
                 && SelectedChangesets.Any()
                 && Changesets.Count(x => x.ChangesetId >= SelectedChangesets.Min(y => y.ChangesetId) &&
                                          x.ChangesetId <= SelectedChangesets.Max(y => y.ChangesetId)) == SelectedChangesets.Count;
+        }
+
+        private async Task FetchChangesetsAsync()
+        {
+            await SetBusyWhileExecutingAsync(async () => await RefreshAsync());
+
+            //This is needed because HideBusy will set IsBusy on false much later. And the raise can execute checks on this boolean
+            IsBusy = false;
+
+            MergeCommand.RaiseCanExecuteChanged();
+        }
+
+        private bool CanFetchChangesets()
+        {
+            return SourceBranch != null && TargetBranch != null && !IsBusy;
         }
 
         protected override Task InitializeAsync(object sender, SectionInitializeEventArgs e)
         {
             _projectName = ProjectNameHelper.GetProjectName(ServiceProvider);
             //Find all sources branches.
-            SourcesBranches.Add("$/TestVoorAutomerge/DEV");
+            SourcesBranches.Add("$/Test/Main");
 
             _branchTeamService = new BranchTeamService(Context.TeamProjectCollection, (ITeamExplorer) ServiceProvider.GetService(typeof(ITeamExplorer)));
 
@@ -112,7 +136,7 @@ namespace AutoMerge
             TargetBranches.Clear();
 
             //Find all possible target branches
-            TargetBranches.Add("$/TestVoorAutomerge/MAIN");
+            TargetBranches.Add("$/Test/Branches/BO1");
         }
 
         public override async Task<List<ChangesetViewModel>> GetChangesets()
@@ -149,10 +173,12 @@ namespace AutoMerge
             
             Changesets = context.Changesets;
             Title = context.Title;
-            SelectedChangeset = context.SelectedChangeset;
             SelectedChangesets = context.SelectedChangesets;
+            SelectedChangeset = context.SelectedChangeset;
             SourceBranch = context.SourceBranch;
             TargetBranch = context.TargetBranch;
+
+            MergeCommand.RaiseCanExecuteChanged();
         }
 
         protected override string BaseTitle => "Project name: " + _projectName;

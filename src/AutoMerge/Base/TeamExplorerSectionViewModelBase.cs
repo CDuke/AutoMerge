@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Common.Internal;
@@ -33,11 +33,9 @@ namespace AutoMerge.Base
             return _emptyTask;
         }
 
-        public async override void Initialize(object sender, SectionInitializeEventArgs e)
+        public override async void Initialize(object sender, SectionInitializeEventArgs e)
         {
-            ShowBusy();
-
-            try
+            await SetBusyWhileExecutingAsync(async () =>
             {
                 base.Initialize(sender, e);
                 if (ServiceProvider != null)
@@ -52,22 +50,24 @@ namespace AutoMerge.Base
                     }
                 }
                 await InitializeAsync(sender, e);
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex.Message);
-            }
-
-            HideBusy();
+            });
         }
 
-        public async override void Refresh()
+        public override async void Refresh()
+        {
+            await SetBusyWhileExecutingAsync(async () =>
+            {
+                await RefreshAsync();
+            });
+        }
+
+        protected async Task SetBusyWhileExecutingAsync(Func<Task> task)
         {
             ShowBusy();
 
             try
             {
-                await RefreshAsync();
+                await task();
             }
             catch (Exception ex)
             {
