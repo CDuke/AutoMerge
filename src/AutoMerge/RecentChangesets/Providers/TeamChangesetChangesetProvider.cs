@@ -68,6 +68,7 @@ namespace AutoMerge
             if (changesetService != null)
             {
 
+                ///dummy calls for testing the functionality
                 var prj = changesetService.ListTfsProjects();
                 var s = changesetService.ListBranches("Test");
 

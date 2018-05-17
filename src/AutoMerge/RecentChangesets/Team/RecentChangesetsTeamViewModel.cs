@@ -100,7 +100,7 @@ namespace AutoMerge
         {
             _projectName = ProjectNameHelper.GetProjectName(ServiceProvider);
             //Find all sources branches.
-            SourcesBranches.Add("$/TestVoorAutomerge/DEV");
+            SourcesBranches.Add("$/Test/B01");
 
             _branchTeamService = new BranchTeamService(Context.TeamProjectCollection, (ITeamExplorer) ServiceProvider.GetService(typeof(ITeamExplorer)));
 
@@ -112,7 +112,7 @@ namespace AutoMerge
             TargetBranches.Clear();
 
             //Find all possible target branches
-            TargetBranches.Add("$/TestVoorAutomerge/MAIN");
+            TargetBranches.Add("$/Test/MAIN");
         }
 
         public override async Task<List<ChangesetViewModel>> GetChangesets()
