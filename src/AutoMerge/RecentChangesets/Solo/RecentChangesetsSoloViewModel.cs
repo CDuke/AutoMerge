@@ -49,7 +49,7 @@ namespace AutoMerge.RecentChangesets.Solo
         }
         private string _changesetIdsText;
 
-        public override async Task<List<ChangesetViewModel>> GetChangesets()
+        public override async Task<List<ChangesetViewModel>> GetChangesetsAsync()
         {
             var userLogin = VersionControlNavigationHelper.GetAuthorizedUser(ServiceProvider);
             var changesetProvider = new MyChangesetChangesetProvider(ServiceProvider, Settings.Instance.ChangesetCount, userLogin);
@@ -96,6 +96,11 @@ namespace AutoMerge.RecentChangesets.Solo
         private void ResetAddById()
         {
             ChangesetIdsText = string.Empty;
+        }
+
+        protected override async Task RefreshAsync()
+        {
+            await GetChangesetAndUpdateTitleAsync();
         }
 
         private async void AddChangesetByIdExecute()

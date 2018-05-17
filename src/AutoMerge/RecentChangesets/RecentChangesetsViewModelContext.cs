@@ -17,7 +17,7 @@ namespace AutoMerge
 
         public string TargetBranch { get; set; }
 
-        public ObservableCollection<ChangesetViewModel> SelectedChangesets { get; set; }
+        public string SelectedProjectName { get; set; }
     }
 
     public class RecentChangesetsSoloViewModelContext : RecentChangesetsViewModelContext

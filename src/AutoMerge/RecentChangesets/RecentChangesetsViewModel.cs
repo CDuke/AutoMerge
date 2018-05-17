@@ -96,12 +96,12 @@ namespace AutoMerge
             }
         }
 
-        protected override async Task RefreshAsync()
+        protected async Task GetChangesetAndUpdateTitleAsync()
         {
             Changesets.Clear();
 
             Logger.Info("Getting changesets ...");
-            var changesets = await GetChangesets();
+            var changesets = await GetChangesetsAsync();
             Logger.Info("Getting changesets end");
 
             Changesets = new ObservableCollection<ChangesetViewModel>(changesets);
@@ -114,7 +114,7 @@ namespace AutoMerge
             }
         }
 
-        public abstract Task<List<ChangesetViewModel>> GetChangesets();
+        public abstract Task<List<ChangesetViewModel>> GetChangesetsAsync();
 
         protected void UpdateTitle()
         {

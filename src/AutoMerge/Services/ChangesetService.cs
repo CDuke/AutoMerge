@@ -74,10 +74,10 @@ namespace AutoMerge
 
         public IEnumerable<BranchObject> ListBranches(string projectName)
         {                
-            var dummy =  _versionControlServer.QueryRootBranchObjects(RecursionType.OneLevel);
+            var dummy =  _versionControlServer.QueryRootBranchObjects(RecursionType.Full);
 
-            List<BranchObject> result = new List<BranchObject>();
-            foreach(BranchObject bo in dummy)
+            var result = new List<BranchObject>();
+            foreach(var bo in dummy)
             {
                 var ro = bo.Properties.RootItem;
 
