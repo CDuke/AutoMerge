@@ -24,11 +24,9 @@ namespace AutoMerge
             _changesetService = new ChangesetService(versionControlServer);
         }
 
-        public bool MergeBranches(string source, string target, int from, int to)
+        public void MergeBranches(string source, string target, int from, int to)
         {
-            var result = _workspace.Merge(source, target, new ChangesetVersionSpec(from), new ChangesetVersionSpec(to), LockLevel.None, RecursionType.Full, MergeOptions.None);
-
-            return result.NoActionNeeded;
+            _workspace.Merge(source, target, new ChangesetVersionSpec(from), new ChangesetVersionSpec(to), LockLevel.None, RecursionType.Full, MergeOptions.None);
         }
 
         public void AddWorkItemsAndNavigate(IEnumerable<int> changesetIds)
