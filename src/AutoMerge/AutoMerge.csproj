@@ -317,9 +317,9 @@
     <Compile Include="Prism\PropertySupport.cs" />
     <Compile Include="Changesets\Providers\ChangesetByIdChangesetProvider.cs" />
     <Compile Include="Changesets\ChangesetCommentConverter.cs" />
-    <Compile Include="Changesets\ChangesetProviderBase.cs" />
+    <Compile Include="Changesets\Providers\ChangesetProviderBase.cs" />
     <Compile Include="Changesets\ChangesetViewModel.cs" />
-    <Compile Include="Changesets\IChangesetProvider.cs" />
+    <Compile Include="Changesets\Providers\IChangesetProvider.cs" />
     <Compile Include="Changesets\Providers\MyChangesetChangesetProvider.cs" />
     <Compile Include="Changesets\ChangesetFocusableControlNames.cs" />
     <Compile Include="Changesets\RecentChangesetsSection.cs" />
@@ -334,7 +334,7 @@
     <Compile Include="Changesets\Team\TeamChangesetsView.xaml.cs">
       <DependentUpon>TeamChangesetsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Changesets\Team\RecentChangesetsTeamViewModel.cs" />
+    <Compile Include="Changesets\Team\TeamChangesetsViewModel.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
