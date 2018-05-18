@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMerge.Branches;
 using AutoMerge.Helpers;
 using AutoMerge.Prism.Command;
 using Microsoft.TeamFoundation.Controls;
@@ -13,7 +14,7 @@ namespace AutoMerge
     {
         private BranchTeamService _branchTeamService;
         private TeamChangesetChangesetProvider _teamChangesetChangesetProvider;
-        private List<string> _currentBranches;
+        private List<Branch> _currentBranches;
 
         public RecentChangesetsTeamViewModel(ILogger logger) : base(logger)
         {
@@ -48,7 +49,7 @@ namespace AutoMerge
                 Changesets.Clear();
                 SourcesBranches.Clear();
                 TargetBranches.Clear();
-                SourcesBranches.AddRange(_currentBranches);
+                SourcesBranches.AddRange(_currentBranches.Select(x => x.Name));
 
                 UpdateTitle();
             }
@@ -151,7 +152,11 @@ namespace AutoMerge
         public void InitializeTargetBranches()
         {
             TargetBranches.Clear();
-            TargetBranches.AddRange(_currentBranches.Except(new List<string> { SourceBranch }));
+
+            if (SourceBranch != null)
+            {
+                TargetBranches.AddRange(_currentBranches.Single(x => x.Name == SourceBranch).Branches);
+            }
         }
 
         public override async Task<List<ChangesetViewModel>> GetChangesetsAsync()

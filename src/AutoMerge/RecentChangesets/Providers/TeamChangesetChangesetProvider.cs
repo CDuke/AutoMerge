@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMerge.Branches;
 using Microsoft.TeamFoundation.VersionControl.Client;
 
 
@@ -32,9 +33,9 @@ namespace AutoMerge
             return result;
         }
 
-        public List<string> ListBranches(string projectName)
+        public List<Branch> ListBranches(string projectName)
         {
-            List<string> result = new List<string>();
+            var result = new List<Branch>();
 
             var changesetService = GetChangesetService();
 
@@ -42,7 +43,20 @@ namespace AutoMerge
             {
                 var branches = changesetService.ListBranches(projectName);
 
-                result.AddRange(branches.Select(x => x.Properties.RootItem.Item));
+                foreach (var branchObject in branches)
+                {
+                    var branch = new Branch();
+
+                    branch.Name = branchObject.Properties.RootItem.Item;
+                    branch.Branches = branchObject.ChildBranches.Where(x => !x.IsDeleted).Select(x => x.Item).ToList();
+
+                    if (branchObject.Properties.ParentBranch != null)
+                    {
+                        branch.Branches.Add(branchObject.Properties.ParentBranch.Item);
+                    }
+
+                    result.Add(branch);
+                }
             }
 
             return result;
