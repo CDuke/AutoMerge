@@ -17,14 +17,14 @@ namespace AutoMerge
 		{
 			switch (id)
 			{
-				case RecentChangesetFocusableControlNames.AddChangesetByIdLink:
+				case ChangesetFocusableControlNames.AddChangesetByIdLink:
 					addChangesetByIdLink.Focus();
 					break;
-				case RecentChangesetFocusableControlNames.ChangesetIdTextBox:
+				case ChangesetFocusableControlNames.ChangesetIdTextBox:
 					changesetIdTextBox.FocusTextBox();
 					changesetIdTextBox.TextBoxControl.SelectionStart = changesetIdTextBox.TextBoxControl.Text.Length;
 					break;
-				case RecentChangesetFocusableControlNames.ChangesetList:
+				case ChangesetFocusableControlNames.ChangesetList:
 					if (changesetList.SelectedItem != null)
 					{
 						changesetList.UpdateLayout();

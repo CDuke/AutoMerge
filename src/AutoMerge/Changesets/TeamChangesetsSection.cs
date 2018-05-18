@@ -9,17 +9,17 @@ using Microsoft.VisualStudio.Shell;
 
 namespace AutoMerge.RecentChangesets
 {
-    [TeamExplorerSection(GuidList.RecentChangesetsTeamSectionId, GuidList.AutoMergeTeamPageId, 11)]
-    public class RecentChangesetsTeamSection : TeamExplorerSectionBase
+    [TeamExplorerSection(GuidList.TeamChangesetsSectionId, GuidList.AutoMergeTeamPageId, 11)]
+    public class TeamChangesetsSection : TeamExplorerSectionBase
     {
         protected override ITeamExplorerSection CreateViewModel(SectionInitializeEventArgs e)
         {
-            return base.CreateViewModel(e) ?? new RecentChangesetsTeamViewModel(new VsLogger(ServiceProvider));
+            return base.CreateViewModel(e) ?? new TeamChangesetsViewModel(new VsLogger(ServiceProvider));
         }
 
         protected override object CreateView(SectionInitializeEventArgs e)
         {
-            return new RecentChangesetsTeamView();
+            return new TeamChangesetsView();
         }
     }
 }

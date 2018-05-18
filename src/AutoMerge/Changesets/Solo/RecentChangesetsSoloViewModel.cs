@@ -7,7 +7,7 @@ using Microsoft.TeamFoundation.Controls;
 
 namespace AutoMerge.RecentChangesets.Solo
 {
-    public class RecentChangesetsSoloViewModel : RecentChangesetsViewModel
+    public class RecentChangesetsSoloViewModel : ChangesetsViewModel
     {
         public RecentChangesetsSoloViewModel(ILogger logger) : base(logger)
         {
@@ -64,7 +64,7 @@ namespace AutoMerge.RecentChangesets.Solo
                 ShowAddByIdChangeset = true;
                 InvalidateCommands();
                 ResetAddById();
-                SetMvvmFocus(RecentChangesetFocusableControlNames.ChangesetIdTextBox);
+                SetMvvmFocus(ChangesetFocusableControlNames.ChangesetIdTextBox);
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace AutoMerge.RecentChangesets.Solo
             {
                 ShowAddByIdChangeset = false;
                 InvalidateCommands();
-                SetMvvmFocus(RecentChangesetFocusableControlNames.AddChangesetByIdLink);
+                SetMvvmFocus(ChangesetFocusableControlNames.AddChangesetByIdLink);
                 ResetAddById();
             }
             catch (Exception ex)
@@ -118,7 +118,7 @@ namespace AutoMerge.RecentChangesets.Solo
                     {
                         Changesets.Add(changesets[0]);
                         SelectedChangeset = changesets[0];
-                        SetMvvmFocus(RecentChangesetFocusableControlNames.ChangesetList);
+                        SetMvvmFocus(ChangesetFocusableControlNames.ChangesetList);
                         UpdateTitle();
                     }
                     ShowAddByIdChangeset = false;

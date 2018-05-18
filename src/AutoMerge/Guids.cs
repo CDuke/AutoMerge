@@ -16,7 +16,7 @@ namespace AutoMerge
         public const string AutoMergePageId = "3B582638-5F12-4715-8719-5E5777AB4581";
 	    public const string AutoMergeTeamPageId = "246ccc66-d988-44d4-8d1e-e84ee846acd5";
         public const string RecentChangesetsSectionId = "8DA59790-3996-465E-A13F-27D64B3C2A9D";
-	    public const string RecentChangesetsTeamSectionId = "b7dc6fbe-c3b1-47d8-805c-cce8c3dbedfb";
+	    public const string TeamChangesetsSectionId = "b7dc6fbe-c3b1-47d8-805c-cce8c3dbedfb";
 
         public const string BranchesSectionId = "36BF6F52-F4AC-44A0-9985-817B2A65B3B0";
 	};

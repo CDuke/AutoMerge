@@ -15,11 +15,11 @@ using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewM
 
 namespace AutoMerge
 {
-    public abstract class RecentChangesetsViewModel : TeamExplorerSectionViewModelBase
+    public abstract class ChangesetsViewModel : TeamExplorerSectionViewModelBase
     {
         private readonly IEventAggregator _eventAggregator;
 
-        protected RecentChangesetsViewModel(ILogger logger)
+        protected ChangesetsViewModel(ILogger logger)
             : base(logger)
         {
             Title = BaseTitle;

@@ -275,6 +275,8 @@
     <Compile Include="Branches\MergeResultModel.cs" />
     <Compile Include="Branches\Notification.cs" />
     <Compile Include="Branches\TrackMergeInfo.cs" />
+    <Compile Include="Changesets\Solo\RecentChangesetsSoloViewModelContext.cs" />
+    <Compile Include="Changesets\Team\TeamChangesetsViewModelContext.cs" />
     <Compile Include="CommentFormater.cs" />
     <Compile Include="Configuration\CommentFormat.cs" />
     <Compile Include="Configuration\ISettingProvider.cs" />
@@ -313,26 +315,26 @@
     <Compile Include="Prism\Events\SubscriptionToken.cs" />
     <Compile Include="Prism\Events\ThreadOption.cs" />
     <Compile Include="Prism\PropertySupport.cs" />
-    <Compile Include="RecentChangesets\Providers\ChangesetByIdChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\ChangesetCommentConverter.cs" />
-    <Compile Include="RecentChangesets\ChangesetProviderBase.cs" />
-    <Compile Include="RecentChangesets\ChangesetViewModel.cs" />
-    <Compile Include="RecentChangesets\IChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\Providers\MyChangesetChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetFocusableControlNames.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetsSection.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetsTeamSection.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetsViewModel.cs" />
-    <Compile Include="RecentChangesets\RecentChangesetsViewModelContext.cs" />
-    <Compile Include="RecentChangesets\Solo\RecentChangesetsSoloView.xaml.cs">
+    <Compile Include="Changesets\Providers\ChangesetByIdChangesetProvider.cs" />
+    <Compile Include="Changesets\ChangesetCommentConverter.cs" />
+    <Compile Include="Changesets\ChangesetProviderBase.cs" />
+    <Compile Include="Changesets\ChangesetViewModel.cs" />
+    <Compile Include="Changesets\IChangesetProvider.cs" />
+    <Compile Include="Changesets\Providers\MyChangesetChangesetProvider.cs" />
+    <Compile Include="Changesets\ChangesetFocusableControlNames.cs" />
+    <Compile Include="Changesets\RecentChangesetsSection.cs" />
+    <Compile Include="Changesets\TeamChangesetsSection.cs" />
+    <Compile Include="Changesets\ChangesetsViewModel.cs" />
+    <Compile Include="Changesets\ChangesetsViewModelContext.cs" />
+    <Compile Include="Changesets\Solo\RecentChangesetsSoloView.xaml.cs">
       <DependentUpon>RecentChangesetsSoloView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RecentChangesets\Solo\RecentChangesetsSoloViewModel.cs" />
-    <Compile Include="RecentChangesets\Providers\TeamChangesetChangesetProvider.cs" />
-    <Compile Include="RecentChangesets\Team\RecentChangesetsTeamView.xaml.cs">
-      <DependentUpon>RecentChangesetsTeamView.xaml</DependentUpon>
+    <Compile Include="Changesets\Solo\RecentChangesetsSoloViewModel.cs" />
+    <Compile Include="Changesets\Providers\TeamChangesetChangesetProvider.cs" />
+    <Compile Include="Changesets\Team\TeamChangesetsView.xaml.cs">
+      <DependentUpon>TeamChangesetsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RecentChangesets\Team\RecentChangesetsTeamViewModel.cs" />
+    <Compile Include="Changesets\Team\RecentChangesetsTeamViewModel.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -411,11 +413,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RecentChangesets\Solo\RecentChangesetsSoloView.xaml">
+    <Page Include="Changesets\Solo\RecentChangesetsSoloView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="RecentChangesets\Team\RecentChangesetsTeamView.xaml">
+    <Page Include="Changesets\Team\TeamChangesetsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

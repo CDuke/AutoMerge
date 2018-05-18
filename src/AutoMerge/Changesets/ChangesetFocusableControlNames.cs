@@ -1,6 +1,6 @@
-﻿namespace AutoMerge
+namespace AutoMerge
 {
-	public class RecentChangesetFocusableControlNames
+	public class ChangesetFocusableControlNames
 	{
 		public const string ChangesetIdTextBox = "changesetIdTextBox";
 		public const string AddChangesetByIdLink = "addChangesetByIdLink";

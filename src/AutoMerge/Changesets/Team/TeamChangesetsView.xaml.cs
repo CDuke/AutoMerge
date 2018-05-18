@@ -4,11 +4,11 @@ using Microsoft.TeamFoundation.Controls.MVVM;
 namespace AutoMerge
 {
 	/// <summary>
-	/// Interaction logic for RecentChangesetsView.xaml
+	/// Interaction logic for TeamChangesetsView.xaml
 	/// </summary>
-	public partial class RecentChangesetsTeamView : UserControl
+	public partial class TeamChangesetsView : UserControl
 	{
-		public RecentChangesetsTeamView()
+		public TeamChangesetsView()
 		{
 			InitializeComponent();
 		}

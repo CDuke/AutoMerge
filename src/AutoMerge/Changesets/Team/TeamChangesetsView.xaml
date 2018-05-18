@@ -1,4 +1,4 @@
-<UserControl x:Class="AutoMerge.RecentChangesetsTeamView"
+<UserControl x:Class="AutoMerge.TeamChangesetsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
@@ -11,7 +11,7 @@
              xmlns:automerge="clr-namespace:AutoMerge"
              TextOptions.TextFormattingMode="Display"
              UseLayoutRounding="True"
-             d:DataContext="{d:DesignInstance autoMerge:RecentChangesetsTeamViewModel}"
+             d:DataContext="{d:DesignInstance autoMerge:TeamChangesetsViewModel}"
              d:DesignHeight="300"
              d:DesignWidth="300"
              mc:Ignorable="d">

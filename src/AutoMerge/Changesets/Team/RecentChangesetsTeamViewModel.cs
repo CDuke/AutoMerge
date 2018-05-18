@@ -10,13 +10,13 @@ using Microsoft.TeamFoundation.Controls;
 
 namespace AutoMerge
 {
-    public class RecentChangesetsTeamViewModel : RecentChangesetsViewModel
+    public class TeamChangesetsViewModel : ChangesetsViewModel
     {
         private BranchTeamService _branchTeamService;
         private TeamChangesetChangesetProvider _teamChangesetChangesetProvider;
         private List<Branch> _currentBranches;
 
-        public RecentChangesetsTeamViewModel(ILogger logger) : base(logger)
+        public TeamChangesetsViewModel(ILogger logger) : base(logger)
         {
             SelectedChangesets = new ObservableCollection<ChangesetViewModel>();
             SourcesBranches = new ObservableCollection<string>();
@@ -169,7 +169,7 @@ namespace AutoMerge
         {
             base.SaveContext(sender, e);
 
-            var context = new RecentChangesetsTeamViewModelContext
+            var context = new TeamChangesetsViewModelContext
             {
                 SelectedProjectName = SelectedProjectName,
                 Changesets = Changesets,
@@ -183,7 +183,7 @@ namespace AutoMerge
 
         protected override void RestoreContext(SectionInitializeEventArgs e)
         {
-            var context = (RecentChangesetsTeamViewModelContext) e.Context;
+            var context = (TeamChangesetsViewModelContext) e.Context;
 
             SelectedProjectName = context.SelectedProjectName;
             Changesets = context.Changesets;
