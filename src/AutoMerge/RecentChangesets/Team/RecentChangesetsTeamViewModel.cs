@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMerge.Helpers;
 using AutoMerge.Prism.Command;
 using Microsoft.TeamFoundation.Controls;
 
@@ -11,13 +12,15 @@ namespace AutoMerge
     public class RecentChangesetsTeamViewModel : RecentChangesetsViewModel
     {
         private BranchTeamService _branchTeamService;
-        private string _projectName;
+        private TeamChangesetChangesetProvider _teamChangesetChangesetProvider;
+        private List<string> _currentBranches;
 
         public RecentChangesetsTeamViewModel(ILogger logger) : base(logger)
         {
             SelectedChangesets = new ObservableCollection<ChangesetViewModel>();
             SourcesBranches = new ObservableCollection<string>();
             TargetBranches = new ObservableCollection<string>();
+            ProjectNames = new ObservableCollection<string>();
 
             MergeCommand = DelegateCommand.FromAsyncHandler(MergeAsync, CanMerge);
             FetchChangesetsCommand = DelegateCommand.FromAsyncHandler(FetchChangesetsAsync, CanFetchChangesets);
@@ -26,8 +29,30 @@ namespace AutoMerge
         public DelegateCommand MergeCommand { get; }
         public DelegateCommand FetchChangesetsCommand { get; }
 
+        public ObservableCollection<string> ProjectNames { get; set; }
         public ObservableCollection<string> SourcesBranches { get; set; }
         public ObservableCollection<string> TargetBranches { get; set; }
+
+        private string _selectedProjectName;
+
+        public string SelectedProjectName
+        {
+            get { return _selectedProjectName; }
+            set
+            {
+                _selectedProjectName = value;
+                RaisePropertyChanged(nameof(SelectedProjectName));
+
+                _currentBranches = _teamChangesetChangesetProvider.ListBranches(SelectedProjectName);
+
+                Changesets.Clear();
+                SourcesBranches.Clear();
+                TargetBranches.Clear();
+                SourcesBranches.AddRange(_currentBranches);
+
+                UpdateTitle();
+            }
+        }
 
         private string _sourceBranch;
 
@@ -65,11 +90,6 @@ namespace AutoMerge
             get { return _selectedChangesets; }
             set
             {
-                if (_selectedChangesets != null)
-                {
-                    _selectedChangesets.CollectionChanged -= SelectedChangesets_CollectionChanged;
-                }
-
                 _selectedChangesets = value;
                 RaisePropertyChanged(nameof(SelectedChangesets));
 
@@ -107,10 +127,7 @@ namespace AutoMerge
 
         private async Task FetchChangesetsAsync()
         {
-            await SetBusyWhileExecutingAsync(async () => await RefreshAsync());
-
-            //This is needed because HideBusy will set IsBusy on false much later. And the raise can execute checks on this boolean
-            IsBusy = false;
+            await SetBusyWhileExecutingAsync(async () => await GetChangesetAndUpdateTitleAsync());
 
             MergeCommand.RaiseCanExecuteChanged();
         }
@@ -122,11 +139,11 @@ namespace AutoMerge
 
         protected override Task InitializeAsync(object sender, SectionInitializeEventArgs e)
         {
-            _projectName = ProjectNameHelper.GetProjectName(ServiceProvider);
-            //Find all sources branches.
-            SourcesBranches.Add("$/Test/B01");
+            _branchTeamService = new BranchTeamService(Context.TeamProjectCollection, (ITeamExplorer)ServiceProvider.GetService(typeof(ITeamExplorer)));
+            _teamChangesetChangesetProvider = new TeamChangesetChangesetProvider(ServiceProvider);
 
-            _branchTeamService = new BranchTeamService(Context.TeamProjectCollection, (ITeamExplorer) ServiceProvider.GetService(typeof(ITeamExplorer)));
+            var projectNames = _teamChangesetChangesetProvider.ListProjects();
+            projectNames.ForEach(x => ProjectNames.Add(x.Name));
 
             return base.InitializeAsync(sender, e);
         }
@@ -134,21 +151,13 @@ namespace AutoMerge
         public void InitializeTargetBranches()
         {
             TargetBranches.Clear();
-
-            //Find all possible target branches
-            TargetBranches.Add("$/Test/MAIN");
+            TargetBranches.AddRange(_currentBranches.Except(new List<string> { SourceBranch }));
         }
 
-        public override async Task<List<ChangesetViewModel>> GetChangesets()
+        public override async Task<List<ChangesetViewModel>> GetChangesetsAsync()
         {
-            if (SourceBranch != null && TargetBranch != null)
-            {
-                var changesetProvider = new TeamChangesetChangesetProvider(ServiceProvider);
-                changesetProvider.SetSourceAndTargetBranch(SourceBranch, TargetBranch);
-                return await changesetProvider.GetChangesets();
-            }
-
-            return await Task.FromResult(new List<ChangesetViewModel>());
+            _teamChangesetChangesetProvider.SetSourceAndTargetBranch(SourceBranch, TargetBranch);
+            return await _teamChangesetChangesetProvider.GetChangesets();
         }
 
         public override void SaveContext(object sender, SectionSaveContextEventArgs e)
@@ -157,10 +166,9 @@ namespace AutoMerge
 
             var context = new RecentChangesetsTeamViewModelContext
             {
+                SelectedProjectName = SelectedProjectName,
                 Changesets = Changesets,
                 Title = Title,
-                SelectedChangeset = SelectedChangeset,
-                SelectedChangesets = SelectedChangesets,
                 SourceBranch = SourceBranch,
                 TargetBranch = TargetBranch
             };
@@ -171,17 +179,35 @@ namespace AutoMerge
         protected override void RestoreContext(SectionInitializeEventArgs e)
         {
             var context = (RecentChangesetsTeamViewModelContext) e.Context;
-            
+
+            SelectedProjectName = context.SelectedProjectName;
             Changesets = context.Changesets;
             Title = context.Title;
-            SelectedChangesets = context.SelectedChangesets;
-            SelectedChangeset = context.SelectedChangeset;
             SourceBranch = context.SourceBranch;
             TargetBranch = context.TargetBranch;
+        }
+        
+        public override void Loaded(object sender, SectionLoadedEventArgs e)
+        {
+            base.Loaded(sender, e);
+
+            //manuelly set to false beacause apparently Hidebusy will set isbuys on false much later...
+            IsBusy = false;
 
             MergeCommand.RaiseCanExecuteChanged();
+            FetchChangesetsCommand.RaiseCanExecuteChanged();
         }
 
-        protected override string BaseTitle => "Project name: " + _projectName;
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            if (_selectedChangesets != null)
+            {
+                _selectedChangesets.CollectionChanged -= SelectedChangesets_CollectionChanged;
+            }
+        }
+
+        protected override string BaseTitle => "Project name: " + SelectedProjectName;
     }
 }

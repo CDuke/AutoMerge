@@ -290,6 +290,7 @@
     <Compile Include="Guids.cs" />
     <Compile Include="Helpers\BranchHelper.cs" />
     <Compile Include="Helpers\EnumerableExtensions.cs" />
+    <Compile Include="Helpers\CollectionExtensions.cs" />
     <Compile Include="Helpers\ProjectNameHelper.cs" />
     <Compile Include="Helpers\VersionControlNavigationHelper.cs" />
     <Compile Include="Helpers\WorkspaceHelper.cs" />

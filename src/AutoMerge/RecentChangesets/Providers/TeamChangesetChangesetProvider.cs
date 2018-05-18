@@ -36,18 +36,14 @@ namespace AutoMerge
         {
             List<string> result = new List<string>();
 
-            result.Add("Test/Main");
-            result.Add("ROL-Omgeving/Main");
-
-
             var changesetService = GetChangesetService();
 
             if (changesetService != null)
             {
-                changesetService.ListBranches("jos");
+                var branches = changesetService.ListBranches(projectName);
 
+                result.AddRange(branches.Select(x => x.Properties.RootItem.Item));
             }
-
 
             return result;
 
@@ -67,17 +63,11 @@ namespace AutoMerge
 
             if (changesetService != null)
             {
-
-                ///dummy calls for testing the functionality
-                var prj = changesetService.ListTfsProjects();
-                var s = changesetService.ListBranches("Test");
-
                 var tfsChangesets = changesetService.GetMergeCandidates(_sourceBranch, _targetBranch);
 
                 changesets = tfsChangesets
                     .Select(tfsChangeset => ToChangesetViewModel(tfsChangeset, changesetService))
                     .ToList();
-
             }
 
             return changesets;

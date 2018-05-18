@@ -26,6 +26,12 @@
 
   <StackPanel Margin="6,6,6,6">
 
+    <TextBlock Text="Project name:" />
+    <ComboBox ItemsSource="{Binding ProjectNames}"
+              SelectedItem="{Binding SelectedProjectName, UpdateSourceTrigger=PropertyChanged}">
+
+    </ComboBox>
+
     <TextBlock Text="Source branch:" />
     <ComboBox ItemsSource="{Binding SourcesBranches}"
               SelectedItem="{Binding SourceBranch, UpdateSourceTrigger=PropertyChanged}">
