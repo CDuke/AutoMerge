@@ -106,3 +106,5 @@ $RECYCLE.BIN/
 
 # ide temp
 *.sln.ide/
+/.vs
+/src/.vs/AutoMerge/v15/Server/sqlite3

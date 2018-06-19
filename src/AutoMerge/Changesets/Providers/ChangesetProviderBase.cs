@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,12 +17,12 @@ namespace AutoMerge
             _changesetService = new Lazy<ChangesetService>(InitChangesetService);
         }
 
-        public Task<List<ChangesetViewModel>> GetChangesets(string userLogin)
+        public Task<List<ChangesetViewModel>> GetChangesets()
         {
-            return Task.Run(() => GetChangesetsInternal(userLogin));
+            return Task.Run(() => GetChangesetsInternal());
         }
 
-        protected abstract List<ChangesetViewModel> GetChangesetsInternal(string userLogin);
+        protected abstract List<ChangesetViewModel> GetChangesetsInternal();
 
         protected ChangesetViewModel ToChangesetViewModel(Changeset tfsChangeset, ChangesetService changesetService)
         {
@@ -57,14 +57,9 @@ namespace AutoMerge
             return null;
         }
 
-        protected string GetProjectName()
-        {
-            var context = VersionControlNavigationHelper.GetTeamFoundationContext(_serviceProvider);
-            if (context != null)
-            {
-                return context.TeamProjectName;
-            }
-            return null;
+        protected IServiceProvider ServiceProvider()
+        { 
+            return _serviceProvider;
         }
     }
 }

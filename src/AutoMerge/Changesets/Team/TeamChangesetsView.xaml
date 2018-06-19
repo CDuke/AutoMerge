@@ -1,0 +1,80 @@
+<UserControl x:Class="AutoMerge.TeamChangesetsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:autoMerge="clr-namespace:AutoMerge;assembly="
+             xmlns:converters="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.Converters;assembly=Microsoft.TeamFoundation.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:teamExplorer="clr-namespace:Microsoft.TeamFoundation.Controls.WPF.TeamExplorer;assembly=Microsoft.TeamFoundation.Controls"
+             xmlns:wpf="clr-namespace:Microsoft.TeamFoundation.Controls.WPF;assembly=Microsoft.TeamFoundation.Controls"
+             xmlns:automerge="clr-namespace:AutoMerge"
+             TextOptions.TextFormattingMode="Display"
+             UseLayoutRounding="True"
+             d:DataContext="{d:DesignInstance autoMerge:TeamChangesetsViewModel}"
+             d:DesignHeight="300"
+             d:DesignWidth="300"
+             mc:Ignorable="d">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Microsoft.TeamFoundation.Controls;component/WPF/SharedResources.xaml" />
+        <ResourceDictionary Source="../../Styles/RecentChangesetResource.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <StackPanel Margin="6,6,6,6">
+
+    <TextBlock Text="Project name:" />
+    <ComboBox ItemsSource="{Binding ProjectNames}"
+              SelectedItem="{Binding SelectedProjectName, UpdateSourceTrigger=PropertyChanged}">
+
+    </ComboBox>
+
+    <TextBlock Text="Source branch:" />
+    <ComboBox ItemsSource="{Binding SourcesBranches}"
+              SelectedItem="{Binding SourceBranch, UpdateSourceTrigger=PropertyChanged}">
+
+    </ComboBox>
+
+    <TextBlock Text="Target branch:" />
+    <ComboBox ItemsSource="{Binding TargetBranches}"
+              SelectedItem="{Binding TargetBranch, UpdateSourceTrigger=PropertyChanged}">
+
+    </ComboBox>
+
+    <automerge:AutoMergeListBox x:Name="changesetList"
+             Margin="0 20 0 0" MaxHeight="400"
+             ItemsSource="{Binding Changesets}"
+             SelectedItem="{Binding SelectedChangeset}"
+             Style="{StaticResource ChangesetListStyle}"
+             SelectedItemsList="{Binding SelectedChangesets}"
+             SelectionMode="Extended">
+      <automerge:AutoMergeListBox.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding ViewChangesetDetailsCommand}" />
+      </automerge:AutoMergeListBox.InputBindings>
+      <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseDoubleClick">
+          <i:InvokeCommandAction Command="{Binding ViewChangesetDetailsCommand}" />
+        </i:EventTrigger>
+      </i:Interaction.Triggers>
+      <!--
+        Comment adding behavior, because in some cases error
+        ' Cannot add instance of type 'ScrollDeligateBehavior' to a collection of type 'BehaviorCollection'. Only items of type 'T' are allowed.'
+      -->
+      <!--  <i:Interaction.Behaviors>  -->
+      <!--  <behaviours:ScrollDeligateBehavior />  -->
+      <!--  </i:Interaction.Behaviors>  -->
+    </automerge:AutoMergeListBox>
+
+    <Button Command="{Binding FetchChangesetsCommand}" Content="Fetch changesets">
+
+    </Button>
+
+    <Button Command="{Binding MergeCommand}" Content="Merge">
+      
+    </Button>
+    
+  </StackPanel>
+</UserControl>
