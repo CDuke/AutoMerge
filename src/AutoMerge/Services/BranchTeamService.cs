@@ -36,7 +36,11 @@ namespace AutoMerge
             foreach(var changesetId in changesetIds)
             {
                 var changeSet = _changesetService.GetChangeset(changesetId);
-                workItemIds.AddRange(changeSet.AssociatedWorkItems?.Select(x => x.Id) ?? new List<int>());
+
+                if (changeSet != null && changeSet.AssociatedWorkItems != null)
+                {
+                    workItemIds.AddRange(changeSet.AssociatedWorkItems.Select(x => x.Id));
+                }
             }
 
             var pendingChangePage = (TeamExplorerPageBase) _teamExplorer.NavigateToPage(new Guid(TeamExplorerPageIds.PendingChanges), null);

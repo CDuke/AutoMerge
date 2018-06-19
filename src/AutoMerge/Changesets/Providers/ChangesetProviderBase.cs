@@ -57,6 +57,9 @@ namespace AutoMerge
             return null;
         }
 
-        protected IServiceProvider ServiceProvider => _serviceProvider;
+        protected IServiceProvider ServiceProvider()
+        { 
+            return _serviceProvider;
+        }
     }
 }

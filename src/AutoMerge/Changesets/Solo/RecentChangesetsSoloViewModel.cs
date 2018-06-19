@@ -197,6 +197,12 @@ namespace AutoMerge.RecentChangesets.Solo
             Title = context.Title;
         }
 
-        protected override string BaseTitle => Resources.RecentChangesetSectionName;
+        protected override string BaseTitle
+        {
+            get
+            {
+                return Resources.RecentChangesetSectionName;
+            }
+        }
     }
 }

@@ -27,8 +27,8 @@ namespace AutoMerge
             FetchChangesetsCommand = DelegateCommand.FromAsyncHandler(FetchChangesetsAsync, CanFetchChangesets);
         }
 
-        public DelegateCommand MergeCommand { get; }
-        public DelegateCommand FetchChangesetsCommand { get; }
+        public DelegateCommand MergeCommand { get; private set; }
+        public DelegateCommand FetchChangesetsCommand { get; private set; }
 
         public ObservableCollection<string> ProjectNames { get; set; }
         public ObservableCollection<string> SourcesBranches { get; set; }
@@ -42,7 +42,7 @@ namespace AutoMerge
             set
             {
                 _selectedProjectName = value;
-                RaisePropertyChanged(nameof(SelectedProjectName));
+                RaisePropertyChanged("SelectedProjectName");
 
                 _currentBranches = _teamChangesetChangesetProvider.ListBranches(SelectedProjectName);
 
@@ -63,7 +63,7 @@ namespace AutoMerge
             set
             {
                 _sourceBranch = value;
-                RaisePropertyChanged(nameof(SourceBranch));
+                RaisePropertyChanged("SourceBranch");
                 InitializeTargetBranches();
 
                 FetchChangesetsCommand.RaiseCanExecuteChanged();
@@ -78,7 +78,7 @@ namespace AutoMerge
             set
             {
                 _targetBranch = value;
-                RaisePropertyChanged(nameof(TargetBranch));
+                RaisePropertyChanged("TargetBranch");
 
                 FetchChangesetsCommand.RaiseCanExecuteChanged();
             }
@@ -92,12 +92,12 @@ namespace AutoMerge
             set
             {
                 _selectedChangesets = value;
-                RaisePropertyChanged(nameof(SelectedChangesets));
+                RaisePropertyChanged("SelectedChangesets");
 
                 if (_selectedChangesets != null)
                 {
                     _selectedChangesets.CollectionChanged += SelectedChangesets_CollectionChanged;
-                }                
+                }
             }
         }
 
@@ -183,7 +183,7 @@ namespace AutoMerge
 
         protected override void RestoreContext(SectionInitializeEventArgs e)
         {
-            var context = (TeamChangesetsViewModelContext) e.Context;
+            var context = (TeamChangesetsViewModelContext)e.Context;
 
             SelectedProjectName = context.SelectedProjectName;
             Changesets = context.Changesets;
@@ -191,12 +191,12 @@ namespace AutoMerge
             SourceBranch = context.SourceBranch;
             TargetBranch = context.TargetBranch;
         }
-        
+
         public override void Loaded(object sender, SectionLoadedEventArgs e)
         {
             base.Loaded(sender, e);
 
-            //manuelly set to false beacause apparently Hidebusy will set isbuys on false much later...
+            //manually set to false because apparently HideBusy will set isBusy on false much later...
             IsBusy = false;
 
             MergeCommand.RaiseCanExecuteChanged();
@@ -213,6 +213,13 @@ namespace AutoMerge
             }
         }
 
-        protected override string BaseTitle => "Project name: " + SelectedProjectName;
+        protected override string BaseTitle
+        {
+            get
+            {
+                return "Project name: " + SelectedProjectName;
+            }
+        }
+
     }
 }

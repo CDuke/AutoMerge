@@ -12,7 +12,7 @@ namespace AutoMerge
             : base(serviceProvider)
         {
             if (changesetIds == null)
-                throw new ArgumentNullException(nameof(changesetIds));
+                throw new ArgumentNullException("changesetIds");
 
             _changesetIds = changesetIds;
         }
