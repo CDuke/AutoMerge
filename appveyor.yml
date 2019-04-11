@@ -12,15 +12,13 @@ image: Visual Studio 2017
 platform: Any CPU
 
 environment:
+  EnableNuGetPackageRestore: true
   matrix:
     - VisualStudioVersion: 16.0
     - VisualStudioVersion: 15.0
 
 init:
   - git config --global core.autocrlf true
-
-before_build:
-  - nuget restore %APPVEYOR_BUILD_FOLDER%\src\AutoMerge.sln
 
 build:
 
