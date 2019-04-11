@@ -14,8 +14,8 @@ platform: Any CPU
 
 environment:
   matrix:
-    - VisualStudioVersion: 14.0
-    - VisualStudioVersion: 12.0
+    - VisualStudioVersion: 16.0
+    - VisualStudioVersion: 15.0
 
 init:
   - git config --global core.autocrlf true
