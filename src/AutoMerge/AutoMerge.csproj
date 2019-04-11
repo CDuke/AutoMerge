@@ -61,12 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
-    <PackageReference Include="stdole" Version="7.0.3302" />
-    <PackageReference Include="EnvDTE" Version="8.0.2" />
-    <PackageReference Include="EnvDTE100" Version="10.0.3" />
-    <PackageReference Include="EnvDTE80" Version="8.0.3" />
-    <PackageReference Include="EnvDTE90" Version="9.0.3" />
-    <PackageReference Include="EnvDTE90a" Version="9.0.3" />
   </ItemGroup>
   <Choose>
     <When Condition=" $(VisualStudioVersion) == '12.0'">
