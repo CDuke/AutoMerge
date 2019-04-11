@@ -58,197 +58,36 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="Microsoft.TeamFoundation.Client">
+      <HintPath>..\..\lib\$(VisualStudioVersion)\Microsoft.TeamFoundation.Client.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.TeamFoundation.Common">
+      <HintPath>..\..\lib\$(VisualStudioVersion)\Microsoft.TeamFoundation.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.TeamFoundation.Controls">
+      <HintPath>..\..\lib\$(VisualStudioVersion)\Microsoft.TeamFoundation.Controls.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.TeamFoundation.VersionControl.Client">
+      <HintPath>..\..\lib\$(VisualStudioVersion)\Microsoft.TeamFoundation.VersionControl.Client.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.TeamFoundation.VersionControl.Common">
+      <HintPath>..\..\lib\$(VisualStudioVersion)\Microsoft.TeamFoundation.VersionControl.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client">
+      <HintPath>..\..\lib\$(VisualStudioVersion)\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="$(VisualStudioVersion).*" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="$(VisualStudioVersion).*" ExcludeAssets="runtime" />
   </ItemGroup>
-  <Choose>
-    <When Condition=" $(VisualStudioVersion) == '12.0'">
-      <ItemGroup>
-        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="12.0.21005" />
-        <Reference Include="Microsoft.VisualStudio.OLE.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.11.0">
-          <EmbedInteropTypes>true</EmbedInteropTypes>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.12.0">
-          <EmbedInteropTypes>true</EmbedInteropTypes>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TextManager.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.12.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.11.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.12.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Client, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Common, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Controls, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <When Condition=" $(VisualStudioVersion) == '14.0'">
-      <ItemGroup>
-        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="14.3.25420" />
-        <Reference Include="Microsoft.VisualStudio.OLE.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.11.0">
-          <EmbedInteropTypes>true</EmbedInteropTypes>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.12.0">
-          <EmbedInteropTypes>true</EmbedInteropTypes>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TextManager.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.12.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.11.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.12.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Client, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Common, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.Common.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Controls, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.Controls.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.VersionControl.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.VersionControl.Common.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\14.0\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <When Condition=" $(VisualStudioVersion) == '15.0'">
-      <ItemGroup>
-        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="15.9.3039" />
-        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.9.3" ExcludeAssets="runtime" />
-        <Reference Include="Microsoft.VisualStudio.Shell.Framework, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.Client, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\15.0\Microsoft.TeamFoundation.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Common, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\15.0\Microsoft.TeamFoundation.Common.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Controls, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\15.0\Microsoft.TeamFoundation.Controls.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\15.0\Microsoft.TeamFoundation.VersionControl.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\15.0\Microsoft.TeamFoundation.VersionControl.Common.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>C:\Program Files\Common Files\microsoft shared\Team Foundation Server\15.0\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <When Condition=" $(VisualStudioVersion) == '16.0'">
-      <ItemGroup>
-        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.1.1071" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.200" ExcludeAssets="runtime" />
-        <Reference Include="Microsoft.TeamFoundation.Client">
-          <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Common">
-          <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.Common.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Controls">
-          <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.Controls.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client">
-          <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.VersionControl.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common">
-          <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.VersionControl.Common.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client">
-          <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
   <ItemGroup>
     <Compile Include="AutoMergeNavigationItem.cs" />
     <Compile Include="AutoMergePage.cs" />
@@ -407,11 +246,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
-    <Copy SourceFiles="source.vs11.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='11.0'" />
-    <Copy SourceFiles="source.vs12.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='12.0'" />
-    <Copy SourceFiles="source.vs14.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='14.0'" />
-    <Copy SourceFiles="source.vs15.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='15.0'" />
-    <Copy SourceFiles="source.vs16.extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" Condition="$(VisualStudioVersion)=='16.0'" />
+    <Copy SourceFiles="source.vs$(VisualStudioVersion).extension.vsixmanifest" DestinationFiles="source.extension.vsixmanifest" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
