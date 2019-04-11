@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+	<Metadata>
+		<Identity Id="AutoMerge.VS2019.F05BAC3E-6794-4A9E-9EE7-1B8A200778EE" Version="0.2.6.9" Language="en-US" Publisher="Kulikov Denis" />
+		<DisplayName>Auto Merge for Visual Studio 2019</DisplayName>
+		<Description>Easy way to merge changeset</Description>
+		<License>LICENSE.txt</License>
+		<ReleaseNotes>https://github.com/CDuke/AutoMerge/blob/master/RELEASE_NOTES.md</ReleaseNotes>
+		<Icon>Resources/merge.png</Icon>
+		<PreviewImage>Resources/preview.png</PreviewImage>
+		<Tags>merge code, merge, merging, branch, changeset, merge by work item, tfs</Tags>
+	</Metadata>
+	<Installation InstalledByMsi="false">
+		<InstallationTarget Version="[16.0, 17.0)" Id="Microsoft.VisualStudio.Pro" />
+	</Installation>
+	<Dependencies>
+		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+		<Dependency d:Source="Installed" Version="[16.0,17.0)" Id="Microsoft.VisualStudio.MPF.16.0" DisplayName="Visual Studio MPF 16.0" />
+	</Dependencies>
+	<Assets>
+		<Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+	</Assets>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,17.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+</PackageManifest>
