@@ -45,10 +45,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Expression.Interactions">
-      <HintPath>..\..\lib\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -59,150 +55,23 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Interactivity">
-      <HintPath>..\..\lib\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
+    <PackageReference Include="stdole" Version="7.0.3302" />
+    <PackageReference Include="EnvDTE" Version="8.0.2" />
+    <PackageReference Include="EnvDTE100" Version="10.0.3" />
+    <PackageReference Include="EnvDTE80" Version="8.0.3" />
+    <PackageReference Include="EnvDTE90" Version="9.0.3" />
+    <PackageReference Include="EnvDTE90a" Version="9.0.3" />
+  </ItemGroup>
   <Choose>
-    <When Condition=" $(VisualStudioVersion) == '11.0'">
-      <ItemGroup>
-        <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE.8.0.1\lib\net10\EnvDTE.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE100.10.0.1\lib\net20\EnvDTE100.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE80.8.0.1\lib\net10\EnvDTE80.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90.9.0.1\lib\net10\EnvDTE90.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90a.9.0.1\lib\net10\EnvDTE90a.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <COMReference Include="Microsoft.VisualStudio.CommandBars">
-          <Guid>{1CBA492E-7263-47BB-87FE-639000619B15}</Guid>
-          <VersionMajor>8</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
-        <COMReference Include="stdole">
-          <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-          <VersionMajor>2</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
-        <Reference Include="Microsoft.VisualStudio.OLE.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.11.0">
-          <EmbedInteropTypes>true</EmbedInteropTypes>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Interop.12.0">
-          <EmbedInteropTypes>true</EmbedInteropTypes>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TextManager.Interop">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.12.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.11.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.Shell.Immutable.12.0">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.TeamFoundation.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.VersionControl.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-        <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-      </ItemGroup>
-    </When>
     <When Condition=" $(VisualStudioVersion) == '12.0'">
       <ItemGroup>
         <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="12.0.21005" />
-        <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE.8.0.1\lib\net10\EnvDTE.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE100.10.0.1\lib\net20\EnvDTE100.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE80.8.0.1\lib\net10\EnvDTE80.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90.9.0.1\lib\net10\EnvDTE90.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90a.9.0.1\lib\net10\EnvDTE90a.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <COMReference Include="Microsoft.VisualStudio.CommandBars">
-          <Guid>{1CBA492E-7263-47BB-87FE-639000619B15}</Guid>
-          <VersionMajor>8</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
-        <COMReference Include="stdole">
-          <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-          <VersionMajor>2</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
         <Reference Include="Microsoft.VisualStudio.OLE.Interop">
           <Private>False</Private>
         </Reference>
@@ -262,49 +131,6 @@
     <When Condition=" $(VisualStudioVersion) == '14.0'">
       <ItemGroup>
         <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="14.3.25420" />
-        <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE.8.0.1\lib\net10\EnvDTE.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE100.10.0.1\lib\net20\EnvDTE100.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE80.8.0.1\lib\net10\EnvDTE80.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90.9.0.1\lib\net10\EnvDTE90.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90a.9.0.1\lib\net10\EnvDTE90a.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <COMReference Include="Microsoft.VisualStudio.CommandBars">
-          <Guid>{1CBA492E-7263-47BB-87FE-639000619B15}</Guid>
-          <VersionMajor>8</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
-        <COMReference Include="stdole">
-          <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-          <VersionMajor>2</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
         <Reference Include="Microsoft.VisualStudio.OLE.Interop">
           <Private>False</Private>
         </Reference>
@@ -370,49 +196,6 @@
     <When Condition=" $(VisualStudioVersion) == '15.0'">
       <ItemGroup>
         <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="15.9.3039" />
-        <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE.8.0.1\lib\net10\EnvDTE.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE100.10.0.1\lib\net20\EnvDTE100.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE80.8.0.1\lib\net10\EnvDTE80.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90.9.0.1\lib\net10\EnvDTE90.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <Reference Include="EnvDTE90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-          <EmbedInteropTypes>True</EmbedInteropTypes>
-          <HintPath>..\..\lib\EnvDTE90a.9.0.1\lib\net10\EnvDTE90a.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
-        <COMReference Include="Microsoft.VisualStudio.CommandBars">
-          <Guid>{1CBA492E-7263-47BB-87FE-639000619B15}</Guid>
-          <VersionMajor>8</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
-        <COMReference Include="stdole">
-          <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-          <VersionMajor>2</VersionMajor>
-          <VersionMinor>0</VersionMinor>
-          <Lcid>0</Lcid>
-          <WrapperTool>primary</WrapperTool>
-          <Isolated>False</Isolated>
-          <EmbedInteropTypes>False</EmbedInteropTypes>
-        </COMReference>
         <Reference Include="Microsoft.VisualStudio.OLE.Interop">
           <Private>False</Private>
         </Reference>
@@ -479,24 +262,30 @@
     <When Condition=" $(VisualStudioVersion) == '16.0'">
       <ItemGroup>
         <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.1.1071" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.9.3" ExcludeAssets="runtime" />
+        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.200" ExcludeAssets="runtime" />
         <Reference Include="Microsoft.TeamFoundation.Client">
           <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.Client.dll</HintPath>
+          <Private>False</Private>
         </Reference>
         <Reference Include="Microsoft.TeamFoundation.Common">
           <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.Common.dll</HintPath>
+          <Private>False</Private>
         </Reference>
         <Reference Include="Microsoft.TeamFoundation.Controls">
           <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.Controls.dll</HintPath>
+          <Private>False</Private>
         </Reference>
         <Reference Include="Microsoft.TeamFoundation.VersionControl.Client">
           <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.VersionControl.Client.dll</HintPath>
+          <Private>False</Private>
         </Reference>
         <Reference Include="Microsoft.TeamFoundation.VersionControl.Common">
           <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.VersionControl.Common.dll</HintPath>
+          <Private>False</Private>
         </Reference>
         <Reference Include="Microsoft.TeamFoundation.WorkItemTracking.Client">
           <HintPath>..\..\lib\16.0\Microsoft.TeamFoundation.WorkItemTracking.Client.dll</HintPath>
+          <Private>False</Private>
         </Reference>
       </ItemGroup>
     </When>
@@ -631,7 +420,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
