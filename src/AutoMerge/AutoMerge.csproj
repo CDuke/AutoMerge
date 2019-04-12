@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <MinimumVisualStudioVersion>$(VisualStudioVersion)</MinimumVisualStudioVersion>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">16.0</VisualStudioVersion>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)\devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
@@ -84,7 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="$(VisualStudioVersion).*" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.*" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="$(VisualStudioVersion).*" ExcludeAssets="runtime" />
   </ItemGroup>
   <ItemGroup>
