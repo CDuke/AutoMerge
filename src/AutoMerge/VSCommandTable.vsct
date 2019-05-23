@@ -53,7 +53,7 @@
         <Parent guid="guidShowAutoMergeCmdSet" id="AutoMergeGroup" />
         <!-- Use a KnownMoniker as icon. 
              See more here https://marketplace.visualstudio.com/items?itemName=MadsKristensen.KnownMonikersExplorer -->
-        <Icon guid="AutoMergeIcons" id="Show"/>
+          <Icon guid="ImageCatalogGuid" id="ButtonClick" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
           <LocCanonicalName>AutoMerge.Show</LocCanonicalName>
@@ -61,9 +61,7 @@
         </Strings>
       </Button>
     </Buttons>
-    <Bitmaps>
-        <Bitmap guid="AutoMergeIcons" href="Resources\merge.png" usedList="Show"/>
-    </Bitmaps>
+
   </Commands>
 
 

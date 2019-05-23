@@ -1,6 +1,7 @@
 using System.ComponentModel.Design;
+using Microsoft.TeamFoundation.Common.Internal;
+using Microsoft.TeamFoundation.Controls;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace AutoMerge.Commands
@@ -23,13 +24,8 @@ namespace AutoMerge.Commands
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            VsShellUtilities.ShowMessageBox(
-                package,
-                $"Inside {typeof(ShowAutoMergeWindow).FullName}.Execute()",
-                nameof(ShowAutoMergeWindow),
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            var teamExplorer = package.GetService<ITeamExplorer>();
+            teamExplorer.NavigateToPage(GuidList.AutoMergePageGuid, null);
         }
     }
 }
