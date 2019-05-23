@@ -1,4 +1,7 @@
+using System;
 using System.Runtime.InteropServices;
+using System.Threading;
+using AutoMerge.Commands;
 using Microsoft.VisualStudio.Shell;
 
 namespace AutoMerge
@@ -20,8 +23,15 @@ namespace AutoMerge
     // in the Help/About dialog of Visual Studio.
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [Guid(GuidList.guidAutoMergePkgString)]
-	[ProvideBindingPath]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideBindingPath]
     public sealed class AutoMergePackage : AsyncPackage
     {
+        protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            await ShowAutoMergeWindow.InitializeAsync(this);
+        }
     }
 }

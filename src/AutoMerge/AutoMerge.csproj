@@ -120,6 +120,7 @@
     <Compile Include="Branches\MergeResultModel.cs" />
     <Compile Include="Branches\Notification.cs" />
     <Compile Include="Branches\TrackMergeInfo.cs" />
+    <Compile Include="Commands\ShowAutoMergeWindow.cs" />
     <Compile Include="CommentFormater.cs" />
     <Compile Include="Configuration\CommentFormat.cs" />
     <Compile Include="Configuration\ISettingProvider.cs" />
@@ -193,6 +194,11 @@
       <MergeWithCTO>true</MergeWithCTO>
       <ManifestResourceName>VSPackage</ManifestResourceName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <VSCTCompile Include="VSCommandTable.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+    </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />

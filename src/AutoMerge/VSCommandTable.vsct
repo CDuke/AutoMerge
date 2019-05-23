@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!--This is the file that defines the IDs for all the commands exposed by VisualStudio.-->
+  <Extern href="stdidcmd.h"/>
+  <!--This header contains the command ids for the menus provided by the shell.-->
+  <Extern href="vsshlids.h"/>
+  
+  <!-- Adds a reference to the KnownMonikers in the ImageCatalog for use in the <button> elements -->
+  <Include href="KnownImageIds.vsct"/>
+
+  <Commands package="guidPackage">
+      <!-- This is the sub-section that defines the menus and toolbars. -->
+      <Menus>
+          <!--
+      To define a menu element we need an ID, a parent group, a display priority,
+      a menu type, a name and a default text. The exception to requiring a parent
+      is if we are a top level piece of UI (i.e. a toolbar or a context menu. In other
+      words an element that doesn't live on any other command UI, or if we will later 
+      parent our command via a CommandPlacement element to one or more locations).
+      
+      In this example we define a toolbar, so we set the type attribute to Toolbar.
+      
+      Toolbars can set their priority field to affect where they are shown in the toolbar
+      tray. The lower 16 bits of the priority value is taken as a vertical row offset from
+      row 0 (where the standard toolbar is) and is further interpreted as a priority offset
+      within the row the toolbar appears in. So below, by specifying we are at priority 
+      0x0001 we say we want to be in the first row (below the standard toolbar) with a 
+      priority value of 1 relative to other toolbar's priority values that are in that same 
+      row.
+      -->
+          <Menu guid="guidShowAutoMergeCmdSet" id="AutoMergeToolbar" priority="0x0001" type="Toolbar">
+              <Strings>
+                  <!--
+          The String section contains the localizable strings for an element, in this case our
+          toolbar. In this example we are not defining a localizable set of commands, so we do not
+          specify the "language" attribute for the Strings tag. It is possible however to specify
+          different String sections inside any element definition, one for each supported language.
+          -->
+                  <ButtonText>Auto Merge</ButtonText>
+              </Strings>
+          </Menu>
+      </Menus>
+
+    <Groups>
+      <Group guid="guidShowAutoMergeCmdSet" id="AutoMergeGroup" priority="0x100">
+        <Parent guid="guidShowAutoMergeCmdSet" id="AutoMergeToolbar"/>
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidShowAutoMergeCmdSet" id="ShowAutoMergeCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidShowAutoMergeCmdSet" id="AutoMergeGroup" />
+        <!-- Use a KnownMoniker as icon. 
+             See more here https://marketplace.visualstudio.com/items?itemName=MadsKristensen.KnownMonikersExplorer -->
+        <Icon guid="AutoMergeIcons" id="Show"/>
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <LocCanonicalName>AutoMerge.Show</LocCanonicalName>
+          <ButtonText>Show Auto Merge</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+    <Bitmaps>
+        <Bitmap guid="AutoMergeIcons" href="Resources\merge.png" usedList="Show"/>
+    </Bitmaps>
+  </Commands>
+
+
+
+  <!--<KeyBindings>
+    <KeyBinding guid="guidShowAutoMergeCmdSet" id="ShowAutoMergeCommandId" editor="guidVSStd97" key1="K" mod1="Control" key2="0" mod2="Control" />
+  </KeyBindings>-->
+
+  <Symbols>
+    <GuidSymbol name="guidPackage" value="{f05bac3e-6794-4a9e-9ee7-1b8a200778ee}" />
+
+    <GuidSymbol name="guidShowAutoMergeCmdSet" value="{550e8690-9fae-46d1-8ff7-d6d0edf9449c}">
+      <IDSymbol name="AutoMergeGroup" value="0x1050" />
+      <IDSymbol name="AutoMergeToolbar" value="0x1030" />
+      <IDSymbol name="ShowAutoMergeCommandId" value="0x0100" />
+    </GuidSymbol>
+    <GuidSymbol name="AutoMergeIcons" value="{2407B4E8-3623-408A-B4F3-CABFFE725D70}">
+      <IDSymbol name="Show" value="1" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
