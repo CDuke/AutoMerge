@@ -13,7 +13,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  msbuildArgs: '/p:VisualStudioVersion=16.0'
+  msbuildArgs: '/p:VisualStudioVersion=16.0 -restore'
 
 steps:
 
@@ -23,5 +23,4 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    restoreNugetPackages: true
     msbuildArgs: '$(msbuildArgs)'
