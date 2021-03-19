@@ -1,3 +1,6 @@
+#### 0.2.6.10 (2021-03-19)
+* (fix) When you have multiple branches with same prefix, e.g. ABC and ABCDE. When merging to ABC method choses ABCDE instead, and as a result there are multiple branches with the same name in target branch selector
+
 #### 0.2.6.9 (2017-05-09)
 * (fix) If the comment doesn't contain any target branch information the comment will be the same for each target branch. Consolidate duplicate comments when displaying in the Pending Changes view (thanks psaut)
 
