@@ -1,7 +1,7 @@
 # Auto Merge
 **Easy way to merge changeset**
 
-[![Build status](https://ci.appveyor.com/api/projects/status/xmly5pak5u88o0qb/branch/master?svg=true)](https://ci.appveyor.com/project/CDuke/automerge/branch/master)
+[![Build Status](https://cduke.visualstudio.com/AutoMerge/_apis/build/status/CDuke.AutoMerge?branchName=master)](https://cduke.visualstudio.com/AutoMerge/_build/latest?definitionId=12&branchName=master)
 
 TFS changeset simple merge.
 Usefull when need merge bugfix changeset to several branches.
