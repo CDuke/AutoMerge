@@ -968,6 +968,7 @@ namespace AutoMerge
             if (!CanCheckIn(evaluateCheckIn, skipPolicyValidate))
             {
                 result.CheckinResult = MergeResult.CheckInEvaluateFail;
+                return result;
             }
 
             var changesetId = workspace.CheckIn(targetPendingChanges.ToArray(), null, comment,
