@@ -5,10 +5,13 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using AutoMerge.Events;
 using AutoMerge.Prism.Command;
 using AutoMerge.Prism.Events;
+
 using EnvDTE80;
+
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Common.Internal;
 using Microsoft.TeamFoundation.Controls;
@@ -17,6 +20,7 @@ using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell.Interop;
+
 using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewModelBase;
 
 namespace AutoMerge
@@ -478,7 +482,8 @@ namespace AutoMerge
 
         private static bool IsTargetPath(ItemIdentifier mergeRelations, ItemIdentifier branch)
         {
-            return mergeRelations.Item.IndexOf(branch.Item, StringComparison.OrdinalIgnoreCase) >= 0;
+            return mergeRelations.Item.IndexOf(branch.Item + '/', StringComparison.OrdinalIgnoreCase) >= 0 ||
+                string.Compare(mergeRelations.Item, branch.Item, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         private static string CalculateTopFolder(IList<Change> changes)
