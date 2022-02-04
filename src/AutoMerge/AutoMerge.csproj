@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <MinimumVisualStudioVersion>$(VisualStudioVersion)</MinimumVisualStudioVersion>
@@ -21,7 +21,7 @@
     <AssemblyName>AutoMerge</AssemblyName>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '17.0'">v4.8</TargetFrameworkVersion>
     <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '16.0'">v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -84,7 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.*" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="$(VisualStudioVersion).*" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="$(VisualStudioVersion).*" ExcludeAssets="runtime" />
   </ItemGroup>
   <ItemGroup>
