@@ -3,6 +3,7 @@
   <PropertyGroup>
     <MinimumVisualStudioVersion>$(VisualStudioVersion)</MinimumVisualStudioVersion>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)\devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
@@ -21,6 +22,7 @@
     <AssemblyName>AutoMerge</AssemblyName>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '18.0'">v4.8</TargetFrameworkVersion>
     <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '17.0'">v4.8</TargetFrameworkVersion>
     <TargetFrameworkVersion Condition="'$(VisualStudioVersion)' == '16.0'">v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
@@ -84,8 +86,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Windows.Interactivity.WPF" Version="2.0.20525" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="$(VisualStudioVersion).*" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="$(VisualStudioVersion).*" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.*" ExcludeAssets="runtime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoMergeNavigationItem.cs" />

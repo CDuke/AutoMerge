@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFramework Condition="'$(VisualStudioVersion)' == '18.0'">net48</TargetFramework>
     <TargetFramework Condition="'$(VisualStudioVersion)' == '17.0'">net48</TargetFramework>
     <TargetFramework Condition="'$(VisualStudioVersion)' == '16.0'">net472</TargetFramework>
   </PropertyGroup>
