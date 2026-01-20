@@ -5,10 +5,13 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using AutoMerge.Events;
 using AutoMerge.Prism.Command;
 using AutoMerge.Prism.Events;
+
 using EnvDTE80;
+
 using Microsoft.TeamFoundation.Client;
 using Microsoft.TeamFoundation.Common.Internal;
 using Microsoft.TeamFoundation.Controls;
@@ -17,6 +20,7 @@ using Microsoft.TeamFoundation.VersionControl.Client;
 using Microsoft.TeamFoundation.VersionControl.Common;
 using Microsoft.TeamFoundation.WorkItemTracking.Client;
 using Microsoft.VisualStudio.Shell.Interop;
+
 using TeamExplorerSectionViewModelBase = AutoMerge.Base.TeamExplorerSectionViewModelBase;
 
 namespace AutoMerge
@@ -406,7 +410,7 @@ namespace AutoMerge
             {
                 FromOriginalToSourceBranches = new List<string>(),
             };
-            var trackMerges = allTrackMerges.Where(m => m.TargetItem.Item == sourcePath).ToArray();
+            var trackMerges = allTrackMerges.Where(m => string.Equals(m.TargetItem.Item, sourcePath, StringComparison.OrdinalIgnoreCase)).ToArray();
             if (!trackMerges.IsNullOrEmpty())
             {
                 var changesetIds = trackMerges.Select(t => t.SourceChangeset.ChangesetId).ToArray();
@@ -478,7 +482,8 @@ namespace AutoMerge
 
         private static bool IsTargetPath(ItemIdentifier mergeRelations, ItemIdentifier branch)
         {
-            return mergeRelations.Item.Contains(branch.Item + "/");
+            return mergeRelations.Item.IndexOf(branch.Item + '/', StringComparison.OrdinalIgnoreCase) >= 0 ||
+                string.Compare(mergeRelations.Item, branch.Item, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         private static string CalculateTopFolder(IList<Change> changes)
@@ -523,7 +528,7 @@ namespace AutoMerge
 
         private static string FindShareFolder(string topFolder, string changeFolder)
         {
-            if ((topFolder == null) || topFolder.Contains(changeFolder))
+            if ((topFolder == null) || topFolder.IndexOf(changeFolder, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return changeFolder;
             }
@@ -884,11 +889,11 @@ namespace AutoMerge
                         foreach (var shareFolderRelationship in shareFolderRelationships.Where(r => !r.IsDeleted))
                         {
                             var targetBranch =
-                                targetBranches.FirstOrDefault(branch => shareFolderRelationship.Item.Contains(branch));
+                                targetBranches.FirstOrDefault(branch => shareFolderRelationship.Item.IndexOf(branch, StringComparison.OrdinalIgnoreCase) >= 0);
                             if (targetBranch != null)
                             {
                                 var sourceRelationship = sourceRelationships
-                                    .FirstOrDefault(r => r.Item.Contains(targetBranch));
+                                    .FirstOrDefault(r => r.Item.IndexOf(targetBranch, StringComparison.OrdinalIgnoreCase) >= 0);
                                 mergeRelationships.Add(new MergeRelation
                                 {
                                     Item = pendingChange.ServerItem,
@@ -999,7 +1004,7 @@ namespace AutoMerge
             {
                 var mergeRelation =
                     mergeRelationships.FirstOrDefault(
-                        r => r.Item == change.Item.ServerItem && r.Target.StartsWith(targetBranch));
+                        r => r.Item == change.Item.ServerItem && r.Target.StartsWith(targetBranch, StringComparison.OrdinalIgnoreCase));
                 if (mergeRelation != null)
                 {
                     var recursionType = CalculateRecursionType(mergeRelation);
@@ -1076,7 +1081,7 @@ namespace AutoMerge
         {
             var allPendingChanges = workspace.GetPendingChangesEnumerable(target, RecursionType.Full);
             var targetPendingChanges = allPendingChanges
-                .Where(p => p.IsMerge && p.ServerItem.Contains(target))
+                .Where(p => p.IsMerge && p.ServerItem.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0)
                 .ToList();
             return targetPendingChanges;
         }
@@ -1086,7 +1091,7 @@ namespace AutoMerge
             var itemSpecs = new List<ItemSpec>();
             foreach (var mergeRelationship in mergeRelationships)
             {
-                if (mergeRelationship.Target.StartsWith(targetBranch))
+                if (mergeRelationship.Target.StartsWith(targetBranch, StringComparison.OrdinalIgnoreCase))
                 {
                     var recursionType = CalculateRecursionType(mergeRelationship);
                     itemSpecs.Add(new ItemSpec(mergeRelationship.Target, recursionType));
@@ -1110,7 +1115,7 @@ namespace AutoMerge
             var getLatestFiles = new List<string>();
             foreach (var mergeRelationship in mergeRelationships.Where(r => r.TargetItemType == ItemType.File && r.GetLatesPath != null))
             {
-                if (mergeRelationship.GetLatesPath.StartsWith(targetPath))
+                if (mergeRelationship.GetLatesPath.StartsWith(targetPath, StringComparison.OrdinalIgnoreCase))
                     getLatestFiles.Add(mergeRelationship.GetLatesPath);
             }
 
